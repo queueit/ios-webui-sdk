@@ -10,6 +10,7 @@
 		1DE12F881B57E2ED00DD3BBE /* QueueITLib.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1DE12F871B57E2ED00DD3BBE /* QueueITLib.h */; };
 		1DE12F8A1B57E2ED00DD3BBE /* QueueITLib.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12F891B57E2ED00DD3BBE /* QueueITLib.m */; };
 		1DE12F901B57E2ED00DD3BBE /* libQueueITLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */; };
+		1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FA61B57F0C000DD3BBE /* QueueService.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +42,8 @@
 		1DE12F891B57E2ED00DD3BBE /* QueueITLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QueueITLib.m; sourceTree = "<group>"; };
 		1DE12F8F1B57E2ED00DD3BBE /* QueueITLibTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueITLibTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DE12F951B57E2EE00DD3BBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1DE12FA51B57F0C000DD3BBE /* QueueService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService.h; sourceTree = "<group>"; };
+		1DE12FA61B57F0C000DD3BBE /* QueueService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +88,8 @@
 			children = (
 				1DE12F871B57E2ED00DD3BBE /* QueueITLib.h */,
 				1DE12F891B57E2ED00DD3BBE /* QueueITLib.m */,
+				1DE12FA51B57F0C000DD3BBE /* QueueService.h */,
+				1DE12FA61B57F0C000DD3BBE /* QueueService.m */,
 			);
 			path = QueueITLib;
 			sourceTree = "<group>";
@@ -194,6 +199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1DE12F8A1B57E2ED00DD3BBE /* QueueITLib.m in Sources */,
+				1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +368,7 @@
 				1DE12F9A1B57E2EE00DD3BBE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1DE12F9B1B57E2EE00DD3BBE /* Build configuration list for PBXNativeTarget "QueueITLibTests" */ = {
 			isa = XCConfigurationList;
@@ -370,6 +377,7 @@
 				1DE12F9D1B57E2EE00DD3BBE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
