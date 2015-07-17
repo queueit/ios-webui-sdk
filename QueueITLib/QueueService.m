@@ -26,13 +26,16 @@ static NSString * const API_ROOT = @"http://%@-%@.queue-it.net/api/queue";
             success:(void (^)(QueueStatus *))success
             failure:(QueueServiceFailure)failure
 {
-    NSDictionary* bodyDict = @{
-                               @"userId": userId,
-                               @"userAgent": userAgent,
-                               @"appType":appType,
-                               @"layoutName":layoutName,
-                               @"language":language
-                               };
+    NSDictionary* bodyDict = nil;
+    if (layoutName && language) {
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"layoutName":layoutName, @"language":language };
+    }else if(layoutName && !language) {
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"layoutName":layoutName };
+    }else if(!layoutName && language) {
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"language":language };
+    }else {
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType };
+    }
     
     NSString* urlAsString = [NSString stringWithFormat:API_ROOT, eventorAliasId, customerId];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", customerId]];
