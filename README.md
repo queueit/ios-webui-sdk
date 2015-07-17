@@ -1,7 +1,7 @@
 # QueueIT.iOS.Lib
 Library for integrating Queue-it into an iOS app
 
-To use the SKD:
+To use the SDK:
 1. download zip file (it will contain QueueITLib static library)
 2. build the library project
 3. copy the libQueueITLib.a file along with contents of include folder to your application
