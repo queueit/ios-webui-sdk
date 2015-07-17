@@ -153,11 +153,11 @@
 
 -(void) raiseQueuePassed:(NSString *)queueId
 {
-    Turn* turn = [[Turn alloc]init:queueId];
-    [self.queuePassedDelegate notifyYourTurn:turn];
-    
     NSString * key = [NSString stringWithFormat:@"%@-%@", self.customerId, self.eventId];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+    
+    Turn* turn = [[Turn alloc]init:queueId];
+    [self.queuePassedDelegate notifyYourTurn:turn];
 }
 
 @end
