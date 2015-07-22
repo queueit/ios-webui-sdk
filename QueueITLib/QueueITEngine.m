@@ -156,8 +156,7 @@
     NSString * key = [NSString stringWithFormat:@"%@-%@", self.customerId, self.eventId];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
     
-    Turn* turn = [[Turn alloc]init:queueId];
-    [self.queuePassedDelegate notifyYourTurn:turn];
+    [self.queuePassedDelegate notifyYourTurn:queueId];
 }
 
 @end

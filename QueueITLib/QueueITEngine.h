@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "Turn.h"
 
 @protocol QueuePassedDelegate;
 
@@ -20,6 +19,6 @@
 
 @protocol QueuePassedDelegate <NSObject>
 
--(void)notifyYourTurn:(Turn*)turn;
+-(void)notifyYourTurn:(NSString*)queueId;
 
 @end
