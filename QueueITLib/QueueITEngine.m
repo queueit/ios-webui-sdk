@@ -45,6 +45,7 @@
             NSString* queueUrlCached = [[url2TTL allKeys] objectAtIndex:0];
             
             dispatch_async(dispatch_get_main_queue(), ^{
+                [self raiseQueueViewWillOpen];
                 [self showQueue:self.host queueUrl:queueUrlCached customerId:self.customerId eventId:self.eventId];
             });
         }
@@ -94,6 +95,7 @@
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
+             [self raiseQueueViewWillOpen];
              [self showQueue:host queueUrl:queueStatus.queueUrlString customerId:customerId eventId:eventOrAliasId];
              [self updateCache:queueStatus.queueUrlString urlTTL:queueStatus.queueUrlTTL customerId:customerId eventId:eventOrAliasId];
          }
@@ -105,12 +107,7 @@
          //Disabled
          else if (queueStatus.requeryInterval > 0)
          {
-             dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 [NSThread sleepForTimeInterval:queueStatus.requeryInterval];
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                     [self tryEnqueue:host customerId:customerId eventOrAliasId:eventOrAliasId layoutName:layoutName language:language];
-                 });
-             });
+             [self raiseQueueDisabled];
          }
      }
         failure:^(NSError *error)
@@ -157,6 +154,16 @@
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
     
     [self.queuePassedDelegate notifyYourTurn:queueId];
+}
+
+-(void) raiseQueueViewWillOpen
+{
+    [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
+}
+
+-(void) raiseQueueDisabled
+{
+    [self.queueDisabledDelegate notifyQueueDisabled];
 }
 
 @end
