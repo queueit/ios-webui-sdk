@@ -15,6 +15,8 @@
 
 @implementation QueueITEngine
 
+bool outOfQueue;
+
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
     self = [super init];
@@ -24,8 +26,13 @@
         self.eventId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
+        outOfQueue = YES;
     }
     return self;
+}
+
+-(BOOL)isQutOfQueue {
+    return outOfQueue;
 }
 
 -(void)run
@@ -37,7 +44,7 @@
     
     if (url2TTL)
     {
-        long cachedTime = [[[url2TTL allValues] objectAtIndex:0] longLongValue];
+        long long cachedTime = [[[url2TTL allValues] objectAtIndex:0] longLongValue];
         long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
         
         if (currentTime < cachedTime)
@@ -95,6 +102,7 @@
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
+             outOfQueue = NO;
              [self raiseQueueViewWillOpen];
              [self showQueue:host queueUrl:queueStatus.queueUrlString customerId:customerId eventId:eventOrAliasId];
              [self updateCache:queueStatus.queueUrlString urlTTL:queueStatus.queueUrlTTL customerId:customerId eventId:eventOrAliasId];
@@ -152,6 +160,8 @@
 {
     NSString * key = [NSString stringWithFormat:@"%@-%@", self.customerId, self.eventId];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+    
+    outOfQueue = YES;
     
     [self.queuePassedDelegate notifyYourTurn:queueId];
 }

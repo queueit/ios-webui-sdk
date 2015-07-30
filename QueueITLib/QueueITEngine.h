@@ -18,6 +18,7 @@
 
 -(void)run;
 -(void)raiseQueuePassed:(NSString *)queueId;
+-(BOOL)isQutOfQueue;
 
 @end
 
