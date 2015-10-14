@@ -15,7 +15,7 @@
 @property (nonatomic, strong)NSString* language;
 @property int delayInterval;
 @property bool isInQueue;
-
+@property bool isRequestInProgress;
 @end
 
 @implementation QueueITEngine
@@ -31,6 +31,7 @@
         self.language = language;
         self.delayInterval = 0;
         self.isInQueue = NO;
+        self.isRequestInProgress = NO;
         self.internetReachability = [Reachability reachabilityForInternetConnection];
     }
     return self;
@@ -67,12 +68,19 @@
 
 -(void)run
 {
+    if(self.isRequestInProgress)
+    {
+        @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:@"Equeue request was already in progress" userInfo:nil];
+    }
+    
     [self checkConnection];
     
     NSString * key = [NSString stringWithFormat:@"%@-%@",self.customerId, self.eventId];
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary* url2TTL = [defaults dictionaryForKey:key];
+    
+    self.isRequestInProgress = YES;
     
     if (url2TTL)
     {
@@ -131,11 +139,13 @@
      {
          if (queueStatus.errorType != (id)[NSNull null])
          {
+             self.isRequestInProgress = NO;
              [self handleServerError:queueStatus.errorType errorMessage:queueStatus.errorMessage];
          }
          //SafetyNet
          if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
+             self.isRequestInProgress = NO;
          }
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
@@ -151,6 +161,7 @@
          //Disabled
          else if (queueStatus.requeryInterval > 0)
          {
+             self.isRequestInProgress = NO;
              [self raiseQueueDisabled];
          }
      }
@@ -198,7 +209,7 @@
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
     
     self.isInQueue = NO;
-    
+    self.isRequestInProgress = NO;
     [self.queuePassedDelegate notifyYourTurn:queueId];
 }
 
