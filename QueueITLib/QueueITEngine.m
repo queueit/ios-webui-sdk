@@ -18,7 +18,6 @@
 @property bool isRequestInProgress;
 @end
 
-
 @implementation QueueITEngine
 
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
