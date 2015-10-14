@@ -15,6 +15,7 @@
 @property (nonatomic, strong)NSString* language;
 @property int delayInterval;
 @property bool isInQueue;
+
 @end
 
 @implementation QueueITEngine
