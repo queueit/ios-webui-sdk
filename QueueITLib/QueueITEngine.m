@@ -108,7 +108,9 @@
             [host presentViewController:queueVC animated:YES completion:nil];
         });
     } else {
-        [host presentViewController:queueVC animated:YES completion:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [host presentViewController:queueVC animated:YES completion:nil];
+        });
     }
 }
 
