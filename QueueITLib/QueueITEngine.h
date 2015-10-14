@@ -16,9 +16,10 @@
                  layoutName:(NSString*)layoutName
                    language:(NSString*)language;
 
+-(void)setViewDelay:(int)delayInterval;
 -(void)run;
 -(void)raiseQueuePassed:(NSString *)queueId;
--(BOOL)isQutOfQueue;
+-(BOOL)isUserInQueue;
 
 @end
 

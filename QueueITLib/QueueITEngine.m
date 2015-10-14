@@ -4,18 +4,20 @@
 #import "QueueService.h"
 #import "QueueStatus.h"
 #import "IOSUtils.h"
+#import "Reachability.h"
 
 @interface QueueITEngine()
+@property (nonatomic) Reachability *internetReachability;
 @property (nonatomic, strong)UIViewController* host;
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
 @property (nonatomic, strong)NSString* layoutName;
 @property (nonatomic, strong)NSString* language;
+@property int delayInterval;
+@property bool isInQueue;
 @end
 
 @implementation QueueITEngine
-
-bool outOfQueue;
 
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
@@ -26,17 +28,46 @@ bool outOfQueue;
         self.eventId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
-        outOfQueue = YES;
+        self.delayInterval = 0;
+        self.isInQueue = NO;
+        self.internetReachability = [Reachability reachabilityForInternetConnection];
     }
     return self;
 }
 
--(BOOL)isQutOfQueue {
-    return outOfQueue;
+-(void)setViewDelay:(int)delayInterval {
+    self.delayInterval = delayInterval;
+}
+
+-(void)checkConnection
+{
+    int count = 0;
+    while (count < 5)
+    {
+        NetworkStatus netStatus = [self.internetReachability currentReachabilityStatus];
+        if (netStatus == NotReachable)
+        {
+            [NSThread sleepForTimeInterval:1.0f];
+            count++;
+        }
+        else
+        {
+            return;
+        }
+    }
+    @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:@"Network connection is unavailable" userInfo:nil];
+}
+
+
+
+-(BOOL)isUserInQueue {
+    return self.isInQueue;
 }
 
 -(void)run
 {
+    [self checkConnection];
+    
     NSString * key = [NSString stringWithFormat:@"%@-%@",self.customerId, self.eventId];
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -50,11 +81,7 @@ bool outOfQueue;
         if (currentTime < cachedTime)
         {
             NSString* queueUrlCached = [[url2TTL allKeys] objectAtIndex:0];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self raiseQueueViewWillOpen];
-                [self showQueue:self.host queueUrl:queueUrlCached customerId:self.customerId eventId:self.eventId];
-            });
+            [self showQueue:self.host queueUrl:queueUrlCached customerId:self.customerId eventId:self.eventId];
         }
         else
         {
@@ -69,11 +96,19 @@ bool outOfQueue;
 
 -(void)showQueue:(UIViewController*)host queueUrl:(NSString*)queueUrl customerId:(NSString*)customerId eventId:(NSString*)eventId
 {
+    [self raiseQueueViewWillOpen];
     QueueITViewController *queueVC = [[QueueITViewController alloc] initWithHost:host
                                                                      queueEngine:self
                                                                         queueUrl:queueUrl
                                                                       customerId:customerId eventId:eventId];
-    [host presentViewController:queueVC animated:YES completion:nil];
+    
+    if (self.delayInterval > 0) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [host presentViewController:queueVC animated:YES completion:nil];
+        });
+    } else {
+        [host presentViewController:queueVC animated:YES completion:nil];
+    }
 }
 
 -(void)tryEnqueue:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
@@ -102,8 +137,6 @@ bool outOfQueue;
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
-             outOfQueue = NO;
-             [self raiseQueueViewWillOpen];
              [self showQueue:host queueUrl:queueStatus.queueUrlString customerId:customerId eventId:eventOrAliasId];
              [self updateCache:queueStatus.queueUrlString urlTTL:queueStatus.queueUrlTTL customerId:customerId eventId:eventOrAliasId];
          }
@@ -161,13 +194,14 @@ bool outOfQueue;
     NSString * key = [NSString stringWithFormat:@"%@-%@", self.customerId, self.eventId];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
     
-    outOfQueue = YES;
+    self.isInQueue = NO;
     
     [self.queuePassedDelegate notifyYourTurn:queueId];
 }
 
 -(void) raiseQueueViewWillOpen
 {
+    self.isInQueue = YES;
     [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
 }
 
