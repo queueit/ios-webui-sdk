@@ -167,6 +167,7 @@
      }
         failure:^(NSError *error)
      {
+         self.isRequestInProgress = NO;
          @throw [NSException exceptionWithName:@"QueueITUnexpectedException" reason:[NSString stringWithFormat:@"%@", error.description] userInfo:nil];
      }];
 }
