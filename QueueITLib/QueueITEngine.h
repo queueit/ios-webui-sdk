@@ -10,6 +10,12 @@
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
+typedef enum {
+    NetworkUnavailable,
+    RequestAlreadyInProgress
+} QueueITRuntimeError;
+#define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
+
 -(instancetype)initWithHost:(UIViewController *)host
                  customerId:(NSString*)customerId
              eventOrAliasId:(NSString*)eventOrAliasId
@@ -20,6 +26,8 @@
 -(void)run;
 -(void)raiseQueuePassed:(NSString *)queueId;
 -(BOOL)isUserInQueue;
+-(BOOL)isRequestInProgress;
+-(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
 
 @end
 

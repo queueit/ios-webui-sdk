@@ -57,7 +57,13 @@
             return;
         }
     }
-    @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:@"Network connection is unavailable" userInfo:nil];
+    @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:NetworkUnavailable] userInfo:nil];
+}
+
+-(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal
+{
+    NSArray *errorTypeArray = [[NSArray alloc] initWithObjects:QueueITRuntimeErrorArray];
+    return [errorTypeArray objectAtIndex:errorEnumVal];
 }
 
 
@@ -70,7 +76,7 @@
 {
     if(self.isRequestInProgress)
     {
-        @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:@"Equeue request was already in progress" userInfo:nil];
+        @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:RequestAlreadyInProgress] userInfo:nil];
     }
     
     [self checkConnection];
