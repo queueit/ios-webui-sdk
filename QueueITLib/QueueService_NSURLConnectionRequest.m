@@ -50,9 +50,6 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    NSURLRequest *request = [connection originalRequest];
-    
-    NSLog(@"%@ %@ FAIL %@", [request HTTPMethod], [request URL], error);
     dispatch_async(dispatch_get_main_queue(), ^{
         self.failureCallback(error);
     });
@@ -76,18 +73,12 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    NSURLRequest *request = [connection originalRequest];
-    
     if ([self hasExpectedStatusCode]) {
-        NSLog(@"%@ %@ %li SUCCESS", [request HTTPMethod], [request URL], (long)self.expectedStatusCode);
-        
         dispatch_async(dispatch_get_main_queue(), ^{
             self.successCallback(self.data);
         });
     }
     else {
-        NSLog(@"%@ %@ %li INVALID STATUS CODE", [request HTTPMethod], [request URL], (long)self.actualStatusCode);
-        
         NSString *message = [NSString stringWithFormat:@"Unexpected response code: %li", (long)self.actualStatusCode];
         
         if (self.data) {

@@ -7,6 +7,7 @@
 @property (nonatomic, strong) UIViewController* host;
 @property (nonatomic, strong) QueueITEngine* engine;
 @property (nonatomic, strong)NSString* queueUrl;
+@property (nonatomic, strong)NSString* eventTargetUrl;
 @property (nonatomic, strong)UIActivityIndicatorView* spinner;
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
@@ -19,6 +20,7 @@
 -(instancetype)initWithHost:(UIViewController *)host
                 queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
+             eventTargetUrl:(NSString*)eventTargetUrl
                  customerId:(NSString*)customerId
                     eventId:(NSString*)eventId
 {
@@ -27,6 +29,7 @@
         self.host = host;
         self.engine = engine;
         self.queueUrl = queueUrl;
+        self.eventTargetUrl = eventTargetUrl;
         self.customerId = customerId;
         self.eventId = eventId;
         self.isQueuePassed = NO;
@@ -55,6 +58,24 @@
 
 #pragma mark - UIWebViewDelegate
 
+- (BOOL)webView:(UIWebView *)webView
+shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    NSURL* url = [webView.request mainDocumentURL];
+    NSString* targetUrl = self.eventTargetUrl;
+    if(url != nil) {
+        [self.engine updateQueuePageUrl:url.absoluteString];
+        
+        if ([targetUrl containsString:url.host]) {
+            self.isQueuePassed = YES;
+            [self.engine raiseQueuePassed];
+            [self.host dismissViewControllerAnimated:YES completion:nil];
+            return NO;
+        }
+    }
+    return YES;
+}
+
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
@@ -65,48 +86,19 @@
     [self.spinner stopAnimating];
     if (![self.webView isLoading])
     {
-        [self runAsync];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
+}
+
+-(void)appWillResignActive:(NSNotification*)note
+{
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    NSLog(@"Failed to load web view. %@", error.description);
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
     [self.host dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)runAsync
-{
-    NSString* queueId = [self getQueueId];
-    if (queueId)
-    {
-        if (!self.isQueuePassed)
-        {
-            self.isQueuePassed = YES;
-            [self.engine raiseQueuePassed:queueId];
-            [self.host dismissViewControllerAnimated:YES completion:nil];
-        }
-    }
-    else
-    {
-        dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [NSThread sleepForTimeInterval:1.0f];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self runAsync];
-            });
-        });
-    }
-}
-
--(NSString*)getQueueId
-{
-    NSString* queueId = [self.webView stringByEvaluatingJavaScriptFromString:@"GetQueueIdWhenRedirectedToTarget();"];
-    if ([queueId length] > 0) {
-        return queueId;
-    }
-    return nil;
 }
 
 @end

@@ -18,9 +18,11 @@
 
 +(NSString*)getLibraryVersion{
     NSDictionary *infoDictionary = [[NSBundle mainBundle]infoDictionary];
-    NSString *version = infoDictionary[(NSString*)kCFBundleVersionKey];
+    
     NSString *libName = infoDictionary[(NSString *)kCFBundleNameKey];
-    NSString* libversion = [NSString stringWithFormat:@"%@-%@", libName, version];
+    NSString * major = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    NSString *minor = infoDictionary[(NSString*)kCFBundleVersionKey];
+    NSString* libversion = [NSString stringWithFormat:@"%@-%@.%@", libName, major, minor];
     
     return libversion;
 }

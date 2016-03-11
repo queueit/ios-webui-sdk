@@ -5,6 +5,7 @@
 @property (nonatomic, strong) NSString* queueId;
 @property (nonatomic, strong)NSString* queueUrlString;
 @property int requeryInterval;
+@property (nonatomic, strong) NSString* eventTargetUrl;
 @property (nonatomic, strong)NSString* errorMessage;
 @property (nonatomic, strong)NSString* errorType;
 @property int queueUrlTTL;

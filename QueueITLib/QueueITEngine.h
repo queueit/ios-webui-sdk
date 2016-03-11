@@ -24,15 +24,16 @@ typedef enum {
 
 -(void)setViewDelay:(int)delayInterval;
 -(void)run;
--(void)raiseQueuePassed:(NSString *)queueId;
+-(void)raiseQueuePassed;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
+-(void)updateQueuePageUrl:(NSString*)queuePageUrl;
 
 @end
 
 @protocol QueuePassedDelegate <NSObject>
--(void)notifyYourTurn:(NSString*)queueId;
+-(void)notifyYourTurn;
 @end
 
 @protocol QueueViewWillOpenDelegate <NSObject>
