@@ -4,8 +4,6 @@ NSString * const KEY_QUEUE_ID = @"QueueId";
 NSString * const KEY_QUEUE_URL = @"QueueUrl";
 NSString * const KEY_REQUERY_INTERVAl = @"AskAgainInSeconds";
 NSString * const KEY_EVENT_TARGET_URL = @"EventTargetUrl";
-NSString * const KEY_ERROR_MESSAGE = @"ErrorMessage";
-NSString * const KEY_ERROR_TYPE = @"ErrorType";
 NSString * const KEY_QUEUE_URL_TTL_IN_MINUTES = @"QueueUrlTTLInMinutes";
 
 @implementation QueueStatus
@@ -14,8 +12,6 @@ NSString * const KEY_QUEUE_URL_TTL_IN_MINUTES = @"QueueUrlTTLInMinutes";
            queueUrl:(NSString *)queueUrlString
     requeryInterval:(int)requeryInterval
      eventTargetUrl:(NSString *)eventTargetUrl
-       errorMessage:(NSString*)errorMessage
-          errorType:(NSString*)errorType
         queueUrlTTL:(int)queueUrlTTL
 {
     if(self = [super init]) {
@@ -23,8 +19,6 @@ NSString * const KEY_QUEUE_URL_TTL_IN_MINUTES = @"QueueUrlTTLInMinutes";
         self.queueUrlString = queueUrlString;
         self.requeryInterval = requeryInterval;
         self.eventTargetUrl = eventTargetUrl;
-        self.errorMessage = errorMessage;
-        self.errorType = errorType;
         self.queueUrlTTL = queueUrlTTL;
     }
     
@@ -49,8 +43,6 @@ NSString * const KEY_QUEUE_URL_TTL_IN_MINUTES = @"QueueUrlTTLInMinutes";
              queueUrl:dictionary[KEY_QUEUE_URL]
       requeryInterval:requeryInterval
        eventTargetUrl:dictionary[KEY_EVENT_TARGET_URL]
-         errorMessage:dictionary[KEY_ERROR_MESSAGE]
-            errorType:dictionary[KEY_ERROR_TYPE]
           queueUrlTTL:queueUrlTTL];
 }
 

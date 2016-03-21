@@ -2,6 +2,7 @@
 #import "QueueService_NSURLConnection.h"
 
 static QueueService *SharedInstance;
+
 static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
 
 @implementation QueueService
@@ -20,7 +21,7 @@ static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
      eventOrAliasId:(NSString *)eventorAliasId
              userId:(NSString *)userId
           userAgent:(NSString *)userAgent
-            appType:(NSString*)appType
+         sdkVersion:(NSString*)sdkVersion
          layoutName:(NSString*)layoutName
            language:(NSString*)language
             success:(void (^)(QueueStatus *))success
@@ -28,13 +29,13 @@ static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
 {
     NSDictionary* bodyDict = nil;
     if (layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"layoutName":layoutName, @"language":language };
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName, @"language":language };
     }else if(layoutName && !language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"layoutName":layoutName };
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName };
     }else if(!layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType, @"language":language };
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"language":language };
     }else {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"appType":appType };
+        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion };
     }
     
     NSString* urlAsString = [NSString stringWithFormat:API_ROOT, customerId];
@@ -55,16 +56,10 @@ static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
                         success(queueStatus);
                     }
                 }
-                else
-                {
-                    if (failure != NULL) {
-                        failure(error);
-                    }
-                }
             }
-                       failure:^(NSError *error)
+                       failure:^(NSError *error, NSString* errorMessage)
             {
-                failure(error);
+                failure(error, errorMessage);
             }];
 }
 

@@ -61,16 +61,21 @@
 - (BOOL)webView:(UIWebView *)webView
 shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    NSURL* url = [webView.request mainDocumentURL];
-    NSString* targetUrl = self.eventTargetUrl;
-    if(url != nil) {
-        [self.engine updateQueuePageUrl:url.absoluteString];
+    if (!self.isQueuePassed) {
+        NSString* urlString = [[request URL] absoluteString];
+        NSString* targetUrlString = self.eventTargetUrl;
         
-        if ([targetUrl containsString:url.host]) {
-            self.isQueuePassed = YES;
-            [self.engine raiseQueuePassed];
-            [self.host dismissViewControllerAnimated:YES completion:nil];
-            return NO;
+        if (urlString != nil) {
+            NSURL* url = [NSURL URLWithString:urlString];
+            NSURL* targetUrl = [NSURL URLWithString:targetUrlString];
+            if(urlString != nil && ![urlString isEqualToString:@"about:blank"]) {
+                [self.engine updateQueuePageUrl:urlString];
+                if ([targetUrl.host containsString:url.host]) {
+                    self.isQueuePassed = YES;
+                    [self.engine raiseQueuePassed];
+                    [self.host dismissViewControllerAnimated:YES completion:nil];
+                }
+            }
         }
     }
     return YES;

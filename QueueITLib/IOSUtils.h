@@ -4,4 +4,5 @@
 +(NSString*)getUserId;
 +(NSString*)getUserAgent;
 +(NSString*)getLibraryVersion;
++(NSString*)getSdkVersion;
 @end

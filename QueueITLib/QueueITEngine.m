@@ -19,9 +19,13 @@
 @property bool requestInProgress;
 @property int queueUrlTtl;
 @property (nonatomic, strong)QueueCache* cache;
+@property int deltaSec;
 @end
 
 @implementation QueueITEngine
+
+static int MAX_RETRY_SEC = 10;
+static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
@@ -37,6 +41,7 @@
         self.isInQueue = NO;
         self.requestInProgress = NO;
         self.internetReachability = [Reachability reachabilityForInternetConnection];
+        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
     }
     return self;
 }
@@ -104,8 +109,9 @@
         long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
         if (currentTime < cachedTime)
         {
-            NSString* queueUrl = [self.cache getQueueUrl];
             NSString* targetUrl = [self.cache getTargetUrl];
+            NSString* queueUrl = [self.cache getQueueUrl];
+            
             [self showQueue:queueUrl targetUrl:targetUrl];
             return YES;
         }
@@ -138,22 +144,17 @@
 {
     NSString* userId = [IOSUtils getUserId];
     NSString* userAgent = [NSString stringWithFormat:@"%@;%@", [IOSUtils getUserAgent], [IOSUtils getLibraryVersion]];
-    NSString* appType = @"iOS";
+    NSString* sdkVersion = [IOSUtils getSdkVersion];
     
     QueueService* qs = [QueueService sharedInstance];
     [qs enqueue:self.customerId
  eventOrAliasId:self.eventId
          userId:userId userAgent:userAgent
-        appType:appType
+     sdkVersion:sdkVersion
      layoutName:self.layoutName
        language:self.language
         success:^(QueueStatus *queueStatus)
      {
-         if (queueStatus.errorType != (id)[NSNull null])
-         {
-             self.requestInProgress = NO;
-             [self handleServerError:queueStatus.errorType errorMessage:queueStatus.errorMessage];
-         }
          //SafetyNet
          if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
@@ -180,11 +181,34 @@
              [self raiseQueueDisabled];
          }
      }
-        failure:^(NSError *error)
+        failure:^(NSError *error, NSString* errorMessage)
      {
-         self.requestInProgress = NO;
-         @throw [NSException exceptionWithName:@"QueueITUnexpectedException" reason:[NSString stringWithFormat:@"%@", error.description] userInfo:nil];
+         if (error.code >= 400 && error.code < 500)
+         {
+             @throw [NSException exceptionWithName:@"QueueITConfigurationException" reason:errorMessage userInfo:error.userInfo];
+         }
+         else
+         {
+             [self enqueueRetryMonitor];
+         }
      }];
+}
+
+-(void)enqueueRetryMonitor
+{
+    if (self.deltaSec < MAX_RETRY_SEC)
+    {
+        [self tryEnqueue];
+        
+        [NSThread sleepForTimeInterval:self.deltaSec];
+        self.deltaSec = self.deltaSec * 2;
+    }
+    else
+    {
+        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
+        self.requestInProgress = NO;
+        @throw [NSException exceptionWithName:@"QueueITUnavailableException" reason:@"QueueIT service is currently unavailable." userInfo:nil];
+    }
 }
 
 -(NSString*)convertTtlMinutesToSecondsString:(int)ttlMinutes
@@ -194,23 +218,6 @@
     long timeStapm = currentTime + secondsToAdd;
     NSString* urlTtlString = [NSString stringWithFormat:@"%li", timeStapm];
     return urlTtlString;
-}
-
-
--(void)handleServerError:(NSString*)errorType errorMessage:(NSString*)errorMessage
-{
-    if ([errorType isEqualToString:@"Configuration"])
-    {
-        @throw [NSException exceptionWithName:@"QueueITConfigurationException" reason:errorMessage userInfo:nil];
-    }
-    else if ([errorType isEqualToString:@"Runtime"])
-    {
-        @throw [NSException exceptionWithName:@"QueueITUnexpectedException" reason:errorMessage userInfo:nil];
-    }
-    else if ([errorType isEqualToString:@"Validation"])
-    {
-        @throw [NSException exceptionWithName:@"QueueITUnexpectedException" reason:errorMessage userInfo:nil];
-    }
 }
 
 -(void) raiseQueuePassed

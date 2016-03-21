@@ -51,7 +51,7 @@
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.failureCallback(error);
+        self.failureCallback(error, @"Unexpected failure occured.");
     });
     
     [self.delegate requestDidComplete:self];
@@ -81,13 +81,20 @@
     else {
         NSString *message = [NSString stringWithFormat:@"Unexpected response code: %li", (long)self.actualStatusCode];
         
-        if (self.data) {
-            NSError *jsonError = nil;
-            id json = [NSJSONSerialization JSONObjectWithData:self.data options:0 error:&jsonError];
-            if (json && [json isKindOfClass:[NSDictionary class]]) {
-                NSString *errorMessage = [(NSDictionary *)json valueForKey:@"error"];
-                if (errorMessage) {
-                    message = errorMessage;
+        if (self.actualStatusCode >= 400 && self.actualStatusCode < 500)
+        {
+            message = [NSString stringWithCString:[self.data bytes] encoding:NSASCIIStringEncoding];
+        }
+        else
+        {
+            if (self.data) {
+                NSError *jsonError = nil;
+                id json = [NSJSONSerialization JSONObjectWithData:self.data options:0 error:&jsonError];
+                if (json && [json isKindOfClass:[NSDictionary class]]) {
+                    NSString *errorMessage = [(NSDictionary *)json valueForKey:@"error"];
+                    if (errorMessage) {
+                        message = errorMessage;
+                    }
                 }
             }
         }
@@ -97,7 +104,7 @@
                                          userInfo:@{ NSLocalizedDescriptionKey: message }];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.failureCallback(error);
+            self.failureCallback(error, message);
         });
     }
     
