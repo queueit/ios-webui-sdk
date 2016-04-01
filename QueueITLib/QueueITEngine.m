@@ -158,7 +158,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
          //SafetyNet
          if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
-             self.requestInProgress = NO;
+             [self raiseQueuePassed];
          }
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
