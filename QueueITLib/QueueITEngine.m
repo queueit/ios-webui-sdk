@@ -155,7 +155,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
        language:self.language
         success:^(QueueStatus *queueStatus)
      {
-         
          //SafetyNet
          if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null] && queueStatus.requeryInterval == 0)
          {
