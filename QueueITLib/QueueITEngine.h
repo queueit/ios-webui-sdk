@@ -3,11 +3,13 @@
 @protocol QueuePassedDelegate;
 @protocol QueueViewWillOpenDelegate;
 @protocol QueueDisabledDelegate;
+@protocol QueueITUnavailableDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
 @property (nonatomic)id<QueueViewWillOpenDelegate> queueViewWillOpenDelegate;
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
+@property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -42,4 +44,8 @@ typedef enum {
 
 @protocol QueueDisabledDelegate <NSObject>
 -(void)notifyQueueDisabled;
+@end
+
+@protocol QueueITUnavailableDelegate <NSObject>
+-(void)notifyQueueITUnavailable;
 @end

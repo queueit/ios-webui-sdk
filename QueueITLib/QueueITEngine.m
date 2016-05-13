@@ -111,7 +111,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         {
             NSString* targetUrl = [self.cache getTargetUrl];
             NSString* queueUrl = [self.cache getQueueUrl];
-            
             [self showQueue:queueUrl targetUrl:targetUrl];
             return YES;
         }
@@ -207,7 +206,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     {
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
         self.requestInProgress = NO;
-        @throw [NSException exceptionWithName:@"QueueITUnavailableException" reason:@"QueueIT service is currently unavailable." userInfo:nil];
+        [self.queueITUnavailableDelegate notifyQueueITUnavailable];
     }
 }
 
