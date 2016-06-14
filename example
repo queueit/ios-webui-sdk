@@ -1,6 +1,3 @@
-# QueueIT.iOS.Lib
-Library for integrating Queue-it sdk into an iOS app
-
 Following is an example of using sdk:
 
 In this example I have a UITableViewController that is using QueueIT sdk.  The header file of UIViewController has following signature:
