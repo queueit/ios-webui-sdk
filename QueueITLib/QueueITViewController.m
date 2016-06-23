@@ -76,8 +76,7 @@
                         self.isQueuePassed = YES;
                         [self.engine raiseQueuePassed];
                         [self.host dismissViewControllerAnimated:YES completion:nil];
-                    }
-                    else if (navigationType == UIWebViewNavigationTypeLinkClicked ) {
+                    } else if (navigationType == UIWebViewNavigationTypeLinkClicked ) {
                         [[UIApplication sharedApplication] openURL:[request URL]];
                         return NO;
                     }
