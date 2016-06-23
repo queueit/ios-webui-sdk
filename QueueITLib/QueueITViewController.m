@@ -59,7 +59,7 @@
 #pragma mark - UIWebViewDelegate
 
 - (BOOL)webView:(UIWebView *)webView
-shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+    shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     if (!self.isQueuePassed) {
         NSString* urlString = [[request URL] absoluteString];
@@ -76,6 +76,10 @@ shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavi
                         self.isQueuePassed = YES;
                         [self.engine raiseQueuePassed];
                         [self.host dismissViewControllerAnimated:YES completion:nil];
+                    }
+                    else if (navigationType == UIWebViewNavigationTypeLinkClicked ) {
+                        [[UIApplication sharedApplication] openURL:[request URL]];
+                        return NO;
                     }
                 }
             }
