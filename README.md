@@ -1,6 +1,8 @@
 # QueueIT.iOS.Lib
-Library for integrating Queue-it into an iOS app
+Library for integrating Queue-IT sdk into an iOS app
 
-The best and easiest way to integrate with sdk is to install QueueITLibrary pod in your project from Cocoapods repository.
+See 'example' file on how to use Queue-IT sdk.
 
-Once installed, you will be able to reference QueueITEngine class in order to interact with QueueIT SDK.
+
+
+
