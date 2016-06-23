@@ -4,7 +4,6 @@
 
 @property (nonatomic, strong) NSString* queueId;
 @property (nonatomic, strong)NSString* queueUrlString;
-@property int requeryInterval;
 @property (nonatomic, strong) NSString* eventTargetUrl;
 @property int queueUrlTTL;
 

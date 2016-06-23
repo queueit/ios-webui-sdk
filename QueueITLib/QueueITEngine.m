@@ -155,12 +155,12 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         success:^(QueueStatus *queueStatus)
      {
          //SafetyNet
-         if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null] && queueStatus.requeryInterval == 0)
+         if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null])
          {
              [self raiseQueuePassed];
          }
          //InQueue
-         else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
+         else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
          {
              self.queueUrlTtl = queueStatus.queueUrlTTL;
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
@@ -169,12 +169,12 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
              [self.cache update:queueStatus.queueUrlString urlTTL:urlTtlString targetUrl:queueStatus.eventTargetUrl];
          }
          //Idle
-         else if (queueStatus.queueId == (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null] && queueStatus.requeryInterval == 0)
+         else if (queueStatus.queueId == (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
          {
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
          }
          //Disabled
-         else if (queueStatus.requeryInterval > 0)
+         else
          {
              self.requestInProgress = NO;
              [self raiseQueueDisabled];
