@@ -67,6 +67,7 @@ static NSDictionary *cache = nil;
 
 -(void)clear {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:KEY_TO_CACHE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 -(void)raiseException {

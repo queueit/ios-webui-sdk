@@ -44,7 +44,7 @@ static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/appenqueue"]];
     
     return [self submitPUTPath:urlAsString body:bodyDict
-                       success:^(NSData *data)
+            success:^(NSData *data)
             {
                 NSError *error = nil;
                 NSDictionary *userDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
@@ -55,9 +55,11 @@ static NSString * const API_ROOT = @"http://%@.queue-it.net/api/queue";
                     if (success != NULL) {
                         success(queueStatus);
                     }
+                } else if (success != NULL) {
+                    success(NULL);
                 }
             }
-                       failure:^(NSError *error, NSString* errorMessage)
+            failure:^(NSError *error, NSString* errorMessage)
             {
                 failure(error, errorMessage);
             }];
