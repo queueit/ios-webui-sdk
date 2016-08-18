@@ -7,8 +7,6 @@ static NSString * const KEY_TARGET_URL = @"targetUrl";
 
 @implementation QueueCache
 
-static NSDictionary *cache = nil;
-
 + (QueueCache *)instance:(NSString *)customerId eventId:(NSString*)eventId;
 {
     KEY_TO_CACHE = [NSString stringWithFormat:@"%@-%@",customerId, eventId];
@@ -22,13 +20,13 @@ static NSDictionary *cache = nil;
 }
 
 -(BOOL)isEmpty {
-    if (cache) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults dictionaryForKey:KEY_TO_CACHE]) {
         return NO;
     }
     else {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        cache = [defaults dictionaryForKey:KEY_TO_CACHE];
-        return cache == nil;
+        return [defaults dictionaryForKey:KEY_TO_CACHE] == nil;
     }
 }
 
@@ -36,21 +34,24 @@ static NSDictionary *cache = nil;
     if ([self isEmpty]) {
         [self raiseException];
     }
-    return cache[KEY_URL_TTL];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults dictionaryForKey:KEY_TO_CACHE][KEY_URL_TTL];
 }
 
 -(NSString*) getQueueUrl {
     if ([self isEmpty]) {
         [self raiseException];
     }
-    return cache[KEY_QUEUE_URL];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults dictionaryForKey:KEY_TO_CACHE][KEY_QUEUE_URL];
 }
 
 -(NSString*) getTargetUrl {
     if ([self isEmpty]) {
         [self raiseException];
     }
-    return cache[KEY_TARGET_URL];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults dictionaryForKey:KEY_TO_CACHE][KEY_TARGET_URL];
 }
 
 -(void)update:(NSString*)queueUrl urlTTL:(NSString*)urlTtlString targetUrl:(NSString*)targetUrl
