@@ -4,12 +4,14 @@
 @protocol QueueViewWillOpenDelegate;
 @protocol QueueDisabledDelegate;
 @protocol QueueITUnavailableDelegate;
+@protocol QueueUrlChangesDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
 @property (nonatomic)id<QueueViewWillOpenDelegate> queueViewWillOpenDelegate;
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
+@property (nonatomic)id<QueueUrlChangesDelegate> queueUrlChangesDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -48,4 +50,8 @@ typedef enum {
 
 @protocol QueueITUnavailableDelegate <NSObject>
 -(void)notifyQueueITUnavailable;
+@end
+
+@protocol QueueUrlChangesDelegate <NSObject>
+-(void)notifyWebViewShouldStartLoadRequestForUrl:(NSString *)urlString;
 @end

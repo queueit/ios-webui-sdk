@@ -87,6 +87,9 @@
             }
         }
     }
+
+    [self.engine.queueUrlChangesDelegate notifyWebViewShouldStartLoadRequestForUrl:[[request URL] absoluteString]];
+
     return YES;
 }
 
