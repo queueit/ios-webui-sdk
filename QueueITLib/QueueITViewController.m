@@ -15,6 +15,8 @@
 
 @end
 
+static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTagName(\"body\")[0].className";
+
 @implementation QueueITViewController
 
 -(instancetype)initWithHost:(UIViewController *)host
@@ -87,9 +89,6 @@
             }
         }
     }
-
-    [self.engine.queueUrlChangesDelegate notifyWebViewShouldStartLoadRequestForUrl:[[request URL] absoluteString]];
-
     return YES;
 }
 
@@ -104,6 +103,13 @@
     if (![self.webView isLoading])
     {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+    }
+
+    // Check if user exitted through the default exit link and notify the engine
+    NSArray<NSString *> *htmlBodyClasses = [[self.webView stringByEvaluatingJavaScriptFromString:JAVASCRIPT_GET_BODY_CLASSES] componentsSeparatedByString:@" "];
+    BOOL isExitClassPresent = [htmlBodyClasses containsObject:@"exit"];
+    if (isExitClassPresent) {
+        [self.engine raiseUserExited];
     }
 }
 

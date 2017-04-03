@@ -4,14 +4,14 @@
 @protocol QueueViewWillOpenDelegate;
 @protocol QueueDisabledDelegate;
 @protocol QueueITUnavailableDelegate;
-@protocol QueueUrlChangesDelegate;
+@protocol QueueUserExitedDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
 @property (nonatomic)id<QueueViewWillOpenDelegate> queueViewWillOpenDelegate;
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
-@property (nonatomic)id<QueueUrlChangesDelegate> queueUrlChangesDelegate;
+@property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -32,6 +32,7 @@ typedef enum {
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
+-(void)raiseUserExited;
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
 
 @end
@@ -52,6 +53,6 @@ typedef enum {
 -(void)notifyQueueITUnavailable;
 @end
 
-@protocol QueueUrlChangesDelegate <NSObject>
--(void)notifyWebViewShouldStartLoadRequestForUrl:(NSString *)urlString;
+@protocol QueueUserExitedDelegate <NSObject>
+-(void)notifyUserExited;
 @end

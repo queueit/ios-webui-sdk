@@ -243,6 +243,14 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     [self.queueDisabledDelegate notifyQueueDisabled];
 }
 
+-(void) raiseUserExited
+{
+    if (self.isInQueue) {
+        [self.queueUserExitedDelegate notifyUserExited];
+        self.isInQueue = NO;
+    }
+}
+
 -(void)updateQueuePageUrl:(NSString *)queuePageUrl
 {
     if (![self.cache isEmpty]) {
