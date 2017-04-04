@@ -24,6 +24,7 @@ Then the implementation file of this controller has following code which configu
     self.engine.queueViewWillOpenDelegate = self; //invoked to notify that QueueIT-UIWebView will open
     self.engine.queueDisabledDelegate = self; //invoked to notify that queue is disabled
     self.engine.queueITUnavailableDelegate = self; //invoked in case QueueIT is unavailable (500 errors)
+    self.engine.queueUserExitedDelegate = self; //invoked when user chooses to leave the queue
     
     @try
     {
@@ -53,6 +54,10 @@ Then the implementation file of this controller has following code which configu
 
 -(void) notifyQueueITUnavailable { //callback for engine.queueITUnavailableDelegate
     NSLog(@"QueueIT is currently unavailable");
+}
+
+-(void) notifyUserExited {
+    NSLog(@"User has left the queue");
 }
 
 
