@@ -188,7 +188,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
      {
          if (error.code >= 400 && error.code < 500)
          {
-             @throw [NSException exceptionWithName:@"QueueITConfigurationException" reason:errorMessage userInfo:error.userInfo];
+             [self.queueITUnavailableDelegate notifyQueueITUnavailable: errorMessage];
          }
          else
          {
@@ -210,7 +210,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     {
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
         self.requestInProgress = NO;
-        [self.queueITUnavailableDelegate notifyQueueITUnavailable];
+        [self.queueITUnavailableDelegate notifyQueueITUnavailable: @"Unexpected error. Try again later"];
     }
 }
 

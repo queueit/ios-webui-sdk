@@ -28,7 +28,7 @@
 }
 
 +(NSString*)getSdkVersion{
-    return @"iOS-2.3.0";
+    return @"iOS-2.4.0";
 }
 
 @end

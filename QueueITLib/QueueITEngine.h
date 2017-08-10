@@ -50,7 +50,7 @@ typedef enum {
 @end
 
 @protocol QueueITUnavailableDelegate <NSObject>
--(void)notifyQueueITUnavailable;
+-(void)notifyQueueITUnavailable: (NSString *) errorMessage;
 @end
 
 @protocol QueueUserExitedDelegate <NSObject>
