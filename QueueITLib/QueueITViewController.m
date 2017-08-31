@@ -99,6 +99,9 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     NSString* tokenKey = @"queueittoken=";
     if ([url containsString:tokenKey]) {
         NSString* token = [url substringFromIndex:NSMaxRange([url rangeOfString:tokenKey])];
+        if([token containsString:@"&"]) {
+            token = [token substringToIndex:NSMaxRange([token rangeOfString:@"&"]) - 1];
+        }
         [self.engine raiseQueueToken:token];
     }
 }
