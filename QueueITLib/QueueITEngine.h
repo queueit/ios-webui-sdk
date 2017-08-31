@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 
 @protocol QueuePassedDelegate;
+@protocol QueueTokenDelegate;
 @protocol QueueViewWillOpenDelegate;
 @protocol QueueDisabledDelegate;
 @protocol QueueITUnavailableDelegate;
@@ -8,6 +9,7 @@
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
+@property (nonatomic)id<QueueTokenDelegate> queueTokenDelegate;
 @property (nonatomic)id<QueueViewWillOpenDelegate> queueViewWillOpenDelegate;
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
@@ -29,6 +31,7 @@ typedef enum {
 -(void)setViewDelay:(int)delayInterval;
 -(void)run;
 -(void)raiseQueuePassed;
+-(void)raiseQueueToken:(NSString*) queueToken;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
@@ -39,6 +42,10 @@ typedef enum {
 
 @protocol QueuePassedDelegate <NSObject>
 -(void)notifyYourTurn;
+@end
+
+@protocol QueueTokenDelegate <NSObject>
+-(void)notifyQueueToken: (NSString*) queueToken;
 @end
 
 @protocol QueueViewWillOpenDelegate <NSObject>
