@@ -161,10 +161,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
          //SafetyNet
          if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null])
          {
-             [self raiseQueuePassed];
-             if (queueStatus.queueitToken != (id)[NSNull null]) {
-                 [self raiseQueueToken:queueStatus.queueitToken];
-             }
+             [self raiseQueuePassed:queueStatus.queueitToken];
          }
          //InQueue
          else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
@@ -226,19 +223,18 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     return urlTtlString;
 }
 
--(void) raiseQueuePassed
+-(void) raiseQueuePassed:(NSString*) queueitToken
 {
+    QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc]initWithQueueitToken:queueitToken];
+    
+    NSLog(@"clearing the cache: RAISEQUEUEPASSED");
     [self.cache clear];
     
     self.isInQueue = NO;
     self.requestInProgress = NO;
-    [self.queuePassedDelegate notifyYourTurn];
+    [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
 }
 
--(void) raiseQueueToken:(NSString*)queueToken
-{
-    [self.queueTokenDelegate notifyQueueToken:queueToken];
-}
 
 -(void) raiseQueueViewWillOpen
 {

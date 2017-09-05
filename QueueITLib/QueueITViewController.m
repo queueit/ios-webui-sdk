@@ -79,8 +79,8 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     }
                     if ([targetUrl.host containsString:url.host]) {
                         self.isQueuePassed = YES;
-                        [self.engine raiseQueuePassed];
-                        [self extractAndPublishQueueToken:url.absoluteString];
+                        NSString* queueitToken = [self extractQueueToken:url.absoluteString];
+                        [self.engine raiseQueuePassed:queueitToken];
                         [self.host dismissViewControllerAnimated:YES completion:^{
                             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
                         }];
@@ -95,17 +95,17 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return YES;
 }
 
-- (void)extractAndPublishQueueToken:(NSString*) url {
+- (NSString*)extractQueueToken:(NSString*) url {
     NSString* tokenKey = @"queueittoken=";
     if ([url containsString:tokenKey]) {
         NSString* token = [url substringFromIndex:NSMaxRange([url rangeOfString:tokenKey])];
         if([token containsString:@"&"]) {
             token = [token substringToIndex:NSMaxRange([token rangeOfString:@"&"]) - 1];
         }
-        [self.engine raiseQueueToken:token];
+        return token;
     }
+    return nil;
 }
-
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;

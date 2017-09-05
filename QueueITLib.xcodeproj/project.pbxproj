@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D0970CD1F5EA46E00495466 /* QueuePassedInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */; };
 		1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCB83FC1BCE5375009B489A /* Reachability.m */; };
 		1DDF312E1C931DC00036E5EB /* QueueCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF312D1C931DC00036E5EB /* QueueCache.m */; };
 		1DE12F901B57E2ED00DD3BBE /* libQueueITLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */; };
@@ -44,6 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueuePassedInfo.h; sourceTree = "<group>"; };
+		1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueuePassedInfo.m; sourceTree = "<group>"; };
 		1DCB83FB1BCE5375009B489A /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		1DCB83FC1BCE5375009B489A /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		1DDF312C1C931DC00036E5EB /* QueueCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueCache.h; sourceTree = "<group>"; };
@@ -173,6 +176,8 @@
 				1DE12FBB1B57F3A300DD3BBE /* QueueStatus.m */,
 				1DE12FBD1B57F3DD00DD3BBE /* IOSUtils.h */,
 				1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */,
+				1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */,
+				1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -270,6 +275,7 @@
 				1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */,
 				1DE12FAA1B57F14D00DD3BBE /* QueueService_NSURLConnection.m in Sources */,
 				1DDF312E1C931DC00036E5EB /* QueueCache.m in Sources */,
+				1D0970CD1F5EA46E00495466 /* QueuePassedInfo.m in Sources */,
 				1DE12FBC1B57F3A300DD3BBE /* QueueStatus.m in Sources */,
 				1DE12FBF1B57F3DD00DD3BBE /* IOSUtils.m in Sources */,
 				1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */,
