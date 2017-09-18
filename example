@@ -42,6 +42,7 @@ Then the implementation file of this controller has following code which configu
 
 -(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo{ //callback for engine.queuePassedDelegate
     NSLog(@"You have been through the queue");
+    NSLog(@"QUEUEU TOKEN: %@", queuePassedInfo.queueitToken);
 }
 
 -(void) notifyQueueViewWillOpen { //callback for engine.queueViewWillOpenDelegate
