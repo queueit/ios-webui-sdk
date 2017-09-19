@@ -5,6 +5,7 @@ NSString * const KEY_QUEUE_URL = @"QueueUrl";
 NSString * const KEY_EVENT_TARGET_URL = @"EventTargetUrl";
 NSString * const KEY_QUEUE_URL_TTL_IN_MINUTES = @"QueueUrlTTLInMinutes";
 NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
+NSString * const KEY_IN_POST_QUEUE_STATE = @"InPostQueueState";
 
 @implementation QueueStatus
 
@@ -13,6 +14,7 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
      eventTargetUrl:(NSString *)eventTargetUrl
         queueUrlTTL:(int)queueUrlTTL
        queueitToken: (NSString *)queueitToken
+   inPostQueueState: (BOOL)inPostQueueState
 {
     if(self = [super init]) {
         self.queueId = queueId;
@@ -20,6 +22,7 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
         self.eventTargetUrl = eventTargetUrl;
         self.queueUrlTTL = queueUrlTTL;
         self.queueitToken = queueitToken;
+        self.inPostQueueState = inPostQueueState;
     }
     
     return self;
@@ -37,7 +40,8 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
              queueUrl:dictionary[KEY_QUEUE_URL]
        eventTargetUrl:dictionary[KEY_EVENT_TARGET_URL]
           queueUrlTTL:queueUrlTTL
-         queueitToken:dictionary[KEY_QUEUEIT_TOKEN]];
+         queueitToken:dictionary[KEY_QUEUEIT_TOKEN]
+     inPostQueueState:dictionary[KEY_IN_POST_QUEUE_STATE]];
 }
 
 @end
