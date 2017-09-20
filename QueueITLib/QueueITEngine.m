@@ -172,12 +172,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
              NSString* urlTtlString = [self convertTtlMinutesToSecondsString:queueStatus.queueUrlTTL];
              [self.cache update:queueStatus.queueUrlString urlTTL:urlTtlString targetUrl:queueStatus.eventTargetUrl];
          }
-         //PostQueue
-         else if (queueStatus.inPostQueueState && queueStatus.queueUrlString != (id)[NSNull null])
-         {
-             [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
-         }
-         //Idle
+         //PostQueue or Idle
          else if (queueStatus.queueId == (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
          {
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
