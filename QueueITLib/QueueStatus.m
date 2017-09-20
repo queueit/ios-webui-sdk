@@ -14,7 +14,7 @@ NSString * const KEY_IN_POST_QUEUE_STATE = @"InPostQueueState";
      eventTargetUrl:(NSString *)eventTargetUrl
         queueUrlTTL:(int)queueUrlTTL
        queueitToken: (NSString *)queueitToken
-   inPostQueueState: (BOOL)inPostQueueState
+   inPostQueueState: (bool)inPostQueueState
 {
     if(self = [super init]) {
         self.queueId = queueId;
@@ -35,13 +35,18 @@ NSString * const KEY_IN_POST_QUEUE_STATE = @"InPostQueueState";
     {
         queueUrlTTL = [dictionary[KEY_QUEUE_URL_TTL_IN_MINUTES] intValue];
     }
+    bool inPostQueueState = false;
+    if(![dictionary[KEY_IN_POST_QUEUE_STATE] isEqual:[NSNull null]])
+    {
+        inPostQueueState = [dictionary[KEY_IN_POST_QUEUE_STATE] boolValue];
+    }
     
     return [self init:dictionary[KEY_QUEUE_ID]
              queueUrl:dictionary[KEY_QUEUE_URL]
        eventTargetUrl:dictionary[KEY_EVENT_TARGET_URL]
           queueUrlTTL:queueUrlTTL
          queueitToken:dictionary[KEY_QUEUEIT_TOKEN]
-     inPostQueueState:dictionary[KEY_IN_POST_QUEUE_STATE]];
+     inPostQueueState:inPostQueueState];
 }
 
 @end
