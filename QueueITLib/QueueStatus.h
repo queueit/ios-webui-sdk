@@ -8,7 +8,6 @@
 @property (nonatomic, strong) NSString* queueitToken;
 @property int queueUrlTTL;
 
-
 -(instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
 @end
