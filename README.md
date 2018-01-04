@@ -4,7 +4,6 @@ Library for integrating Queue-it into an iOS app:
 
 ## Installation
 
-
 ### CocoaPods
 
 [CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
@@ -13,7 +12,7 @@ Library for integrating Queue-it into an iOS app:
 $ gem install cocoapods
 ```
 
-To integrate QueueIT iOS SDK into your Xcode project using CocoaPods, specify it in your `Podfile`:
+To integrate the SDK into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
