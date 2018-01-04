@@ -1,4 +1,4 @@
-[![CocoaPods](https://img.shields.io/cocoapods/v/QueueITLibrary.svg)]()
+[![CocoaPods](https://img.shields.io/cocoapods/v/QueueITLibrary.svg)](https://cocoapods.org/pods/QueueITLibrary)
 
 # QueueIT iOS WebUI SDK
 
