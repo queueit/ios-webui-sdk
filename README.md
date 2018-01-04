@@ -1,3 +1,5 @@
+[![CocoaPods](https://img.shields.io/cocoapods/v/QueueITLibrary.svg)]()
+
 # QueueIT iOS WebUI SDK
 
 Library for integrating Queue-it into an iOS app:
