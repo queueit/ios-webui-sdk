@@ -1,4 +1,4 @@
-# QueueIT iOS SDK
+# QueueIT iOS WebUI SDK
 
 Library for integrating Queue-it into an iOS app:
 
