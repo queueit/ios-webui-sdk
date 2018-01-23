@@ -104,7 +104,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 {
     if (![self.cache isEmpty])
     {
-        NSString* urlTtlString = [self.cache getUtlTtl];
+        NSString* urlTtlString = [self.cache getUrlTtl];
         long long cachedTime = [urlTtlString longLongValue];
         long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
         if (currentTime < cachedTime)
@@ -258,7 +258,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)updateQueuePageUrl:(NSString *)queuePageUrl
 {
     if (![self.cache isEmpty]) {
-        NSString* urlTtlString = [self.cache getUtlTtl];
+        NSString* urlTtlString = [self.cache getUrlTtl];
         NSString* targetUrl = [self.cache getTargetUrl];
         [self.cache update:queuePageUrl urlTTL:urlTtlString targetUrl:targetUrl];
     }

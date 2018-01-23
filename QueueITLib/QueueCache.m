@@ -30,7 +30,7 @@ static NSString * const KEY_TARGET_URL = @"targetUrl";
     }
 }
 
--(NSString*) getUtlTtl {
+-(NSString*) getUrlTtl {
     if ([self isEmpty]) {
         [self raiseException];
     }
