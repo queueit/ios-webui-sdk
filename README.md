@@ -72,7 +72,7 @@ The implementation of this controller looks like follows:
         if ([exception reason] == [self.engine errorTypeEnumToString:NetworkUnavailable]) {
             //thrown when QueueIT detects no internet connectivity
         } else if ([exception reason] == [self.engine errorTypeEnumToString:RequestAlreadyInProgress]) {
-            //thrown when request to QueueIT has already been made and currently in progress
+            //thrown when request to QueueIT has already been made and currently in progress. In general you can ignore this.
         }
     }
 }
