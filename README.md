@@ -90,7 +90,7 @@ The implementation of this controller looks like follows:
     NSLog(@"Queue is disabled");
 }
 
--(void) notifyQueueITUnavailable { //callback for engine.queueITUnavailableDelegate
+-(void) notifyQueueITUnavailable: (NSString*) errorMessage { //callback for engine.queueITUnavailableDelegate
     NSLog(@"QueueIT is currently unavailable");
 }
 
