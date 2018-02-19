@@ -156,6 +156,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
      {
          if (queueStatus == NULL) {
              [self enqueueRetryMonitor];
+             return;
          }
          
          //SafetyNet
