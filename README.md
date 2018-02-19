@@ -77,7 +77,7 @@ The implementation of this controller looks like follows:
     }
 }
 
--(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo{ //callback for engine.queuePassedDelegate
+-(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo { //callback for engine.queuePassedDelegate
     NSLog(@"You have been through the queue");
     NSLog(@"QUEUE TOKEN: %@", queuePassedInfo.queueitToken);
 }
