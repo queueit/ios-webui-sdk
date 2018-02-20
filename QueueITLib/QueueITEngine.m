@@ -159,13 +159,16 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
              return;
          }
          
+         bool queueIdExists = queueStatus.queueId != nil && queueStatus.queueId != (id)[NSNull null];
+         bool queueUrlExists = queueStatus.queueUrlString != nil && queueStatus.queueUrlString != (id)[NSNull null];
+         
          //SafetyNet
-         if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString == (id)[NSNull null])
+         if (queueIdExists && !queueUrlExists)
          {
              [self raiseQueuePassed:queueStatus.queueitToken];
          }
          //InQueue
-         else if (queueStatus.queueId != (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
+         else if (queueIdExists && queueUrlExists)
          {
              self.queueUrlTtl = queueStatus.queueUrlTTL;
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
@@ -174,7 +177,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
              [self.cache update:queueStatus.queueUrlString urlTTL:urlTtlString targetUrl:queueStatus.eventTargetUrl];
          }
          //PostQueue or Idle
-         else if (queueStatus.queueId == (id)[NSNull null] && queueStatus.queueUrlString != (id)[NSNull null])
+         else if (!queueIdExists && queueUrlExists)
          {
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
          }
