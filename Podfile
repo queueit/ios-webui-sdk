@@ -1,2 +1,2 @@
-source ‘https://github.com/queueit/QueueIT.iOS.Lib’
+source ‘https://github.com/queueit/ios-webui-sdk’
 
