@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1D0970CD1F5EA46E00495466 /* QueuePassedInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */; };
+		1D2413212164D86400DFACE1 /* QueueITWKViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D2413202164D86400DFACE1 /* QueueITWKViewController.m */; };
 		1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCB83FC1BCE5375009B489A /* Reachability.m */; };
 		1DDF312E1C931DC00036E5EB /* QueueCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF312D1C931DC00036E5EB /* QueueCache.m */; };
 		1DE12F901B57E2ED00DD3BBE /* libQueueITLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */; };
@@ -47,6 +48,8 @@
 /* Begin PBXFileReference section */
 		1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueuePassedInfo.h; sourceTree = "<group>"; };
 		1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueuePassedInfo.m; sourceTree = "<group>"; };
+		1D24131F2164D86400DFACE1 /* QueueITWKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueueITWKViewController.h; sourceTree = "<group>"; };
+		1D2413202164D86400DFACE1 /* QueueITWKViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QueueITWKViewController.m; sourceTree = "<group>"; };
 		1DCB83FB1BCE5375009B489A /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		1DCB83FC1BCE5375009B489A /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		1DDF312C1C931DC00036E5EB /* QueueCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueCache.h; sourceTree = "<group>"; };
@@ -165,6 +168,8 @@
 			children = (
 				1DE12FB31B57F2F800DD3BBE /* QueueITViewController.h */,
 				1DE12FB41B57F2F800DD3BBE /* QueueITViewController.m */,
+				1D24131F2164D86400DFACE1 /* QueueITWKViewController.h */,
+				1D2413202164D86400DFACE1 /* QueueITWKViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -226,7 +231,7 @@
 		1DE12F7C1B57E2EC00DD3BBE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = Qeueuit;
 				TargetAttributes = {
 					1DE12F831B57E2ED00DD3BBE = {
@@ -280,6 +285,7 @@
 				1DE12FBF1B57F3DD00DD3BBE /* IOSUtils.m in Sources */,
 				1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */,
 				1DE12FB51B57F2F800DD3BBE /* QueueITViewController.m in Sources */,
+				1D2413212164D86400DFACE1 /* QueueITWKViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,18 +315,29 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -351,13 +368,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -411,6 +438,7 @@
 				);
 				INFOPLIST_FILE = QueueITLibTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "queueit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -425,6 +453,7 @@
 				);
 				INFOPLIST_FILE = QueueITLibTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "queueit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

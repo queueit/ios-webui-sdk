@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
 #import "QueueITViewController.h"
+#import "QueueITWKViewController.h"
 #import "QueueService.h"
 #import "QueueStatus.h"
 #import "IOSUtils.h"
@@ -121,22 +122,44 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
     [self raiseQueueViewWillOpen];
-    QueueITViewController *queueVC = [[QueueITViewController alloc] initWithHost:self.host
-                                                                     queueEngine:self
-                                                                        queueUrl:queueUrl
-                                                                  eventTargetUrl:targetUrl
-                                                                      customerId:self.customerId
-                                                                         eventId:self.eventId];
     
-    if (self.delayInterval > 0) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueVC animated:YES completion:nil];
-        });
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueVC animated:YES completion:nil];
-        });
+    if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10,0,0}]) {
+        QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
+                                                                         queueEngine:self
+                                                                            queueUrl:queueUrl
+                                                                      eventTargetUrl:targetUrl
+                                                                          customerId:self.customerId
+                                                                             eventId:self.eventId];
+        
+        if (self.delayInterval > 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            });
+        }
     }
+    else{
+        QueueITViewController *queueVC = [[QueueITViewController alloc] initWithHost:self.host
+                                                                         queueEngine:self
+                                                                            queueUrl:queueUrl
+                                                                      eventTargetUrl:targetUrl
+                                                                          customerId:self.customerId
+                                                                             eventId:self.eventId];
+        
+        if (self.delayInterval > 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self.host presentViewController:queueVC animated:YES completion:nil];
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.host presentViewController:queueVC animated:YES completion:nil];
+            });
+        }
+    }
+    
 }
 
 -(void)tryEnqueue
