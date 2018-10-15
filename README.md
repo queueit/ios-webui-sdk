@@ -1,6 +1,6 @@
 [![CocoaPods](https://img.shields.io/cocoapods/v/QueueITLibrary.svg)](https://cocoapods.org/pods/QueueITLibrary)
 
-# QueueIT iOS WebUI SDK
+# Queue-It iOS WebUI SDK
 
 Library for integrating Queue-It into an iOS app:
 
@@ -38,6 +38,8 @@ $ pod install
 ```
 
 ## Usage
+
+We have a repository with a demo app [here](https://github.com/queueit/ios-demo-app "iOS demo app"), but you can get the basic idea of how to use the library in the following example.
 
 In this example we have a `UITableViewController` that we want to protect using Queue-it. The header file of `UIViewController` has following signature:
 
