@@ -84,10 +84,11 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                         [self.host dismissViewControllerAnimated:YES completion:^{
                             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
                         }];
-                    } else if (navigationType == UIWebViewNavigationTypeLinkClicked && !isQueueUrl) {
-                        [[UIApplication sharedApplication] openURL:[request URL]];
-                        return NO;
                     }
+                }
+                if (navigationType == UIWebViewNavigationTypeLinkClicked && !isQueueUrl) {
+                    [[UIApplication sharedApplication] openURL:[request URL]];
+                    return NO;
                 }
             }
         }

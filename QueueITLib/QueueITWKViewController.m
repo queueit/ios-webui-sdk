@@ -89,10 +89,12 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                         [self.host dismissViewControllerAnimated:YES completion:^{
                             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
                         }];
-                    } else if (navigationAction.navigationType == WKNavigationTypeLinkActivated && !isQueueUrl) {
-                        [[UIApplication sharedApplication] openURL:[request URL]];
-                        decisionHandler(WKNavigationActionPolicyCancel);
                     }
+                }
+                if (navigationAction.navigationType == WKNavigationTypeLinkActivated && !isQueueUrl) {
+                    [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:nil];
+                    decisionHandler(WKNavigationActionPolicyCancel);
+                    return;
                 }
             }
         }
