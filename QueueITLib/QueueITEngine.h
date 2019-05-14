@@ -29,6 +29,7 @@ typedef enum {
 
 -(void)setViewDelay:(int)delayInterval;
 -(void)run;
+-(void)run:(bool)clearCache;
 -(void)raiseQueuePassed:(NSString*) queueitToken;
 -(BOOL)isUserInQueue;
 -(void)UseCache:(bool)cache;

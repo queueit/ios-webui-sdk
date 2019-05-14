@@ -102,6 +102,14 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     
 }
 
+-(void)run:(bool)clearCache
+{
+    if(![self.cache isEmpty])
+        [self.cache clear];
+    
+    [self run];
+}
+
 -(BOOL)tryShowQueueFromCache
 {
     if(!self.useCache) return NO;
