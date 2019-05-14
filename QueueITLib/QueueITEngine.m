@@ -21,6 +21,7 @@
 @property int queueUrlTtl;
 @property (nonatomic, strong)QueueCache* cache;
 @property int deltaSec;
+@property bool useCache;
 @end
 
 @implementation QueueITEngine
@@ -103,6 +104,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(BOOL)tryShowQueueFromCache
 {
+    if(!self.useCache) return NO;
+    
     if (![self.cache isEmpty])
     {
         NSString* urlTtlString = [self.cache getUrlTtl];
@@ -160,6 +163,11 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         }
     }
     
+}
+
+-(void)UseCache:(bool)cache
+{
+    self.useCache = cache;
 }
 
 -(void)tryEnqueue

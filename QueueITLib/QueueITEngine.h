@@ -31,6 +31,7 @@ typedef enum {
 -(void)run;
 -(void)raiseQueuePassed:(NSString*) queueitToken;
 -(BOOL)isUserInQueue;
+-(void)UseCache:(bool)cache;
 -(BOOL)isRequestInProgress;
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
 -(void)raiseUserExited;
