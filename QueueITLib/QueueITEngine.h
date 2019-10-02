@@ -14,6 +14,7 @@
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
+@property (nonatomic) UIModalPresentationStyle presentationStyle;
 
 typedef enum {
     NetworkUnavailable,

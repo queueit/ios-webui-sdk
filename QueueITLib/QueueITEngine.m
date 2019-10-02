@@ -38,6 +38,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.eventId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
+        self.presentationStyle = UIModalPresentationFullScreen;
         self.delayInterval = 0;
         self.isInQueue = NO;
         self.requestInProgress = NO;
@@ -130,7 +131,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                                                                       eventTargetUrl:targetUrl
                                                                           customerId:self.customerId
                                                                              eventId:self.eventId];
-        
+        queueWKVC.modalPresentationStyle = self.presentationStyle;
+
         if (self.delayInterval > 0) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self.host presentViewController:queueWKVC animated:YES completion:nil];
@@ -148,7 +150,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                                                                       eventTargetUrl:targetUrl
                                                                           customerId:self.customerId
                                                                              eventId:self.eventId];
-        
+        queueVC.modalPresentationStyle = self.presentationStyle;
+
         if (self.delayInterval > 0) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self.host presentViewController:queueVC animated:YES completion:nil];
