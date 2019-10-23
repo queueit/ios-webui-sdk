@@ -17,32 +17,38 @@ static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
     return SharedInstance;
 }
 
--(NSString*)enqueue:(NSString *)customerId
-     eventOrAliasId:(NSString *)eventorAliasId
-             userId:(NSString *)userId
-          userAgent:(NSString *)userAgent
+-(NSString*)enqueue:(NSString*)customerId
+       encodedToken:(NSString*)encodedToken
+     eventOrAliasId:(NSString*)eventorAliasId
+             userId:(NSString*)userId
+          userAgent:(NSString*)userAgent
          sdkVersion:(NSString*)sdkVersion
          layoutName:(NSString*)layoutName
            language:(NSString*)language
             success:(void (^)(QueueStatus *))success
             failure:(QueueServiceFailure)failure
 {
-    NSDictionary* bodyDict = nil;
-    if (layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName, @"language":language };
-    }else if(layoutName && !language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName };
-    }else if(!layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"language":language };
-    }else {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion };
+    NSMutableDictionary* bodyDict = [NSMutableDictionary new];
+    [bodyDict setObject:userId forKey:@"userId"];
+    [bodyDict setObject:userAgent forKey:@"userAgent"];
+    [bodyDict setObject:encodedToken forKey:@"enqueueToken"];
+    [bodyDict setObject:sdkVersion forKey:@"sdkVersion"];
+    
+    if (layoutName) {
+        [bodyDict setObject:layoutName forKey:@"layoutName"];
+    }
+    if (language) {
+        [bodyDict setObject:language forKey:@"language"];
+    }
+    if (encodedToken) {
+        [bodyDict setObject:encodedToken forKey:@"enqueueToken"];
     }
     
     NSString* urlAsString = [NSString stringWithFormat:API_ROOT, customerId];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", customerId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", eventorAliasId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/appenqueue"]];
-    
+
     return [self submitPUTPath:urlAsString body:bodyDict
             success:^(NSData *data)
             {

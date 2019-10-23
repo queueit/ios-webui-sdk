@@ -17,6 +17,10 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 @implementation QueueITWKViewController
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleDefault;
+}
+
 -(instancetype)initWithHost:(UIViewController *)host
                 queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
@@ -44,7 +48,33 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     preferences.javaScriptEnabled = YES;
     WKWebViewConfiguration* config = [[WKWebViewConfiguration alloc]init];
     config.preferences = preferences;
-    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height) configuration:config];
+        
+    CGFloat navigationBarHeight = 44.0;
+    CGFloat statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
+    CGFloat topBarOffset = navigationBarHeight + 1 + statusBarHeight;
+    UINavigationBar *navigationBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0,
+                                                                                       statusBarHeight,
+                                                                                       self.view.frame.size.width,
+                                                                                       navigationBarHeight)];
+    [navigationBar setBarTintColor:[UIColor whiteColor]];
+
+    UINavigationItem* navItem = [UINavigationItem new];
+    if (_closeImage != nil) {
+        UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:_closeImage
+                                                                        style:UIBarButtonItemStylePlain
+                                                                       target:self
+                                                                       action:@selector(dismissController)];
+        navItem.leftBarButtonItem = closeButton;
+    }
+    [navigationBar setItems:@[navItem]];
+    [self.view addSubview:navigationBar];
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0,
+                                                                 topBarOffset,
+                                                                 self.view.bounds.size.width,
+                                                                 self.view.bounds.size.height - topBarOffset) configuration:config];
+    
     view.navigationDelegate = self;
     self.webView = view;
 }
@@ -152,5 +182,14 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 -(void)appWillResignActive:(NSNotification*)note
 {
 }
+
+#pragma mark - Actions
+- (void)dismissController
+{
+    [self.host dismissViewControllerAnimated:YES completion:^{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
+}
+
 
 @end
