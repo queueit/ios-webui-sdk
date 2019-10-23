@@ -1,6 +1,5 @@
 #import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
-#import "QueueITViewController.h"
 #import "QueueITWKViewController.h"
 #import "QueueService.h"
 #import "QueueStatus.h"
@@ -13,6 +12,10 @@
 @property (nonatomic, strong)UIViewController* host;
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
+@property (nonatomic, strong)NSString* encodedToken;
+@property (nonatomic, strong)NSString* eventDomain;
+@property (nonatomic, strong)NSString* eventTargetURL;
+@property (nonatomic, strong)NSString* queueId;
 @property (nonatomic, strong)NSString* layoutName;
 @property (nonatomic, strong)NSString* language;
 @property int delayInterval;
@@ -28,7 +31,8 @@
 static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
 
--(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
+-(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
+                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
 {
     self = [super init];
     if(self) {
@@ -36,6 +40,29 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.host = host;
         self.customerId = customerId;
         self.eventId = eventOrAliasId;
+        self.layoutName = layoutName;
+        self.language = language;
+        self.encodedToken = encodedToken;
+        self.delayInterval = 0;
+        self.isInQueue = NO;
+        self.requestInProgress = NO;
+        self.internetReachability = [Reachability reachabilityForInternetConnection];
+        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
+    }
+    return self;
+}
+
+-(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
+                eventDomain:(NSString*)eventDomain targetURL:(NSString*)targetURL queueId:(NSString*)queueId
+                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken {
+    if (self = [super init]) {
+        self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
+        self.host = host;
+        self.customerId = customerId;
+        self.eventId = eventOrAliasId;
+        self.eventDomain = eventDomain;
+        self.queueId = queueId;
+        self.eventTargetURL = targetURL;
         self.layoutName = layoutName;
         self.language = language;
         self.delayInterval = 0;
@@ -95,10 +122,15 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     
     self.requestInProgress = YES;
     
-    if (![self tryShowQueueFromCache]) {
+    NSString * queueURL = [self queueURL];
+    if (queueURL != NULL && self.eventTargetURL != NULL)
+    {
+        [self showQueue:queueURL targetUrl:self.eventTargetURL];
+    } else if (![self tryShowQueueFromCache])
+    {
         [self tryEnqueue];
     }
-    
+
 }
 
 -(BOOL)tryShowQueueFromCache
@@ -122,44 +154,25 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
     [self raiseQueueViewWillOpen];
-    
-    if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10,0,0}]) {
-        QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
-                                                                         queueEngine:self
-                                                                            queueUrl:queueUrl
-                                                                      eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                             eventId:self.eventId];
-        
-        if (self.delayInterval > 0) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self.host presentViewController:queueWKVC animated:YES completion:nil];
-            });
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.host presentViewController:queueWKVC animated:YES completion:nil];
-            });
-        }
+
+    QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
+                                                                           queueEngine:self
+                                                                              queueUrl:queueUrl
+                                                                        eventTargetUrl:targetUrl
+                                                                            customerId:self.customerId
+                                                                               eventId:self.eventId];
+                                          
+    queueWKVC.closeImage = self.closeImage;
+    queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    if (self.delayInterval > 0) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.host presentViewController:queueWKVC animated:YES completion:nil];
+        });
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.host presentViewController:queueWKVC animated:YES completion:nil];
+        });
     }
-    else{
-        QueueITViewController *queueVC = [[QueueITViewController alloc] initWithHost:self.host
-                                                                         queueEngine:self
-                                                                            queueUrl:queueUrl
-                                                                      eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                             eventId:self.eventId];
-        
-        if (self.delayInterval > 0) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self.host presentViewController:queueVC animated:YES completion:nil];
-            });
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.host presentViewController:queueVC animated:YES completion:nil];
-            });
-        }
-    }
-    
 }
 
 -(void)tryEnqueue
@@ -170,6 +183,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     
     QueueService* qs = [QueueService sharedInstance];
     [qs enqueue:self.customerId
+   encodedToken:self.encodedToken
  eventOrAliasId:self.eventId
          userId:userId userAgent:userAgent
      sdkVersion:sdkVersion
@@ -188,12 +202,14 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
          //SafetyNet
          if (queueIdExists && !queueUrlExists)
          {
+             [self.queueViewWillOpenDelegate notifyOnQueueIdChanged:queueStatus.queueId];
              [self raiseQueuePassed:queueStatus.queueitToken];
          }
          //InQueue
          else if (queueIdExists && queueUrlExists)
          {
              self.queueUrlTtl = queueStatus.queueUrlTTL;
+             [self.queueViewWillOpenDelegate notifyOnQueueIdChanged:queueStatus.queueId];
              [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
              
              NSString* urlTtlString = [self convertTtlMinutesToSecondsString:queueStatus.queueUrlTTL];
@@ -289,6 +305,16 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         NSString* targetUrl = [self.cache getTargetUrl];
         [self.cache update:queuePageUrl urlTTL:urlTtlString targetUrl:targetUrl];
     }
+}
+
+-(NSString*)queueURL {
+    if (self.eventDomain != NULL && self.queueId != NULL && self.eventId != NULL) {
+        NSString *sdkVersion = [IOSUtils getSdkVersion];
+        NSString *urlFormat = @"http://%@/?c=%@&e=%@&q=%@&cid=%@&sdkv=%@";
+        NSString *queueURL = [NSString stringWithFormat:urlFormat,self.eventDomain, self.customerId, self.eventId, self.queueId, self.language, sdkVersion];
+        return queueURL;
+    }
+    return NULL;
 }
 
 @end

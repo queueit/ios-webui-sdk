@@ -3,7 +3,9 @@
 
 @interface QueueITWKViewController : UIViewController
 
--(instancetype)initWithHost:(UIViewController *)host
+@property (nonatomic, strong) UIImage *closeImage;
+
+-(instancetype)initWithHost:(UIViewController*)host
                 queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
              eventTargetUrl:(NSString*)eventTargetUrl
@@ -11,4 +13,3 @@
                     eventId:(NSString*)eventId;
 
 @end
-

@@ -17,6 +17,10 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 @implementation QueueITWKViewController
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleDefault;
+}
+
 -(instancetype)initWithHost:(UIViewController *)host
                 queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
@@ -37,19 +41,27 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return self;
 }
 
-- (void)viewDidLoad {
+#pragma mark - Lifeycle
+
+- (void)viewDidLoad{
     [super viewDidLoad];
     
-    WKPreferences* preferences = [[WKPreferences alloc]init];
+    WKPreferences* preferences = [WKPreferences new];
     preferences.javaScriptEnabled = YES;
-    WKWebViewConfiguration* config = [[WKWebViewConfiguration alloc]init];
+    WKWebViewConfiguration* config = [WKWebViewConfiguration new];
     config.preferences = preferences;
-    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height) configuration:config];
+    CGFloat navigationBarOffset = [self setupNavigationBar];
+    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0,
+                                                                 navigationBarOffset,
+                                                                 self.view.bounds.size.width,
+                                                                 self.view.bounds.size.height - navigationBarOffset) configuration:config];
     view.navigationDelegate = self;
     self.webView = view;
 }
 
 - (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
     self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
     [self.spinner setColor:[UIColor grayColor]];
     [self.spinner startAnimating];
@@ -60,6 +72,33 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     NSURL *urlAddress = [NSURL URLWithString:self.queueUrl];
     NSURLRequest *request = [NSURLRequest requestWithURL:urlAddress];
     [self.webView loadRequest:request];
+}
+
+#pragma mark - Navigation Bar
+
+- (CGFloat)setupNavigationBar{
+    CGFloat navigationBarHeight = 44.0;
+    CGFloat statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
+    CGFloat navigationBarDividerHeight = 1.0;
+    CGFloat navigationBarOffset = navigationBarHeight + navigationBarDividerHeight + statusBarHeight;
+    UINavigationBar *navigationBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0,
+                                                                                       statusBarHeight,
+                                                                                       self.view.frame.size.width,
+                                                                                       navigationBarHeight)];
+    [navigationBar setBarTintColor:[UIColor whiteColor]];
+
+    UINavigationItem* navigationItem = [UINavigationItem new];
+    if (self.closeImage != nil) {
+        UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:self.closeImage
+                                                                        style:UIBarButtonItemStylePlain
+                                                                       target:self
+                                                                       action:@selector(dismissController)];
+        navigationItem.leftBarButtonItem = closeButton;
+    }
+    [navigationBar setItems:@[navigationItem]];
+    [self.view addSubview:navigationBar];
+    self.view.backgroundColor = [UIColor whiteColor];
+    return navigationBarOffset;
 }
 
 #pragma mark - WKNavigationDelegate
@@ -149,8 +188,15 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     }];
 }
 
--(void)appWillResignActive:(NSNotification*)note
-{
+-(void)appWillResignActive:(NSNotification*)note{
 }
+
+#pragma mark - Actions
+- (void)dismissController{
+    [self.host dismissViewControllerAnimated:YES completion:^{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
+}
+
 
 @end

@@ -8,6 +8,7 @@ typedef void (^QueueServiceFailure)(NSError *error, NSString* errorMessage);
 + (QueueService *)sharedInstance;
 
 -(NSString*)enqueue:(NSString*)customerId
+       encodedToken:(NSString*)encodedToken
      eventOrAliasId:(NSString*)eventorAliasId
              userId:(NSString*)userId
           userAgent:(NSString*)userAgent

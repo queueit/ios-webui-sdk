@@ -14,6 +14,7 @@
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
+@property (nonatomic, strong)UIImage* closeImage;
 
 typedef enum {
     NetworkUnavailable,
@@ -21,11 +22,22 @@ typedef enum {
 } QueueITRuntimeError;
 #define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
 
--(instancetype)initWithHost:(UIViewController *)host
+-(instancetype)initWithHost:(UIViewController*)host
                  customerId:(NSString*)customerId
              eventOrAliasId:(NSString*)eventOrAliasId
                  layoutName:(NSString*)layoutName
-                   language:(NSString*)language;
+                   language:(NSString*)language
+               encodedToken:(NSString*)encodedToken;
+
+-(instancetype)initWithHost:(UIViewController *)host
+                 customerId:(NSString*)customerId
+             eventOrAliasId:(NSString*)eventOrAliasId
+                eventDomain:(NSString*)eventDomain
+                  targetURL:(NSString*)targetURL
+                    queueId:(NSString*)queueId
+                 layoutName:(NSString*)layoutName
+                   language:(NSString*)language
+               encodedToken:(NSString*)encodedToken;
 
 -(void)setViewDelay:(int)delayInterval;
 -(void)run;
@@ -35,7 +47,6 @@ typedef enum {
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
 -(void)raiseUserExited;
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
-
 @end
 
 @protocol QueuePassedDelegate <NSObject>
@@ -44,6 +55,7 @@ typedef enum {
 
 @protocol QueueViewWillOpenDelegate <NSObject>
 -(void)notifyQueueViewWillOpen;
+-(void)notifyOnQueueIdChanged:(NSString*)queueId;
 @end
 
 @protocol QueueDisabledDelegate <NSObject>
