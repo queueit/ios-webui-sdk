@@ -22,7 +22,7 @@ typedef enum {
 } QueueITRuntimeError;
 #define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
 
--(instancetype)initWithHost:(UIViewController *)host
+-(instancetype)initWithHost:(UIViewController*)host
                  customerId:(NSString*)customerId
              eventOrAliasId:(NSString*)eventOrAliasId
                  layoutName:(NSString*)layoutName
@@ -30,13 +30,13 @@ typedef enum {
                encodedToken:(NSString*)encodedToken;
 
 -(instancetype)initWithHost:(UIViewController *)host
-                 customerId:(NSString *)customerId
-             eventOrAliasId:(NSString *)eventOrAliasId
-                eventDomain:(NSString *)eventDomain
+                 customerId:(NSString*)customerId
+             eventOrAliasId:(NSString*)eventOrAliasId
+                eventDomain:(NSString*)eventDomain
                   targetURL:(NSString*)targetURL
-                    queueId:(NSString *)queueId
-                 layoutName:(NSString *)layoutName
-                   language:(NSString *)language
+                    queueId:(NSString*)queueId
+                 layoutName:(NSString*)layoutName
+                   language:(NSString*)language
                encodedToken:(NSString*)encodedToken;
 
 -(void)setViewDelay:(int)delayInterval;

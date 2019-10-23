@@ -43,7 +43,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 #pragma mark - Lifeycle
 
-- (void)viewDidLoad {
+- (void)viewDidLoad{
     [super viewDidLoad];
     
     WKPreferences* preferences = [WKPreferences new];
@@ -188,13 +188,11 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     }];
 }
 
--(void)appWillResignActive:(NSNotification*)note
-{
+-(void)appWillResignActive:(NSNotification*)note{
 }
 
 #pragma mark - Actions
-- (void)dismissController
-{
+- (void)dismissController{
     [self.host dismissViewControllerAnimated:YES completion:^{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];

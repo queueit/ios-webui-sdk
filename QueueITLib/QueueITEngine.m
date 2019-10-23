@@ -31,7 +31,7 @@
 static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
 
--(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
+-(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
                  layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
 {
     self = [super init];
@@ -52,9 +52,9 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     return self;
 }
 
--(instancetype)initWithHost:(UIViewController *)host customerId:(NSString *)customerId eventOrAliasId:(NSString *)eventOrAliasId
-                eventDomain:(NSString *)eventDomain targetURL:(NSString*)targetURL queueId:(NSString *)queueId
-                 layoutName:(NSString *)layoutName language:(NSString *)language encodedToken:(NSString*)encodedToken {
+-(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
+                eventDomain:(NSString*)eventDomain targetURL:(NSString*)targetURL queueId:(NSString*)queueId
+                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken {
     if (self = [super init]) {
         self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
         self.host = host;
@@ -156,11 +156,12 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     [self raiseQueueViewWillOpen];
 
     QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
-                                                                         queueEngine:self
-                                                                            queueUrl:queueUrl
-                                                                      eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                             eventId:self.eventId];
+                                                                           queueEngine:self
+                                                                              queueUrl:queueUrl
+                                                                        eventTargetUrl:targetUrl
+                                                                            customerId:self.customerId
+                                                                               eventId:self.eventId];
+                                          
     queueWKVC.closeImage = self.closeImage;
     queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
     if (self.delayInterval > 0) {
