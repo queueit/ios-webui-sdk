@@ -31,7 +31,6 @@ static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
     NSMutableDictionary* bodyDict = [NSMutableDictionary new];
     [bodyDict setObject:userId forKey:@"userId"];
     [bodyDict setObject:userAgent forKey:@"userAgent"];
-    [bodyDict setObject:encodedToken forKey:@"enqueueToken"];
     [bodyDict setObject:sdkVersion forKey:@"sdkVersion"];
     
     if (layoutName) {
