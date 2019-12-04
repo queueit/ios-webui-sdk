@@ -121,7 +121,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     if (isQueueUrl) {
                         [self.engine updateQueuePageUrl:urlString];
                     }
-                    if ([targetUrl.host isEqualToString:url.host] && [url.path isEqualToString:targetUrl.path]) {
+                    if ([targetUrl.host isEqualToString:url.host] && [targetUrl.path isEqualToString:url.path]) {
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
                         [self.engine raiseQueuePassed:queueitToken];
