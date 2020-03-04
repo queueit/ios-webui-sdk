@@ -7,9 +7,11 @@ Library for integrating Queue-It into an iOS app:
 ## Installation
 
 ### Requirements
-From version 2.12.0 the QueueITEngine will switch on the installed version of iOS as the old UIWebView has been marked deprecated from iOS 12. If the iOS version is above version 10.0.0 the newer WKWebView will be used instead of UIWebView.
+In version 2.12.X the QueueITEngine will switch on the installed version of iOS as the old UIWebView has been marked deprecated from iOS 12. If the iOS version is above version 10.0.0 the newer WKWebView will be used instead of UIWebView.
 
-Therefore the minimum iOS version is 8.3, where WKWebViews were introduced. In the same round we have removed the target limit for iPhone only, so the library can be used with iPads as well.
+Therefore the minimum iOS version for 2.12.X is 8.3, where WKWebViews were introduced. In the same round we have removed the target limit for iPhone only, so the library can be used with iPads as well.
+
+From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will only use WKWebView. Furthermore, the lowest supported version of iOS has been updated to version 11.4.
 
 ### CocoaPods
 
@@ -23,11 +25,11 @@ To integrate the SDK into your Xcode project using CocoaPods, specify it in your
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.3'
+platform :ios, '11.4'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'QueueITLibrary', '~> 2.12.0'
+    pod 'QueueITLibrary', '~> 2.13.0'
 end
 ```
 
@@ -112,7 +114,7 @@ The implementation of the example controller looks like follows:
     NSLog(@"User has left the queue");
 }
 ```
-As the App developer your must manage the state (whether user was previously queued up or not) inside the apps storage.
+As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
 After you have received the "On Queue Passed callback", the app must remember this, possibly with a date / time expiration.
 When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
 When the user clicks back, the same check needs to be done.
