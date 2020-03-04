@@ -92,7 +92,11 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     }
                 }
                 if (navigationAction.navigationType == WKNavigationTypeLinkActivated && !isQueueUrl) {
-                    [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:nil];
+                    [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:^(BOOL success){
+                        if (success){
+                            NSLog(@"Opened %@",urlString);
+                        }                        
+                    }];
                     decisionHandler(WKNavigationActionPolicyCancel);
                     return;
                 }
