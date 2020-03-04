@@ -92,12 +92,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     }
                 }
                 if (navigationAction.navigationType == WKNavigationTypeLinkActivated && !isQueueUrl) {
-                    if (@available(iOS 10.0, *)) {
-                        [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:nil];
-                    }
-                    else {
-                        [[UIApplication sharedApplication] openURL:[request URL]];
-                    }
+                    [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:nil];
                     decisionHandler(WKNavigationActionPolicyCancel);
                     return;
                 }
