@@ -1,4 +1,3 @@
-#import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
 #import "QueueITWKViewController.h"
 #import "QueueService.h"
@@ -144,8 +143,15 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(void)tryEnqueue
 {
+    [IOSUtils getUserAgent:^(NSString * userAgent) {
+        [self tryEnqueueWithUserAgent:userAgent];
+    }];
+}
+
+-(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
+{
     NSString* userId = [IOSUtils getUserId];
-    NSString* userAgent = [NSString stringWithFormat:@"%@;%@", [IOSUtils getUserAgent], [IOSUtils getLibraryVersion]];
+    NSString* userAgent = [NSString stringWithFormat:@"%@;%@", secretAgent, [IOSUtils getLibraryVersion]];
     NSString* sdkVersion = [IOSUtils getSdkVersion];
     
     QueueService* qs = [QueueService sharedInstance];

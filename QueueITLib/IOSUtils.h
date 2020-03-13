@@ -2,7 +2,7 @@
 
 @interface IOSUtils : NSObject
 +(NSString*)getUserId;
-+(NSString*)getUserAgent;
++(void)getUserAgent:(void (^)(NSString*))completionHandler;
 +(NSString*)getLibraryVersion;
 +(NSString*)getSdkVersion;
 @end
