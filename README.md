@@ -11,7 +11,7 @@ In version 2.12.X the QueueITEngine will switch on the installed version of iOS 
 
 Therefore the minimum iOS version for 2.12.X is 8.3, where WKWebViews were introduced. In the same round we have removed the target limit for iPhone only, so the library can be used with iPads as well.
 
-From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will only use WKWebView. Furthermore, the lowest supported version of iOS has been updated to version 11.4.
+From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will only use WKWebView. Furthermore, the lowest supported version of iOS has been updated to version 9.3.
 
 ### CocoaPods
 
@@ -25,11 +25,11 @@ To integrate the SDK into your Xcode project using CocoaPods, specify it in your
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '11.4'
+platform :ios, '9.3'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'QueueITLibrary', '~> 2.13.0'
+    pod 'QueueITLibrary', '~> 2.13.2'
 end
 ```
 
