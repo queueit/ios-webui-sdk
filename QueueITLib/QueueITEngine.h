@@ -28,7 +28,7 @@ typedef enum {
                    language:(NSString*)language;
 
 -(void)setViewDelay:(int)delayInterval;
--(void)run;
+-(BOOL)run:(NSError *__autoreleasing *)error;
 -(void)raiseQueuePassed:(NSString*) queueitToken;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;

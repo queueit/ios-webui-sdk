@@ -65,7 +65,11 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
             return;
         }
     }
-    @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:NetworkUnavailable] userInfo:nil];
+    NSError *error = [NSError errorWithDomain:@"QueueService"
+                                         code: 0
+                                     userInfo:@{ NSLocalizedDescriptionKey: [self errorTypeEnumToString:NetworkUnavailable] }];
+    
+    @throw error;
 }
 
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal
@@ -82,13 +86,21 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     return self.requestInProgress;
 }
 
--(void)run
+-(BOOL)run:(NSError *__autoreleasing *)error;
 {
-    [self checkConnection];
+    @try {
+        [self checkConnection];
+    }
+    @catch(NSError *theError) {
+        *error = theError;
+        return NO;
+    }
     
-    if(self.requestInProgress)
-    {
-        @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:RequestAlreadyInProgress] userInfo:nil];
+    if(self.requestInProgress) {
+        *error = [NSError errorWithDomain:@"QueueService"
+                                     code: 1
+                                 userInfo:@{ NSLocalizedDescriptionKey: [self errorTypeEnumToString:RequestAlreadyInProgress] }];
+        return NO;
     }
     
     self.requestInProgress = YES;
@@ -96,7 +108,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     if (![self tryShowQueueFromCache]) {
         [self tryEnqueue];
     }
-    
+    return YES;
 }
 
 -(BOOL)tryShowQueueFromCache
