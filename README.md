@@ -13,6 +13,8 @@ Therefore the minimum iOS version for 2.12.X is 8.3, where WKWebViews were intro
 
 From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will only use WKWebView. Furthermore, the lowest supported version of iOS has been updated to version 9.3.
 
+Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
+
 ### CocoaPods
 
 [CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
@@ -29,7 +31,7 @@ platform :ios, '9.3'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'QueueITLibrary', '~> 2.13.2'
+    pod 'QueueITLibrary', '~> 3.0.0'
 end
 ```
 
@@ -76,15 +78,26 @@ The implementation of the example controller looks like follows:
     
     @try
     {
-        [self.engine run];
+        NSError* error = nil;
+        BOOL success = [self.engine run:&error];
+        if (!success) {
+            if ([error code] == NetworkUnavailable) {
+                // Thrown when Queue-It detects no internet connectivity
+                NSLog(@"%ld", (long)[error code]);
+                NSLog(@"Network unavailable was caught in DetailsViewController");
+                NSLog(@"isRequestInProgress - %@", self.engine.isRequestInProgress ? @"YES" : @"NO");
+            }
+            else if ([error code] == RequestAlreadyInProgress) {
+                // Thrown when request to Queue-It has already been made and currently in progress. In general you can ignore this.
+            }
+            else {
+                NSLog(@"Unknown error was returned by QueueITEngine in DetailsViewController");
+            }
+        }
     }
     @catch (NSException *exception)
     {
-        if ([exception reason] == [self.engine errorTypeEnumToString:NetworkUnavailable]) {
-            // Thrown when Queue-It detects no internet connectivity
-        } else if ([exception reason] == [self.engine errorTypeEnumToString:RequestAlreadyInProgress]) {
-            // Thrown when request to Queue-It has already been made and currently in progress. In general you can ignore this.
-        }
+        NSLog(@"Exception was caught in DetailsViewController");
     }
 }
 
