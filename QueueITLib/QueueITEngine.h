@@ -16,8 +16,8 @@
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
-    NetworkUnavailable,
-    RequestAlreadyInProgress
+    NetworkUnavailable = -100,
+    RequestAlreadyInProgress = 10
 } QueueITRuntimeError;
 #define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
 
@@ -28,7 +28,7 @@ typedef enum {
                    language:(NSString*)language;
 
 -(void)setViewDelay:(int)delayInterval;
--(void)run;
+-(BOOL)run:(NSError **)error;
 -(void)raiseQueuePassed:(NSString*) queueitToken;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
