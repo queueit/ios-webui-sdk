@@ -18,8 +18,7 @@ WKWebView* webView;
             completionHandler(userAgent);
         }
         else {
-            NSLog(@"Error getting userAgent");
-            NSLog(@"%@", [error localizedDescription]);
+            NSLog(@"Error getting userAgent: %@", [error localizedDescription]);
             completionHandler(@"");
         }
     }];
