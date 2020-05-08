@@ -1,7 +1,8 @@
-#import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 #import "IOSUtils.h"
 
 @implementation IOSUtils
+WKWebView* webView;
 
 +(NSString*)getUserId{
     UIDevice* device = [[UIDevice alloc]init];
@@ -10,10 +11,20 @@
     return uuid;
 }
 
-+(NSString*)getUserAgent{
-    UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-    NSString* secretAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-    return secretAgent;
++(void)getUserAgent:(void (^)(NSString*))completionHandler{
+    WKWebView* view = [[WKWebView alloc] initWithFrame:CGRectZero];
+    [view evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable userAgent, NSError * _Nullable error) {
+        if (error == nil) {
+            completionHandler(userAgent);
+        }
+        else {
+            NSLog(@"Error getting userAgent");
+            NSLog(@"%@", [error localizedDescription]);
+            completionHandler(@"");
+        }
+    }];
+    
+    webView = view;
 }
 
 +(NSString*)getLibraryVersion{
@@ -28,7 +39,7 @@
 }
 
 +(NSString*)getSdkVersion{
-    return @"iOS-2.12.2";
+    return @"iOS-2.13.2";
 }
 
 @end
