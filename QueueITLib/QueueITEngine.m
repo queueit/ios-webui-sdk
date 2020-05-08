@@ -155,11 +155,11 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     [self raiseQueueViewWillOpen];
     
     QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
-                                                                         queueEngine:self
-                                                                            queueUrl:queueUrl
-                                                                      eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                             eventId:self.eventId];
+                                                                           queueEngine:self
+                                                                              queueUrl:queueUrl
+                                                                        eventTargetUrl:targetUrl
+                                                                            customerId:self.customerId
+                                                                               eventId:self.eventId];
 
     queueWKVC.closeImage = self.closeImage;
     queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
