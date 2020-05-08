@@ -1,2 +1,2 @@
-source ‘https://github.com/queueit/ios-webui-sdk’
+source ‘https://github.com/qoqa/ios-webui-sdk’
 
