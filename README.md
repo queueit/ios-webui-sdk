@@ -2,7 +2,7 @@
 
 # Queue-It iOS WebUI SDK
 
-Library for integrating Queue-It into an iOS app:
+Library for integrating Queue-It's virtual waiting room into an iOS app that is written in either objective-c or swift.
 
 ## Installation
 
