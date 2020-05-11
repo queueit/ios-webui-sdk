@@ -76,28 +76,20 @@ The implementation of the example controller looks like follows:
     self.engine.queueITUnavailableDelegate = self; // Invoked in case QueueIT is unavailable (500 errors)
     self.engine.queueUserExitedDelegate = self; // Invoked when user chooses to leave the queue
     
-    @try
-    {
-        NSError* error = nil;
-        BOOL success = [self.engine run:&error];
-        if (!success) {
-            if ([error code] == NetworkUnavailable) {
-                // Thrown when Queue-It detects no internet connectivity
-                NSLog(@"%ld", (long)[error code]);
-                NSLog(@"Network unavailable was caught in DetailsViewController");
-                NSLog(@"isRequestInProgress - %@", self.engine.isRequestInProgress ? @"YES" : @"NO");
-            }
-            else if ([error code] == RequestAlreadyInProgress) {
-                // Thrown when request to Queue-It has already been made and currently in progress. In general you can ignore this.
-            }
-            else {
-                NSLog(@"Unknown error was returned by QueueITEngine in DetailsViewController");
-            }
+    NSError* error = nil;
+    BOOL success = [self.engine run:&error];
+    if (!success) {            if ([error code] == NetworkUnavailable) {
+            // Thrown when Queue-It detects no internet connectivity
+            NSLog(@"%ld", (long)[error code]);
+            NSLog(@"Network unavailable was caught in DetailsViewController");
+            NSLog(@"isRequestInProgress - %@", self.engine.isRequestInProgress ? @"YES" : @"NO");
         }
-    }
-    @catch (NSException *exception)
-    {
-        NSLog(@"Exception was caught in DetailsViewController");
+        else if ([error code] == RequestAlreadyInProgress) {
+            // Thrown when request to Queue-It has already been made and currently in progress. In general you can ignore this.
+        }
+        else {
+             NSLog(@"Unknown error was returned by QueueITEngine in DetailsViewController");
+        }
     }
 }
 
