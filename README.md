@@ -93,34 +93,43 @@ The implementation of the example controller looks like follows:
     }
 }
 
+// This callback will be triggered when the user has been through the queue.
+// Here you should store session information, so user will only be sent to queue again if the session has timed out. 
 -(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo { 
-    // Callback for engine.queuePassedDelegate
     NSLog(@"You have been through the queue");
     NSLog(@"QUEUE TOKEN: %@", queuePassedInfo.queueitToken);
 }
 
+// This callback will be triggered just before the webview (hosting the queue page) will be shown.
+// Here you can change some relevant UI elements. 
 -(void) notifyQueueViewWillOpen { 
-    // Callback for engine.queueViewWillOpenDelegate
     NSLog(@"Queue will open");
 }
 
+// This callback will be triggered when the queue used (event alias ID) is in the 'disabled' state.
+// Most likely the application should still function, but the queue's 'disabled' state can be changed at any time, 
+// so session handling is important.
 -(void) notifyQueueDisabled { 
-    // Callback for engine.queueDisabledDelegate
     NSLog(@"Queue is disabled");
 }
 
+// This callback will be triggered when the mobile application can't reach Queue-it's servers.
+// Most likely because the mobile device has no internet connection.
+// Here you decide if the application should function or not now that is has no queue-it protection.
 -(void) notifyQueueITUnavailable: (NSString*) errorMessage { 
-    // Callback for engine.queueITUnavailableDelegate
     NSLog(@"QueueIT is currently unavailable");
 }
 
+// This callback will be triggered when user has been on the queue page via the webview
+// but decided to click the 'leave the queue' button/link.
+// Most likely you would want to clear any session and refresh so user will be joining the queue again.
+// We do recommend you to hide 'leave queue' on your queue page so this callback should not be handled in most cases.
 -(void) notifyUserExited {
-    // Callback for engine.queueUserExitedDelegate 
     NSLog(@"User has left the queue");
 }
 ```
 As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
-After you have received the "On Queue Passed callback", the app must remember this, possibly with a date / time expiration.
+After you have received the "notifyYourTurn callback", the app must remember this, possibly with a date / time expiration.
 When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
 When the user clicks back, the same check needs to be done.
 
