@@ -164,10 +164,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     queueWKVC.closeImage = self.closeImage;
     queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
 
-    if (@available(iOS 13.0, *)) {
-        [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
-    }
-
     if (self.delayInterval > 0) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.host presentViewController:queueWKVC animated:YES completion:nil];
