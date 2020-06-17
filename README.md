@@ -6,6 +6,9 @@ Library for integrating Queue-It's virtual waiting room into an iOS app that is 
 
 ## Installation
 
+Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform. 
+This whitepaper contains the needed information to perform a successful integration.
+
 ### Requirements
 In version 2.12.X the QueueITEngine will switch on the installed version of iOS as the old UIWebView has been marked deprecated from iOS 12. If the iOS version is above version 10.0.0 the newer WKWebView will be used instead of UIWebView.
 
