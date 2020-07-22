@@ -4,6 +4,8 @@
 static QueueService *SharedInstance;
 
 static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
+static NSString * const TESTING_API_ROOT = @"https://%@.test.queue-it.net/api/queue";
+static bool testingIsEnabled = NO;
 
 @implementation QueueService
 
@@ -15,6 +17,11 @@ static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
     });
     
     return SharedInstance;
+}
+
++ (void) setTesting:(bool)enabled
+{
+    testingIsEnabled = enabled;
 }
 
 -(NSString*)enqueue:(NSString *)customerId
@@ -38,7 +45,12 @@ static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
         bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion };
     }
     
-    NSString* urlAsString = [NSString stringWithFormat:API_ROOT, customerId];
+    NSString* urlAsString;
+    if(testingIsEnabled){
+        urlAsString = [NSString stringWithFormat:TESTING_API_ROOT, customerId];
+    }else{
+        urlAsString = [NSString stringWithFormat:API_ROOT, customerId];
+    }
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", customerId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", eventorAliasId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/appenqueue"]];
