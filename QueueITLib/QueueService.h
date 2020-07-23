@@ -6,6 +6,7 @@ typedef void (^QueueServiceFailure)(NSError *error, NSString* errorMessage);
 
 @interface QueueService : NSObject
 + (QueueService *)sharedInstance;
++ (void) setTesting:(bool)enabled;
 
 -(NSString*)enqueue:(NSString*)customerId
      eventOrAliasId:(NSString*)eventorAliasId
