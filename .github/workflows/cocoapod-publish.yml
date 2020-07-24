@@ -1,0 +1,16 @@
+name: Publish to cocoapods on new release
+on:
+  release:
+    types: [released]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Cocoapods
+      run: |
+        gem install cocoapods
+    - uses: michaelhenry/deploy-to-cocoapods-github-action@1.0.9
+      env:
+        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
