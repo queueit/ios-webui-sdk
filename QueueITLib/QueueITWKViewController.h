@@ -10,5 +10,7 @@
                  customerId:(NSString*)customerId
                     eventId:(NSString*)eventId;
 
+- (void)close;
+
 @end
 

@@ -37,6 +37,12 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return self;
 }
 
+- (void)close {
+    [self.host dismissViewControllerAnimated:YES completion:^{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -78,6 +84,14 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
             if(urlString != nil && ![urlString isEqualToString:@"about:blank"]) {
                 BOOL isQueueUrl = [self.queueUrl containsString:url.host];
                 BOOL isNotFrame = [[[request URL] absoluteString] isEqualToString:[[request mainDocumentURL] absoluteString]];
+                BOOL isHandledByApp = NO;
+                if(!isQueueUrl){
+                    isHandledByApp = [self.engine raiseNavigationAction:url];
+                }
+                if(isHandledByApp){
+                    decisionHandler(WKNavigationActionPolicyCancel);
+                    return;
+                }
                 if (isNotFrame) {
                     if (isQueueUrl) {
                         [self.engine updateQueuePageUrl:urlString];

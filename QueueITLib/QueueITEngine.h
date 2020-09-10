@@ -6,6 +6,7 @@
 @protocol QueueDisabledDelegate;
 @protocol QueueITUnavailableDelegate;
 @protocol QueueUserExitedDelegate;
+@protocol QueueNavigationActionDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
@@ -13,6 +14,7 @@
 @property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
+@property (nonatomic)id<QueueNavigationActionDelegate> queueNavigationActionDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -35,6 +37,8 @@ typedef enum {
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
 -(void)raiseUserExited;
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
+-(BOOL)raiseNavigationAction:(NSURL*)url;
+-(void)close;
 
 @end
 
@@ -56,4 +60,8 @@ typedef enum {
 
 @protocol QueueUserExitedDelegate <NSObject>
 -(void)notifyUserExited;
+@end
+
+@protocol QueueNavigationActionDelegate <NSObject>
+-(BOOL)notifyNavigation:(NSURL*) url;
 @end

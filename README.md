@@ -54,7 +54,7 @@ In this example we have a `UITableViewController` that we want to protect using 
 #import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
 
-@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate>
+@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate, QueueNavigationActionDelegate>
 -(void)initAndRunQueueIt;
 @end
 ```
@@ -78,6 +78,7 @@ The implementation of the example controller looks like follows:
     self.engine.queueDisabledDelegate = self; // Invoked to notify that queue is disabled
     self.engine.queueITUnavailableDelegate = self; // Invoked in case QueueIT is unavailable (500 errors)
     self.engine.queueUserExitedDelegate = self; // Invoked when user chooses to leave the queue
+    //self.engine.queueNavigationActionDelegate = self; // If you want to override navigation
     
     NSError* error = nil;
     BOOL success = [self.engine run:&error];
@@ -129,6 +130,15 @@ The implementation of the example controller looks like follows:
 // We do recommend you to hide 'leave queue' on your queue page so this callback should not be handled in most cases.
 -(void) notifyUserExited {
     NSLog(@"User has left the queue");
+}
+
+//This callback will be triggered whenever the user clicks on a non-Queue-it link in the waiting page. It can be used to override the navigation. If true is returned, then the navigation will be cancelled.
+- (BOOL)notifyNavigation:(NSURL *)url {
+    if([[url absoluteString] isEqualToString: @"https://example.com/"]){
+        //Put your additional actions here..
+        return YES;
+    }
+    return NO;
 }
 ```
 As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.

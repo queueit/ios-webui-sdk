@@ -25,6 +25,7 @@
 
 static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
+QueueITWKViewController *currentWebView;
 
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
@@ -43,6 +44,21 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
     }
     return self;
+}
+
+-(void)close
+{
+    NSLog(@"Closing webview");
+    if(currentWebView!=nil){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [currentWebView close];
+        });
+    }
+}
+
+-(BOOL) raiseNavigationAction:(NSURL*) url
+{
+    return [self.queueNavigationActionDelegate notifyNavigation:url];
 }
 
 -(void)setViewDelay:(int)delayInterval {
@@ -132,6 +148,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                                                                       eventTargetUrl:targetUrl
                                                                           customerId:self.customerId
                                                                              eventId:self.eventId];
+    currentWebView = queueWKVC;
+    
     if (@available(iOS 13.0, *)) {
         [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
     }
