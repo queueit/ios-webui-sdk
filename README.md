@@ -136,6 +136,7 @@ The implementation of the example controller looks like follows:
 - (BOOL)notifyNavigation:(NSURL *)url {
     if([[url absoluteString] isEqualToString: @"https://example.com/"]){
         //Put your additional actions here..
+        //[self.engine close];
         return YES;
     }
     return NO;
