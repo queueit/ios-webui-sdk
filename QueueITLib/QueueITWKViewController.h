@@ -3,14 +3,16 @@
 
 @interface QueueITWKViewController : UIViewController
 
--(instancetype)initWithHost:(UIViewController *)host
-                queueEngine:(QueueITEngine*) engine
-                   queueUrl:(NSString*)queueUrl
-             eventTargetUrl:(NSString*)eventTargetUrl
-                 customerId:(NSString*)customerId
-                    eventId:(NSString*)eventId;
+-(instancetype _Nullable )initWithHost:(nonnull UIViewController *)host
+                queueEngine:(nonnull QueueITEngine*) engine
+                   queueUrl:(nonnull NSString*)queueUrl
+             eventTargetUrl:(nonnull NSString*)eventTargetUrl
+                 customerId:(nonnull NSString*)customerId
+                    eventId:(nonnull NSString*)eventId;
 
 - (void)close;
 
+- (BOOL)handleSpecialUrls:(nonnull NSURL*) url
+          decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler;
 @end
 

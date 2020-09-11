@@ -42,6 +42,16 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
+- (BOOL)handleSpecialUrls:(NSURL*) url
+    decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
+    if([[url absoluteString] isEqualToString: QueueCloseUrl]){
+        [self close];
+        [self.engine raiseViewClosed];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return true;
+    }
+    return NO;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -92,6 +102,10 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     decisionHandler(WKNavigationActionPolicyCancel);
                     return;
                 }
+                if([self handleSpecialUrls:url decisionHandler:decisionHandler]){
+                    return;
+                }
+                
                 if (isNotFrame) {
                     if (isQueueUrl) {
                         [self.engine updateQueuePageUrl:urlString];

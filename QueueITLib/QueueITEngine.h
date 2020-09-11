@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "QueuePassedInfo.h"
+#import "QueueConsts.h"
 
 @protocol QueuePassedDelegate;
 @protocol QueueViewWillOpenDelegate;
@@ -7,6 +8,7 @@
 @protocol QueueITUnavailableDelegate;
 @protocol QueueUserExitedDelegate;
 @protocol QueueNavigationActionDelegate;
+@protocol QueueViewClosedDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
@@ -15,6 +17,7 @@
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
 @property (nonatomic)id<QueueNavigationActionDelegate> queueNavigationActionDelegate;
+@property (nonatomic)id<QueueViewClosedDelegate> queueViewClosedDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -38,6 +41,7 @@ typedef enum {
 -(void)raiseUserExited;
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
 -(BOOL)raiseNavigationAction:(NSURL*)url;
+-(void)raiseViewClosed;
 -(void)close;
 
 @end
@@ -64,4 +68,8 @@ typedef enum {
 
 @protocol QueueNavigationActionDelegate <NSObject>
 -(BOOL)notifyNavigation:(NSURL*) url;
+@end
+
+@protocol QueueViewClosedDelegate <NSObject>
+-(BOOL)notifyViewClosed;
 @end

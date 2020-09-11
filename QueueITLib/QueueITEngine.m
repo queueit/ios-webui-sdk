@@ -283,6 +283,11 @@ QueueITWKViewController *currentWebView;
     [self.queueDisabledDelegate notifyQueueDisabled];
 }
 
+-(void) raiseViewClosed
+{
+    [self.queueViewClosedDelegate notifyViewClosed];
+}
+
 -(void) raiseUserExited
 {
     if (self.isInQueue) {
