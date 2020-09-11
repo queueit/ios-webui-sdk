@@ -71,5 +71,5 @@ typedef enum {
 @end
 
 @protocol QueueViewClosedDelegate <NSObject>
--(BOOL)notifyViewClosed;
+-(void)notifyViewClosed;
 @end
