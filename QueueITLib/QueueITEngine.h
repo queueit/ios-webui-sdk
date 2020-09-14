@@ -42,7 +42,7 @@ typedef enum {
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
 -(BOOL)raiseNavigationAction:(NSURL*)url;
 -(void)raiseViewClosed;
--(void)close;
+-(void)close: (void (^ __nullable)(void))onComplete;
 
 @end
 

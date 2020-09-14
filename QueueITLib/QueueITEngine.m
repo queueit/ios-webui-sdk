@@ -46,12 +46,12 @@ QueueITWKViewController *currentWebView;
     return self;
 }
 
--(void)close
+-(void)close: (void (^ __nullable)(void))onComplete
 {
     NSLog(@"Closing webview");
     if(currentWebView!=nil){
         dispatch_async(dispatch_get_main_queue(), ^{
-            [currentWebView close];
+            [currentWebView close: onComplete];
         });
     }
 }

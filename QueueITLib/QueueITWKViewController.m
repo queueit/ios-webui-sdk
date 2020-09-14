@@ -37,15 +37,19 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return self;
 }
 
-- (void)close {
+- (void)close: (void (^ __nullable)(void))onComplete {
     [self.host dismissViewControllerAnimated:YES completion:^{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        if(onComplete!=nil){
+            onComplete();
+        }
     }];
 }
+
 - (BOOL)handleSpecialUrls:(NSURL*) url
     decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
     if([[url absoluteString] isEqualToString: QueueCloseUrl]){
-        [self close];
+        [self close: nil];
         [self.engine raiseViewClosed];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;
