@@ -6,7 +6,7 @@ Library for integrating Queue-It's virtual waiting room into an iOS app that is 
 
 ## Installation
 
-Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform. 
+Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform.
 This whitepaper contains the needed information to perform a successful integration.
 
 ### Requirements
@@ -34,7 +34,7 @@ platform :ios, '9.3'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'QueueITLibrary', '~> 3.0.0'
+    pod 'QueueITLibrary', '~> 3.0.3'
 end
 ```
 
@@ -54,7 +54,7 @@ In this example we have a `UITableViewController` that we want to protect using 
 #import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
 
-@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate>
+@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate, QueueViewClosedDelegate>
 -(void)initAndRunQueueIt;
 @end
 ```
@@ -70,7 +70,7 @@ The implementation of the example controller looks like follows:
     NSString* eventOrAliasId = @"yourEventId"; // Required
     NSString* layoutName = @"yourLayoutName"; // Optional (pass nil if no layout specified)
     NSString* language = @"en-US"; // Optional (pass nil if no language specified)
-    
+
     self.engine = [[QueueITEngine alloc]initWithHost:self customerId:customerId eventOrAliasId:eventOrAliasId layoutName:layoutName language:language];
     [self.engine setViewDelay:5]; // Optional delay parameter you can specify (in case you want to inject some animation before Queue-It UIWebView or WKWebView will appear
     self.engine.queuePassedDelegate = self; // Invoked once the user is passed the queue
@@ -78,10 +78,12 @@ The implementation of the example controller looks like follows:
     self.engine.queueDisabledDelegate = self; // Invoked to notify that queue is disabled
     self.engine.queueITUnavailableDelegate = self; // Invoked in case QueueIT is unavailable (500 errors)
     self.engine.queueUserExitedDelegate = self; // Invoked when user chooses to leave the queue
+    self.engine.queueViewClosedDelegate = self; // Invoked after the WebView is closed
     
     NSError* error = nil;
     BOOL success = [self.engine run:&error];
-    if (!success) {            if ([error code] == NetworkUnavailable) {
+    if (!success) {
+        if ([error code] == NetworkUnavailable) {
             // Thrown when Queue-It detects no internet connectivity
             NSLog(@"%ld", (long)[error code]);
             NSLog(@"Network unavailable was caught in DetailsViewController");
@@ -97,40 +99,38 @@ The implementation of the example controller looks like follows:
 }
 
 // This callback will be triggered when the user has been through the queue.
-// Here you should store session information, so user will only be sent to queue again if the session has timed out. 
--(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo { 
+// Here you should store session information, so user will only be sent to queue again if the session has timed out.
+-(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo {
     NSLog(@"You have been through the queue");
     NSLog(@"QUEUE TOKEN: %@", queuePassedInfo.queueitToken);
 }
 
 // This callback will be triggered just before the webview (hosting the queue page) will be shown.
-// Here you can change some relevant UI elements. 
--(void) notifyQueueViewWillOpen { 
+// Here you can change some relevant UI elements.
+-(void) notifyQueueViewWillOpen {
     NSLog(@"Queue will open");
 }
 
 // This callback will be triggered when the queue used (event alias ID) is in the 'disabled' state.
-// Most likely the application should still function, but the queue's 'disabled' state can be changed at any time, 
+// Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
 // so session handling is important.
--(void) notifyQueueDisabled { 
+-(void) notifyQueueDisabled {
     NSLog(@"Queue is disabled");
 }
 
 // This callback will be triggered when the mobile application can't reach Queue-it's servers.
 // Most likely because the mobile device has no internet connection.
 // Here you decide if the application should function or not now that is has no queue-it protection.
--(void) notifyQueueITUnavailable: (NSString*) errorMessage { 
+-(void) notifyQueueITUnavailable: (NSString*) errorMessage {
     NSLog(@"QueueIT is currently unavailable");
 }
 
-// This callback will be triggered when user has been on the queue page via the webview
-// but decided to click the 'leave the queue' button/link.
-// Most likely you would want to clear any session and refresh so user will be joining the queue again.
-// We do recommend you to hide 'leave queue' on your queue page so this callback should not be handled in most cases.
--(void) notifyUserExited {
-    NSLog(@"User has left the queue");
+// This callback will be triggered after a user clicks a close link in the layout and the WebView closes.
+-(void)notifyViewClosed {
+    NSLog(@"The queue view was closed.")
 }
 ```
+
 As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
 After you have received the "notifyYourTurn callback", the app must remember this, possibly with a date / time expiration.
 When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.

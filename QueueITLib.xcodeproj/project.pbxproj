@@ -68,6 +68,7 @@
 		1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOSUtils.m; sourceTree = "<group>"; };
 		1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueITEngine.h; sourceTree = "<group>"; };
 		1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueITEngine.m; sourceTree = "<group>"; };
+		90564B2E250A54AF009582C2 /* QueueConsts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueueConsts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +126,7 @@
 				1DE12FB11B57F29A00DD3BBE /* Services */,
 				1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */,
 				1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */,
+				90564B2E250A54AF009582C2 /* QueueConsts.h */,
 			);
 			path = QueueITLib;
 			sourceTree = "<group>";
