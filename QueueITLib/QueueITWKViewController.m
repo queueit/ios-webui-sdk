@@ -46,8 +46,27 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     }];
 }
 
+- (BOOL) isTargetUrl:(nonnull NSURL*) targetUrl
+      destinationUrl:(nonnull NSURL*) destinationUrl {
+    NSString* destinationHost = destinationUrl.host;
+    NSString* destinationPath = destinationUrl.path;
+    NSString* targetHost = targetUrl.host;
+    NSString* targetPath = targetUrl.path;
+    
+    return [destinationHost isEqualToString: targetHost]
+    && [destinationPath isEqualToString: targetPath];
+}
+
+- (BOOL) isBlockedUrl:(nonnull NSURL*) destinationUrl {
+    NSString* path = destinationUrl.path;
+    if([path hasPrefix: @"/what-is-this.html"]){
+        return true;
+    }
+    return false;
+}
+
 - (BOOL)handleSpecialUrls:(NSURL*) url
-    decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
+          decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
     if([[url absoluteString] isEqualToString: QueueCloseUrl]){
         [self close: ^{
             [self.engine raiseViewClosed];
@@ -99,15 +118,22 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
             if(urlString != nil && ![urlString isEqualToString:@"about:blank"]) {
                 BOOL isQueueUrl = [self.queueUrl containsString:url.host];
                 BOOL isNotFrame = [[[request URL] absoluteString] isEqualToString:[[request mainDocumentURL] absoluteString]];
-
+                
                 if([self handleSpecialUrls:url decisionHandler:decisionHandler]){
                     return;
                 }
+                
+                if([self isBlockedUrl: url]){
+                    decisionHandler(WKNavigationActionPolicyCancel);
+                    return;
+                }
+                
                 if (isNotFrame) {
                     if (isQueueUrl) {
                         [self.engine updateQueuePageUrl:urlString];
                     }
-                    if ([targetUrl.host containsString:url.host]) {
+                    if ([self isTargetUrl: targetUrl
+                           destinationUrl: url]) {
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
                         [self.engine raiseQueuePassed:queueitToken];
