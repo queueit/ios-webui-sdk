@@ -39,7 +39,7 @@ WKWebView* webView;
 }
 
 +(NSString*)getSdkVersion{
-    return @"iOS-3.0.0";
+    return @"iOS-3.0.4";
 }
 
 @end
