@@ -126,6 +126,8 @@ The implementation of the example controller looks like follows:
 }
 
 // This callback will be triggered after a user clicks a close link in the layout and the WebView closes.
+// The close link is "queueit://close". Whenever the user navigates to this link, the SDK intercepts the navigation
+// and closes the webview.
 -(void)notifyViewClosed {
     NSLog(@"The queue view was closed.")
 }
