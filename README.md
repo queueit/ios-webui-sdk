@@ -71,7 +71,7 @@ The implementation of the example controller looks like follows:
     NSString* layoutName = @"yourLayoutName"; // Optional (pass nil if no layout specified)
     NSString* language = @"en-US"; // Optional (pass nil if no language specified)
 
-    self.engine = [[QueueITEngine alloc]initWithHost:self customerId:customerId eventOrAliasId:eventOrAliasId layoutName:layoutName language:language];
+    self.engine = [[QueueITEngine alloc]initWithHost:self customerId:customerId eventOrAliasId:waitingRoomIdOrAlias layoutName:layoutName language:language];
     [self.engine setViewDelay:5]; // Optional delay parameter you can specify (in case you want to inject some animation before Queue-It UIWebView or WKWebView will appear
     self.engine.queuePassedDelegate = self; // Invoked once the user is passed the queue
     self.engine.queueViewWillOpenDelegate = self; // Invoked to notify that Queue-It UIWebView or WKWebview will open
