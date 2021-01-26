@@ -67,7 +67,7 @@ The implementation of the example controller looks like follows:
 -(void)initAndRunQueueIt
 {
     NSString* customerId = @"yourCustomerId"; // Required
-    NSString* eventOrAliasId = @"yourEventId"; // Required
+    NSString* waitingRoomIdOrAlias = @"yourWaitingRoomIdOrAlias"; // Required
     NSString* layoutName = @"yourLayoutName"; // Optional (pass nil if no layout specified)
     NSString* language = @"en-US"; // Optional (pass nil if no language specified)
 
