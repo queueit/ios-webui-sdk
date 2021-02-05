@@ -166,6 +166,50 @@ QueueITWKViewController *currentWebView;
     }];
 }
 
+-(BOOL)isSafetyNet:(NSString*) queueId
+          queueURL:(NSString*) queueURL
+{
+    bool queueIdExists = queueId != nil && queueId != (id)[NSNull null];
+    bool queueUrlExists = queueURL != nil && queueURL != (id)[NSNull null];
+    return queueIdExists && !queueUrlExists;
+}
+
+-(BOOL)isDisabled:(NSString*) queueId
+         queueURL:(NSString*) queueURL
+{
+    bool queueIdExists = queueId != nil && queueId != (id)[NSNull null];
+    bool queueUrlExists = queueURL != nil && queueURL != (id)[NSNull null];
+    return !queueIdExists && !queueUrlExists;
+}
+
+-(void)handleAppEnqueueResponse:(NSString*) queueId
+                       queueURL:(NSString*) queueURL
+           queueURLTTLInMinutes:(int) ttl
+                 eventTargetURL:(NSString*) targetURL
+                   queueItToken:(NSString*) token {
+    //SafetyNet
+    if ([self isSafetyNet:queueId queueURL:queueURL])
+    {
+        [self raiseQueuePassed:token];
+        return;
+    }
+    //Disabled
+    else if ([self isDisabled:queueId queueURL:queueURL]){
+        self.requestInProgress = NO;
+        [self raiseQueueDisabled];
+        return;
+    }
+    
+    //InQueue, PostQueue or Idle
+    self.queueUrlTtl = ttl;
+    [self showQueue:queueURL targetUrl:targetURL];
+    
+    if(ttl>0){
+        NSString* urlTtlString = [self convertTtlMinutesToSecondsString:ttl];
+        [self.cache update:queueURL urlTTL:urlTtlString targetUrl:targetURL];
+    }
+}
+
 -(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
 {
     NSString* userId = [IOSUtils getUserId];
@@ -186,34 +230,11 @@ QueueITWKViewController *currentWebView;
              return;
          }
          
-         bool queueIdExists = queueStatus.queueId != nil && queueStatus.queueId != (id)[NSNull null];
-         bool queueUrlExists = queueStatus.queueUrlString != nil && queueStatus.queueUrlString != (id)[NSNull null];
-         
-         //SafetyNet
-         if (queueIdExists && !queueUrlExists)
-         {
-             [self raiseQueuePassed:queueStatus.queueitToken];
-         }
-         //InQueue
-         else if (queueIdExists && queueUrlExists)
-         {
-             self.queueUrlTtl = queueStatus.queueUrlTTL;
-             [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
-             
-             NSString* urlTtlString = [self convertTtlMinutesToSecondsString:queueStatus.queueUrlTTL];
-             [self.cache update:queueStatus.queueUrlString urlTTL:urlTtlString targetUrl:queueStatus.eventTargetUrl];
-         }
-         //PostQueue or Idle
-         else if (!queueIdExists && queueUrlExists)
-         {
-             [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
-         }
-         //Disabled
-         else
-         {
-             self.requestInProgress = NO;
-             [self raiseQueueDisabled];
-         }
+        [self handleAppEnqueueResponse: queueStatus.queueId
+                              queueURL:queueStatus.queueUrlString
+                  queueURLTTLInMinutes:queueStatus.queueUrlTTL
+                        eventTargetURL:queueStatus.eventTargetUrl
+                          queueItToken:queueStatus.queueitToken];
      }
         failure:^(NSError *error, NSString* errorMessage)
      {

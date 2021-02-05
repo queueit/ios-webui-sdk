@@ -40,6 +40,11 @@ typedef enum {
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
 -(void)raiseViewClosed;
 -(void)close: (void (^ __nullable)(void))onComplete;
+-(void)handleAppEnqueueResponse:(NSString*) queueId
+                       queueURL:(NSString*) queueURL
+           queueURLTTLInMinutes:(int) ttl
+                 eventTargetURL:(NSString*) targetURL
+                   queueItToken:(NSString*) token;
 
 @end
 

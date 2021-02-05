@@ -3,8 +3,8 @@
 
 static QueueService *SharedInstance;
 
-static NSString * const API_ROOT = @"https://%@.queue-it.net/api/queue";
-static NSString * const TESTING_API_ROOT = @"https://%@.test.queue-it.net/api/queue";
+static NSString * const API_ROOT = @"https://%@.queue-it.net/api/mobileapp/queue";
+static NSString * const TESTING_API_ROOT = @"https://%@.test.queue-it.net/api/mobileapp/queue";
 static bool testingIsEnabled = NO;
 
 @implementation QueueService
@@ -53,9 +53,9 @@ static bool testingIsEnabled = NO;
     }
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", customerId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", eventorAliasId]];
-    urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/appenqueue"]];
+    urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/enqueue"]];
     
-    return [self submitPUTPath:urlAsString body:bodyDict
+    return [self submitPOSTPath:urlAsString body:bodyDict
             success:^(NSData *data)
             {
                 NSError *error = nil;
@@ -77,14 +77,14 @@ static bool testingIsEnabled = NO;
             }];
 }
 
-- (NSString *)submitPUTPath:(NSString *)path
+- (NSString *)submitPOSTPath:(NSString *)path
                        body:(NSDictionary *)bodyDict
                     success:(QueueServiceSuccess)success
                     failure:(QueueServiceFailure)failure
 {
     NSURL *url = [NSURL URLWithString:path];
     return [self submitRequestWithURL:url
-                               method:@"PUT"
+                               method:@"POST"
                                  body:bodyDict
                        expectedStatus:200
                               success:success
