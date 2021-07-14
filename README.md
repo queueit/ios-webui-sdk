@@ -10,6 +10,7 @@ Before starting please download the whitepaper **Mobile App Integration** from G
 This whitepaper contains the needed information to perform a successful integration.
 
 ### Requirements
+
 In version 2.12.X the QueueITEngine will switch on the installed version of iOS as the old UIWebView has been marked deprecated from iOS 12. If the iOS version is above version 10.0.0 the newer WKWebView will be used instead of UIWebView.
 
 Therefore the minimum iOS version for 2.12.X is 8.3, where WKWebViews were introduced. In the same round we have removed the target limit for iPhone only, so the library can be used with iPads as well.
@@ -18,12 +19,16 @@ From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will 
 
 Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
 
+### XCFramework
+
+You can manually add the XCFramework that's published in [releases](https://github.com/queueit/ios-webui-sdk/releases).
+
 ### CocoaPods
 
 [CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
 
 ```bash
-$ gem install cocoapods
+gem install cocoapods
 ```
 
 To integrate the SDK into your Xcode project using CocoaPods, specify it in your `Podfile`:
@@ -41,7 +46,7 @@ end
 Then, run the following command:
 
 ```bash
-$ pod install
+pod install
 ```
 
 ## Usage

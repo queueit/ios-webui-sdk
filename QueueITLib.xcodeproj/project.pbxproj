@@ -19,6 +19,8 @@
 		1DE12FBF1B57F3DD00DD3BBE /* IOSUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */; };
 		1DE12FC21B57F42500DD3BBE /* QueueITEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */; };
 		1DE12FF61B58FED600DD3BBE /* QueueITEngine.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */; };
+		90D34E13269DC1B5001EE136 /* QueuePassedInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */; };
+		90D34E14269DC1BA001EE136 /* QueueConsts.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90564B2E250A54AF009582C2 /* QueueConsts.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +40,8 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				90D34E14269DC1BA001EE136 /* QueueConsts.h in CopyFiles */,
+				90D34E13269DC1B5001EE136 /* QueuePassedInfo.h in CopyFiles */,
 				1DE12FF61B58FED600DD3BBE /* QueueITEngine.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -68,7 +72,7 @@
 		1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOSUtils.m; sourceTree = "<group>"; };
 		1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueITEngine.h; sourceTree = "<group>"; };
 		1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueITEngine.m; sourceTree = "<group>"; };
-		90564B2E250A54AF009582C2 /* QueueConsts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueueConsts.h; sourceTree = "<group>"; };
+		90564B2E250A54AF009582C2 /* QueueConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueConsts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,7 @@
 				1DE12F861B57E2ED00DD3BBE /* QueueITLib */,
 				1DE12F931B57E2ED00DD3BBE /* QueueITLibTests */,
 				1DE12F851B57E2ED00DD3BBE /* Products */,
+				90D34DF7269DB25A001EE136 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -182,6 +187,13 @@
 				1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		90D34DF7269DB25A001EE136 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -308,6 +320,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -363,6 +376,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
