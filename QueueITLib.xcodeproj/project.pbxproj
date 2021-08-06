@@ -126,7 +126,8 @@
 				1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */,
 				1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */,
 			);
-			path = QueueITLib;
+			name = QueueITLib;
+			path = Sources/QueueITLib;
 			sourceTree = "<group>";
 		};
 		1DE12F931B57E2ED00DD3BBE /* QueueITLibTests */ = {
