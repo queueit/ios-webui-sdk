@@ -15,7 +15,7 @@ let package = Package(
     targets: [
         .target(
             name: "QueueITLib",
-            dependencies: [])
+            dependencies: []),
         .testTarget(
             name: "QueueITLibTests",
             dependencies: ["QueueITLib"])
