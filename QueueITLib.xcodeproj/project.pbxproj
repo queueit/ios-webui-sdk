@@ -45,28 +45,28 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueuePassedInfo.h; sourceTree = "<group>"; };
+		1D0970CB1F5EA43800495466 /* QueuePassedInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QueuePassedInfo.h; path = include/QueuePassedInfo.h; sourceTree = "<group>"; };
 		1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueuePassedInfo.m; sourceTree = "<group>"; };
-		1D24131F2164D86400DFACE1 /* QueueITWKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueueITWKViewController.h; sourceTree = "<group>"; };
+		1D24131F2164D86400DFACE1 /* QueueITWKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QueueITWKViewController.h; path = include/QueueITWKViewController.h; sourceTree = "<group>"; };
 		1D2413202164D86400DFACE1 /* QueueITWKViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QueueITWKViewController.m; sourceTree = "<group>"; };
-		1DCB83FB1BCE5375009B489A /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		1DCB83FB1BCE5375009B489A /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = include/Reachability.h; sourceTree = "<group>"; };
 		1DCB83FC1BCE5375009B489A /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		1DDF312C1C931DC00036E5EB /* QueueCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueCache.h; sourceTree = "<group>"; };
+		1DDF312C1C931DC00036E5EB /* QueueCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueCache.h; path = include/QueueCache.h; sourceTree = "<group>"; };
 		1DDF312D1C931DC00036E5EB /* QueueCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueCache.m; sourceTree = "<group>"; };
 		1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libQueueITLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DE12F8F1B57E2ED00DD3BBE /* QueueITLibTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueITLibTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DE12F951B57E2EE00DD3BBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1DE12FA51B57F0C000DD3BBE /* QueueService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService.h; sourceTree = "<group>"; };
+		1DE12FA51B57F0C000DD3BBE /* QueueService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueService.h; path = include/QueueService.h; sourceTree = "<group>"; };
 		1DE12FA61B57F0C000DD3BBE /* QueueService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService.m; sourceTree = "<group>"; };
-		1DE12FA81B57F14D00DD3BBE /* QueueService_NSURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService_NSURLConnection.h; sourceTree = "<group>"; };
+		1DE12FA81B57F14D00DD3BBE /* QueueService_NSURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueService_NSURLConnection.h; path = include/QueueService_NSURLConnection.h; sourceTree = "<group>"; };
 		1DE12FA91B57F14D00DD3BBE /* QueueService_NSURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService_NSURLConnection.m; sourceTree = "<group>"; };
-		1DE12FAE1B57F23F00DD3BBE /* QueueService_NSURLConnectionRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService_NSURLConnectionRequest.h; sourceTree = "<group>"; };
+		1DE12FAE1B57F23F00DD3BBE /* QueueService_NSURLConnectionRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueService_NSURLConnectionRequest.h; path = include/QueueService_NSURLConnectionRequest.h; sourceTree = "<group>"; };
 		1DE12FAF1B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService_NSURLConnectionRequest.m; sourceTree = "<group>"; };
-		1DE12FBA1B57F3A300DD3BBE /* QueueStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueStatus.h; sourceTree = "<group>"; };
+		1DE12FBA1B57F3A300DD3BBE /* QueueStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueStatus.h; path = include/QueueStatus.h; sourceTree = "<group>"; };
 		1DE12FBB1B57F3A300DD3BBE /* QueueStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueStatus.m; sourceTree = "<group>"; };
-		1DE12FBD1B57F3DD00DD3BBE /* IOSUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSUtils.h; sourceTree = "<group>"; };
+		1DE12FBD1B57F3DD00DD3BBE /* IOSUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOSUtils.h; path = include/IOSUtils.h; sourceTree = "<group>"; };
 		1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOSUtils.m; sourceTree = "<group>"; };
-		1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueITEngine.h; sourceTree = "<group>"; };
+		1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueueITEngine.h; path = include/QueueITEngine.h; sourceTree = "<group>"; };
 		1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueITEngine.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -126,8 +126,7 @@
 				1DE12FC01B57F42500DD3BBE /* QueueITEngine.h */,
 				1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */,
 			);
-			name = QueueITLib;
-			path = Sources/QueueITLib;
+			path = QueueITLib;
 			sourceTree = "<group>";
 		};
 		1DE12F931B57E2ED00DD3BBE /* QueueITLibTests */ = {

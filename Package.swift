@@ -15,10 +15,8 @@ let package = Package(
     targets: [
         .target(
             name: "QueueITLib",
-            dependencies: []),
-        .testTarget(
-            name: "QueueITLibTests",
-            dependencies: ["QueueITLib"])
+            path: "QueueITLib",
+            publicHeadersPath: "include")
     ],
     swiftLanguageVersions: [
         .version("5")
