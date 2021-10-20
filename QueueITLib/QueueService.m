@@ -31,18 +31,30 @@ static bool testingIsEnabled = NO;
          sdkVersion:(NSString*)sdkVersion
          layoutName:(NSString*)layoutName
            language:(NSString*)language
+       enqueueToken:(NSString*)enqueueToken
+         enqueueKey:(NSString*)enqueueKey
             success:(void (^)(QueueStatus *))success
             failure:(QueueServiceFailure)failure
 {
-    NSDictionary* bodyDict = nil;
-    if (layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName, @"language":language };
-    }else if(layoutName && !language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"layoutName":layoutName };
-    }else if(!layoutName && language) {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion, @"language":language };
-    }else {
-        bodyDict = @{ @"userId": userId, @"userAgent": userAgent, @"sdkVersion":sdkVersion };
+    NSMutableDictionary* bodyDict = [[NSMutableDictionary alloc] init];
+    [bodyDict setObject:userId forKey:@"userId"];
+    [bodyDict setObject:userAgent forKey:@"userAgent"];
+    [bodyDict setObject:sdkVersion forKey:@"sdkVersion"];
+    
+    if(layoutName){
+        [bodyDict setObject:layoutName forKey:@"layoutName"];
+    }
+    
+    if(language){
+        [bodyDict setObject:language forKey:@"language"];
+    }
+    
+    if(enqueueToken){
+        [bodyDict setObject:enqueueToken forKey:@"enqueueToken"];
+    }
+    
+    if(enqueueKey){
+        [bodyDict setObject:enqueueKey forKey:@"enqueueKey"];
     }
     
     NSString* urlAsString;
@@ -56,31 +68,31 @@ static bool testingIsEnabled = NO;
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/enqueue"]];
     
     return [self submitPOSTPath:urlAsString body:bodyDict
-            success:^(NSData *data)
+                        success:^(NSData *data)
             {
-                NSError *error = nil;
-                NSDictionary *userDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-                if (userDict && [userDict isKindOfClass:[NSDictionary class]])
-                {
-                    QueueStatus* queueStatus = [[QueueStatus alloc] initWithDictionary:userDict];
-                    
-                    if (success != NULL) {
-                        success(queueStatus);
-                    }
-                } else if (success != NULL) {
-                    success(NULL);
-                }
+        NSError *error = nil;
+        NSDictionary *userDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        if (userDict && [userDict isKindOfClass:[NSDictionary class]])
+        {
+            QueueStatus* queueStatus = [[QueueStatus alloc] initWithDictionary:userDict];
+            
+            if (success != NULL) {
+                success(queueStatus);
             }
-            failure:^(NSError *error, NSString* errorMessage)
+        } else if (success != NULL) {
+            success(NULL);
+        }
+    }
+                        failure:^(NSError *error, NSString* errorMessage)
             {
-                failure(error, errorMessage);
-            }];
+        failure(error, errorMessage);
+    }];
 }
 
 - (NSString *)submitPOSTPath:(NSString *)path
-                       body:(NSDictionary *)bodyDict
-                    success:(QueueServiceSuccess)success
-                    failure:(QueueServiceFailure)failure
+                        body:(NSDictionary *)bodyDict
+                     success:(QueueServiceSuccess)success
+                     failure:(QueueServiceFailure)failure
 {
     NSURL *url = [NSURL URLWithString:path];
     return [self submitRequestWithURL:url
@@ -90,7 +102,6 @@ static bool testingIsEnabled = NO;
                               success:success
                               failure:failure];
 }
-
 
 #pragma mark - Abstract methods
 - (NSString *)submitRequestWithURL:(NSURL *)URL
@@ -102,6 +113,5 @@ static bool testingIsEnabled = NO;
 {
     return nil;
 }
-
 
 @end

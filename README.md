@@ -59,7 +59,7 @@ In this example we have a `UITableViewController` that we want to protect using 
 #import <UIKit/UIKit.h>
 #import "QueueITEngine.h"
 
-@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate, QueueViewClosedDelegate>
+@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate, QueueViewClosedDelegate, QueueSessionRestartDelegate>
 -(void)initAndRunQueueIt;
 @end
 ```
@@ -84,9 +84,16 @@ The implementation of the example controller looks like follows:
     self.engine.queueITUnavailableDelegate = self; // Invoked in case QueueIT is unavailable (500 errors)
     self.engine.queueUserExitedDelegate = self; // Invoked when user chooses to leave the queue
     self.engine.queueViewClosedDelegate = self; // Invoked after the WebView is closed
+    self.engine.queueSessionRestartDelegate = self; // Invoked after user clicks on a link to restart the session. The link is 'queueit://restartSession'.
     
     NSError* error = nil;
     BOOL success = [self.engine run:&error];
+    /**
+    To enqueue with an enqueue-token or key use one of the following:
+
+    [self.engine runWithEnqueueKey:@"keyValue" error:&error];
+    [self.engine runWithEnqueueToken:@"tokenValue" error:&error];
+    **/
     if (!success) {
         if ([error code] == NetworkUnavailable) {
             // Thrown when Queue-It detects no internet connectivity
@@ -103,38 +110,47 @@ The implementation of the example controller looks like follows:
     }
 }
 
-// This callback will be triggered when the user has been through the queue.
+// This callback will be called when the user has been through the queue.
 // Here you should store session information, so user will only be sent to queue again if the session has timed out.
--(void) notifyYourTurn: (QueuePassedInfo*) queuePassedInfo {
+-(void) notifyYourTurn:(QueuePassedInfo*) queuePassedInfo {
     NSLog(@"You have been through the queue");
     NSLog(@"QUEUE TOKEN: %@", queuePassedInfo.queueitToken);
 }
 
-// This callback will be triggered just before the webview (hosting the queue page) will be shown.
+// This callback will be called just before the webview (hosting the queue page) will be shown.
 // Here you can change some relevant UI elements.
 -(void) notifyQueueViewWillOpen {
     NSLog(@"Queue will open");
 }
 
-// This callback will be triggered when the queue used (event alias ID) is in the 'disabled' state.
+// This callback will be called when the queue used (event alias ID) is in the 'disabled' state.
 // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
 // so session handling is important.
 -(void) notifyQueueDisabled {
     NSLog(@"Queue is disabled");
 }
 
-// This callback will be triggered when the mobile application can't reach Queue-it's servers.
+// This callback will be called when the mobile application can't reach Queue-it's servers.
 // Most likely because the mobile device has no internet connection.
 // Here you decide if the application should function or not now that is has no queue-it protection.
--(void) notifyQueueITUnavailable: (NSString*) errorMessage {
+-(void) notifyQueueITUnavailable:(NSString*) errorMessage {
     NSLog(@"QueueIT is currently unavailable");
 }
 
-// This callback will be triggered after a user clicks a close link in the layout and the WebView closes.
+// This callback will be called after a user clicks a close link in the layout and the WebView closes.
 // The close link is "queueit://close". Whenever the user navigates to this link, the SDK intercepts the navigation
 // and closes the webview.
 -(void)notifyViewClosed {
     NSLog(@"The queue view was closed.")
+}
+
+// This callback will be called when the user clicks on a link to restart the session.
+// The link is 'queueit://restartSession'. Whenever the user navigates to this link, the SDK intercepts the navigation,
+// closes the WebView, clears the URL cache and calls this callback.
+// In this callback you would normally call run/runWithToken/runWithKey in order to restart the queueing.
+-(void) notifySessionRestart {
+    NSLog(@"Session was restarted");
+    [self initAndRunQueueIt];
 }
 ```
 

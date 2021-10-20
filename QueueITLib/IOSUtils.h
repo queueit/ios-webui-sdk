@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "QueueConsts.h"
 
 @interface IOSUtils : NSObject
 +(NSString*)getUserId;

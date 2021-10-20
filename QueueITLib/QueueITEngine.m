@@ -46,7 +46,7 @@ QueueITWKViewController *currentWebView;
     return self;
 }
 
--(void)close: (void (^ __nullable)(void))onComplete
+-(void)close:(void (^ __nullable)(void))onComplete
 {
     NSLog(@"Closing webview");
     if(currentWebView!=nil){
@@ -94,7 +94,26 @@ QueueITWKViewController *currentWebView;
     return self.requestInProgress;
 }
 
+-(BOOL)runWithEnqueueKey:(NSString *)enqueueKey
+                   error:(NSError *__autoreleasing *)error
+{
+    return [self runWithParameters:nil enqueueKey:enqueueKey error:error];
+}
+
+-(BOOL)runWithEnqueueToken:(NSString *)enqueueToken
+                     error:(NSError *__autoreleasing *)error
+{
+    return [self runWithParameters:enqueueToken enqueueKey:nil error:error];
+}
+
 -(BOOL)run:(NSError **)error
+{
+    return [self runWithParameters:nil enqueueKey:nil error:error];
+}
+
+-(BOOL)runWithParameters:(NSString*)enqueueToken
+              enqueueKey:(NSString*)enqueueKey
+                   error:(NSError**)error
 {
     if(![self checkConnection:error]){
         return NO;
@@ -109,7 +128,7 @@ QueueITWKViewController *currentWebView;
     self.requestInProgress = YES;
     
     if (![self tryShowQueueFromCache]) {
-        [self tryEnqueue];
+        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey];
     }
     
     return YES;
@@ -138,11 +157,11 @@ QueueITWKViewController *currentWebView;
     [self raiseQueueViewWillOpen];
     
     QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
-                                                                         queueEngine:self
-                                                                            queueUrl:queueUrl
-                                                                      eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                             eventId:self.eventId];
+                                                                           queueEngine:self
+                                                                              queueUrl:queueUrl
+                                                                        eventTargetUrl:targetUrl
+                                                                            customerId:self.customerId
+                                                                               eventId:self.eventId];
     currentWebView = queueWKVC;
     
     if (@available(iOS 13.0, *)) {
@@ -159,10 +178,11 @@ QueueITWKViewController *currentWebView;
     }
 }
 
--(void)tryEnqueue
+-(void)tryEnqueue:(NSString*)enqueueToken
+       enqueueKey:(NSString*)enqueueKey
 {
     [IOSUtils getUserAgent:^(NSString * userAgent) {
-        [self tryEnqueueWithUserAgent:userAgent];
+        [self tryEnqueueWithUserAgent:userAgent enqueueToken:enqueueToken enqueueKey:enqueueKey];
     }];
 }
 
@@ -211,6 +231,8 @@ QueueITWKViewController *currentWebView;
 }
 
 -(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
+                  enqueueToken:(NSString*)enqueueToken
+                    enqueueKey:(NSString*)enqueueKey
 {
     NSString* userId = [IOSUtils getUserId];
     NSString* userAgent = [NSString stringWithFormat:@"%@;%@", secretAgent, [IOSUtils getLibraryVersion]];
@@ -219,41 +241,45 @@ QueueITWKViewController *currentWebView;
     QueueService* qs = [QueueService sharedInstance];
     [qs enqueue:self.customerId
  eventOrAliasId:self.eventId
-         userId:userId userAgent:userAgent
+         userId:userId
+      userAgent:userAgent
      sdkVersion:sdkVersion
      layoutName:self.layoutName
        language:self.language
+   enqueueToken:enqueueToken
+     enqueueKey:enqueueKey
         success:^(QueueStatus *queueStatus)
      {
-         if (queueStatus == NULL) {
-             [self enqueueRetryMonitor];
-             return;
-         }
-         
+        if (queueStatus == NULL) {
+            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey];
+            return;
+        }
+        
         [self handleAppEnqueueResponse: queueStatus.queueId
                               queueURL:queueStatus.queueUrlString
                   queueURLTTLInMinutes:queueStatus.queueUrlTTL
                         eventTargetURL:queueStatus.eventTargetUrl
                           queueItToken:queueStatus.queueitToken];
-     }
+    }
         failure:^(NSError *error, NSString* errorMessage)
      {
-         if (error.code >= 400 && error.code < 500)
-         {
-             [self.queueITUnavailableDelegate notifyQueueITUnavailable: errorMessage];
-         }
-         else
-         {
-             [self enqueueRetryMonitor];
-         }
-     }];
+        if (error.code >= 400 && error.code < 500)
+        {
+            [self.queueITUnavailableDelegate notifyQueueITUnavailable: errorMessage];
+        }
+        else
+        {
+            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey];
+        }
+    }];
 }
 
--(void)enqueueRetryMonitor
+-(void)enqueueRetryMonitor:(NSString*)enqueueToken
+                enqueueKey:(NSString*)enqueueKey
 {
     if (self.deltaSec < MAX_RETRY_SEC)
     {
-        [self tryEnqueue];
+        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey];
         
         [NSThread sleepForTimeInterval:self.deltaSec];
         self.deltaSec = self.deltaSec * 2;
@@ -299,8 +325,16 @@ QueueITWKViewController *currentWebView;
     [self.queueDisabledDelegate notifyQueueDisabled];
 }
 
+-(void) raiseSessionRestart
+{
+    self.requestInProgress = NO;
+    [self.cache clear];
+    [self.queueSessionRestartDelegate notifySessionRestart];
+}
+
 -(void) raiseViewClosed
 {
+    self.requestInProgress = NO;
     [self.queueViewClosedDelegate notifyViewClosed];
 }
 

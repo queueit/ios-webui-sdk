@@ -10,7 +10,7 @@
                             customerId:(nonnull NSString*)customerId
                                eventId:(nonnull NSString*)eventId;
 
-- (void)close: (void (^ __nullable)(void))completion;
+- (void)close:(void (^ __nullable)(void))completion;
 
 - (BOOL)handleSpecialUrls:(nonnull NSURL*) url
           decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler;
@@ -21,4 +21,3 @@
 - (BOOL) isBlockedUrl:(nonnull NSURL*) destinationUrl;
 
 @end
-

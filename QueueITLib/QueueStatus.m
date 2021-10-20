@@ -12,7 +12,7 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
            queueUrl:(NSString *)queueUrlString
      eventTargetUrl:(NSString *)eventTargetUrl
         queueUrlTTL:(int)queueUrlTTL
-       queueitToken: (NSString *)queueitToken
+       queueitToken:(NSString *)queueitToken
 {
     if(self = [super init]) {
         self.queueId = queueId;

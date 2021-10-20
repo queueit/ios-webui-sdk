@@ -4,6 +4,6 @@
 
 @property (nonatomic, strong) NSString* queueitToken;
 
--(instancetype)initWithQueueitToken: (NSString*) queueitToken;
+-(instancetype)initWithQueueitToken:(NSString*) queueitToken;
 
 @end

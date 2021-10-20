@@ -15,8 +15,9 @@ typedef void (^QueueServiceFailure)(NSError *error, NSString* errorMessage);
          sdkVersion:(NSString*)sdkVersion
          layoutName:(NSString*)layoutName
            language:(NSString*)language
+       enqueueToken:(NSString*)enqueueToken
+         enqueueKey:(NSString*)enqueueKey
             success:(void(^)(QueueStatus* queueStatus))success
             failure:(QueueServiceFailure)failure;
-
 
 @end

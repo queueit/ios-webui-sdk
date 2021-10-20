@@ -37,7 +37,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return self;
 }
 
-- (void)close: (void (^ __nullable)(void))onComplete {
+- (void)close:(void (^ __nullable)(void))onComplete {
     [self.host dismissViewControllerAnimated:YES completion:^{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         if(onComplete!=nil){
@@ -70,6 +70,12 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     if([[url absoluteString] isEqualToString: QueueCloseUrl]){
         [self close: ^{
             [self.engine raiseViewClosed];
+        }];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return true;
+    } else if ([[url absoluteString] isEqualToString: QueueRestartSessionUrl]){
+        [self close:^{
+            [self.engine raiseSessionRestart];
         }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;

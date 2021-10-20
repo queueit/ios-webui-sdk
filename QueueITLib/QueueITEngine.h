@@ -8,6 +8,7 @@
 @protocol QueueITUnavailableDelegate;
 @protocol QueueUserExitedDelegate;
 @protocol QueueViewClosedDelegate;
+@protocol QueueSessionRestartDelegate;
 
 @interface QueueITEngine : NSObject
 @property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
@@ -16,6 +17,7 @@
 @property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
 @property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
 @property (nonatomic)id<QueueViewClosedDelegate> queueViewClosedDelegate;
+@property (nonatomic)id<QueueSessionRestartDelegate> queueSessionRestartDelegate;
 @property (nonatomic, strong)NSString* errorMessage;
 
 typedef enum {
@@ -32,24 +34,33 @@ typedef enum {
 
 -(void)setViewDelay:(int)delayInterval;
 -(BOOL)run:(NSError **)error;
--(void)raiseQueuePassed:(NSString*) queueitToken;
+-(BOOL)runWithEnqueueToken:(NSString*) enqueueToken
+                     error:(NSError **) error;
+-(BOOL)runWithEnqueueKey:(NSString*) enqueueKey
+                   error:(NSError **) error;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
 -(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
--(void)raiseUserExited;
 -(void)updateQueuePageUrl:(NSString*)queuePageUrl;
+-(void)raiseUserExited;
 -(void)raiseViewClosed;
--(void)close: (void (^ __nullable)(void))onComplete;
--(void)handleAppEnqueueResponse:(NSString*) queueId
-                       queueURL:(NSString*) queueURL
+-(void)raiseSessionRestart;
+-(void)raiseQueuePassed:(NSString*) queueitToken;
+-(void)close:(void (^ __nullable)(void))onComplete;
+-(void)handleAppEnqueueResponse:(NSString* _Nullable) queueId
+                       queueURL:(NSString* _Nullable) queueURL
            queueURLTTLInMinutes:(int) ttl
-                 eventTargetURL:(NSString*) targetURL
-                   queueItToken:(NSString*) token;
+                 eventTargetURL:(NSString* _Nullable) targetURL
+                   queueItToken:(NSString* _Nullable) token;
 
 @end
 
 @protocol QueuePassedDelegate <NSObject>
--(void)notifyYourTurn:(QueuePassedInfo*) queuePassedInfo;
+-(void)notifyYourTurn:(QueuePassedInfo* _Nullable) queuePassedInfo;
+@end
+
+@protocol QueueSessionRestartDelegate <NSObject>
+-(void)notifySessionRestart;
 @end
 
 @protocol QueueViewWillOpenDelegate <NSObject>
@@ -61,7 +72,7 @@ typedef enum {
 @end
 
 @protocol QueueITUnavailableDelegate <NSObject>
--(void)notifyQueueITUnavailable: (NSString *) errorMessage;
+-(void)notifyQueueITUnavailable:(NSString *) errorMessage;
 @end
 
 @protocol QueueUserExitedDelegate <NSObject>
