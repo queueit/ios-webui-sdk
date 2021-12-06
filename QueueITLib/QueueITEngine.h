@@ -11,14 +11,14 @@
 @protocol QueueSessionRestartDelegate;
 
 @interface QueueITEngine : NSObject
-@property (nonatomic)id<QueuePassedDelegate> queuePassedDelegate;
-@property (nonatomic)id<QueueViewWillOpenDelegate> queueViewWillOpenDelegate;
-@property (nonatomic)id<QueueDisabledDelegate> queueDisabledDelegate;
-@property (nonatomic)id<QueueITUnavailableDelegate> queueITUnavailableDelegate;
-@property (nonatomic)id<QueueUserExitedDelegate> queueUserExitedDelegate;
-@property (nonatomic)id<QueueViewClosedDelegate> queueViewClosedDelegate;
-@property (nonatomic)id<QueueSessionRestartDelegate> queueSessionRestartDelegate;
-@property (nonatomic, strong)NSString* errorMessage;
+@property (nonatomic)id<QueuePassedDelegate> _Nullable queuePassedDelegate;
+@property (nonatomic)id<QueueViewWillOpenDelegate> _Nullable queueViewWillOpenDelegate;
+@property (nonatomic)id<QueueDisabledDelegate> _Nullable queueDisabledDelegate;
+@property (nonatomic)id<QueueITUnavailableDelegate> _Nullable queueITUnavailableDelegate;
+@property (nonatomic)id<QueueUserExitedDelegate> _Nullable queueUserExitedDelegate;
+@property (nonatomic)id<QueueViewClosedDelegate> _Nullable queueViewClosedDelegate;
+@property (nonatomic)id<QueueSessionRestartDelegate> _Nullable queueSessionRestartDelegate;
+@property (nonatomic, strong)NSString* _Nullable errorMessage;
 
 typedef enum {
     NetworkUnavailable = -100,
@@ -26,26 +26,26 @@ typedef enum {
 } QueueITRuntimeError;
 #define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
 
--(instancetype)initWithHost:(UIViewController *)host
-                 customerId:(NSString*)customerId
-             eventOrAliasId:(NSString*)eventOrAliasId
-                 layoutName:(NSString*)layoutName
-                   language:(NSString*)language;
+-(instancetype _Nonnull )initWithHost:(UIViewController*_Nullable)host
+                 customerId:(NSString*_Nullable)customerId
+             eventOrAliasId:(NSString*_Nullable)eventOrAliasId
+                 layoutName:(NSString*_Nullable)layoutName
+                   language:(NSString*_Nullable)language;
 
 -(void)setViewDelay:(int)delayInterval;
--(BOOL)run:(NSError **)error;
--(BOOL)runWithEnqueueToken:(NSString*) enqueueToken
-                     error:(NSError **) error;
--(BOOL)runWithEnqueueKey:(NSString*) enqueueKey
-                   error:(NSError **) error;
+-(BOOL)run:(NSError *_Nullable*_Nullable)error;
+-(BOOL)runWithEnqueueToken:(NSString*_Nullable) enqueueToken
+                     error:(NSError *_Nullable*_Nullable) error;
+-(BOOL)runWithEnqueueKey:(NSString*_Nullable) enqueueKey
+                   error:(NSError *_Nullable*_Nullable) error;
 -(BOOL)isUserInQueue;
 -(BOOL)isRequestInProgress;
--(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
--(void)updateQueuePageUrl:(NSString*)queuePageUrl;
+-(NSString*_Nullable) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal;
+-(void)updateQueuePageUrl:(NSString*_Nonnull)queuePageUrl;
 -(void)raiseUserExited;
 -(void)raiseViewClosed;
 -(void)raiseSessionRestart;
--(void)raiseQueuePassed:(NSString*) queueitToken;
+-(void)raiseQueuePassed:(NSString*_Nonnull) queueitToken;
 -(void)close:(void (^ __nullable)(void))onComplete;
 -(void)handleAppEnqueueResponse:(NSString* _Nullable) queueId
                        queueURL:(NSString* _Nullable) queueURL
@@ -72,7 +72,7 @@ typedef enum {
 @end
 
 @protocol QueueITUnavailableDelegate <NSObject>
--(void)notifyQueueITUnavailable:(NSString *) errorMessage;
+-(void)notifyQueueITUnavailable:(NSString *_Nullable) errorMessage;
 @end
 
 @protocol QueueUserExitedDelegate <NSObject>
