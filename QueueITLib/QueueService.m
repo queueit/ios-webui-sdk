@@ -69,7 +69,7 @@ static bool testingIsEnabled = NO;
     
     return [self submitPOSTPath:urlAsString body:bodyDict
                         success:^(NSData *data)
-            {
+    {
         NSError *error = nil;
         NSDictionary *userDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         if (userDict && [userDict isKindOfClass:[NSDictionary class]])
@@ -84,9 +84,10 @@ static bool testingIsEnabled = NO;
         }
     }
                         failure:^(NSError *error, NSString* errorMessage)
-            {
+    {
         failure(error, errorMessage);
-    }];
+    }
+            ];
 }
 
 - (NSString *)submitPOSTPath:(NSString *)path
