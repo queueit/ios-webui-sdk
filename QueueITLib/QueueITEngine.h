@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "QueuePassedInfo.h"
+#import "QueueDisabledInfo.h"
 #import "QueueConsts.h"
 
 @protocol QueuePassedDelegate;
@@ -68,7 +69,7 @@ typedef enum {
 @end
 
 @protocol QueueDisabledDelegate <NSObject>
--(void)notifyQueueDisabled;
+-(void)notifyQueueDisabled:(QueueDisabledInfo* _Nullable) queueDisabledInfo;
 @end
 
 @protocol QueueITUnavailableDelegate <NSObject>

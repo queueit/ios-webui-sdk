@@ -208,15 +208,15 @@ QueueITWKViewController *currentWebView;
                  eventTargetURL:(NSString*) targetURL
                    queueItToken:(NSString*) token {
     //SafetyNet
-    if ([self isSafetyNet:queueId queueURL:queueURL])
-    {
+    if ([self isSafetyNet:queueId queueURL:queueURL]){
+        self.requestInProgress = NO;
         [self raiseQueuePassed:token];
         return;
     }
     //Disabled
     else if ([self isDisabled:queueId queueURL:queueURL]){
         self.requestInProgress = NO;
-        [self raiseQueueDisabled];
+        [self raiseQueueDisabled:token];
         return;
     }
     
@@ -309,7 +309,7 @@ QueueITWKViewController *currentWebView;
     [self.cache clear];
     
     self.isInQueue = NO;
-    self.requestInProgress = NO;
+    
     [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
 }
 
@@ -320,9 +320,13 @@ QueueITWKViewController *currentWebView;
     [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
 }
 
--(void) raiseQueueDisabled
+-(void) raiseQueueDisabled:(NSString*) queueitToken
 {
-    [self.queueDisabledDelegate notifyQueueDisabled];
+    QueueDisabledInfo* queueDisabledInfo = [[QueueDisabledInfo alloc]initWithQueueitToken:queueitToken];
+    
+    self.isInQueue = NO;
+    
+    [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
 }
 
 -(void) raiseSessionRestart
