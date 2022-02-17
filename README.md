@@ -126,7 +126,7 @@ The implementation of the example controller looks like follows:
 // This callback will be called when the queue used (event alias ID) is in the 'disabled' state.
 // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
 // so session handling is important.
--(void) notifyQueueDisabled {
+-(void)notifyQueueDisabled:(QueueDisabledInfo* _Nullable) queueDisabledInfo {
     NSLog(@"Queue is disabled");
 }
 
