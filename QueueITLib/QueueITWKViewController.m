@@ -11,6 +11,7 @@
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
 @property BOOL isQueuePassed;
+@property (nonatomic) CGRect* customFrame;
 @end
 
 static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTagName('body')[0].className";
@@ -40,6 +41,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 - (void)close:(void (^ __nullable)(void))onComplete {
     [self.host dismissViewControllerAnimated:YES completion:^{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        [self.view removeFromSuperview];
         if(onComplete!=nil){
             onComplete();
         }
@@ -83,21 +85,64 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     return NO;
 }
 
+
+- (CGSize)getFrameSize
+{
+    if(self.customFrame!=nil){
+        CGFloat width = self.customFrame->size.width;
+        CGFloat height = self.customFrame->size.height;
+        if(width<0){
+            width = self.view.bounds.size.width;
+        }
+        if(height<0){
+            height = self.view.bounds.size.height;
+        }
+        return CGSizeMake(width, height);
+    }
+    return self.view.bounds.size;
+}
+
+- (CGPoint)getFrameOrigin
+{
+    if(self.customFrame!=nil){
+        return self.customFrame->origin;
+    }
+    return self.view.bounds.origin;
+}
+
+- (CGRect)getFrame
+{
+    CGPoint origin = [self getFrameOrigin];
+    CGSize size = [self getFrameSize];
+    
+    return CGRectMake(origin.x, origin.y, size.width, size.height);
+}
+
+- (void)setFrame:(CGRect*) rect
+{
+    self.customFrame = rect;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    if(self.customFrame!=nil){
+        [self.view setFrame: [self getFrame]];
+    }
     
+    CGSize webviewSize = [self getFrameSize];
     WKPreferences* preferences = [[WKPreferences alloc]init];
     preferences.javaScriptEnabled = YES;
     WKWebViewConfiguration* config = [[WKWebViewConfiguration alloc]init];
     config.preferences = preferences;
-    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height) configuration:config];
+    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, webviewSize.width, webviewSize.height) configuration:config];
     view.navigationDelegate = self;
     self.webView = view;
     [self.webView setAutoresizingMask: UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
-    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    CGSize webviewSize = [self getFrameSize];
+    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, webviewSize.width, webviewSize.height)];
     [self.spinner setColor:[UIColor grayColor]];
     [self.spinner startAnimating];
     
@@ -144,10 +189,8 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
                         [self.engine raiseQueuePassed:queueitToken];
-                        [self.host dismissViewControllerAnimated:YES completion:^{
-                            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                        }];
                         decisionHandler(WKNavigationActionPolicyCancel);
+                        [self close: nil];
                         return;
                     }
                 }

@@ -33,6 +33,7 @@ typedef enum {
                            layoutName:(NSString* _Nullable)layoutName
                              language:(NSString* _Nullable)language;
 
+-(void)setViewFrame:(CGRect* _Nonnull) rect;
 -(void)setViewDelay:(int)delayInterval;
 -(BOOL)run:(NSError* _Nullable* _Nullable)error;
 -(BOOL)runWithEnqueueToken:(NSString* _Nonnull) enqueueToken

@@ -11,13 +11,11 @@
                                eventId:(nonnull NSString*)eventId;
 
 - (void)close:(void (^ __nullable)(void))completion;
-
+- (void)setFrame:(nonnull CGRect*) rect;
 - (BOOL)handleSpecialUrls:(nonnull NSURL*) url
           decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler;
-
 - (BOOL) isTargetUrl:(nonnull NSURL*) targetUrl
       destinationUrl:(nonnull NSURL*) destinationUrl;
-
 - (BOOL) isBlockedUrl:(nonnull NSURL*) destinationUrl;
 
 @end

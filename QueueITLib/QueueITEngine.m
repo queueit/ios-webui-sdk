@@ -19,6 +19,7 @@
 @property int queueUrlTtl;
 @property (nonatomic, strong)QueueCache* cache;
 @property int deltaSec;
+@property (nonatomic)CGRect* viewFrame;
 @end
 
 @implementation QueueITEngine
@@ -111,6 +112,11 @@ QueueITWKViewController *currentWebView;
     return [self runWithParameters:nil enqueueKey:nil error:error];
 }
 
+-(void)setViewFrame:(CGRect*) rect
+{
+    self->_viewFrame = rect;
+}
+
 -(BOOL)runWithParameters:(NSString*)enqueueToken
               enqueueKey:(NSString*)enqueueKey
                    error:(NSError**)error
@@ -155,6 +161,7 @@ QueueITWKViewController *currentWebView;
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
     [self raiseQueueViewWillOpen];
+    BOOL shouldBeShownAsModal = self.viewFrame==nil;
     
     QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
                                                                            queueEngine:self
@@ -162,10 +169,15 @@ QueueITWKViewController *currentWebView;
                                                                         eventTargetUrl:targetUrl
                                                                             customerId:self.customerId
                                                                                eventId:self.eventId];
+    if(self.viewFrame!=nil){
+        [queueWKVC setFrame: self.viewFrame];
+    }
     currentWebView = queueWKVC;
     
     if (@available(iOS 13.0, *)) {
-        [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
+        if(shouldBeShownAsModal) {
+            [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
+        }
     }
     if (self.delayInterval > 0) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -173,7 +185,11 @@ QueueITWKViewController *currentWebView;
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            if(shouldBeShownAsModal){
+                [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            }else{
+                [self.host.view addSubview: queueWKVC.view];
+            }
         });
     }
 }
