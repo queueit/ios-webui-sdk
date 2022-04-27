@@ -160,3 +160,7 @@ When the user goes to the next page - you check this state, and only call QueueI
 When the user clicks back, the same check needs to be done.
 
 ![App Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
+
+## License
+
+Refer to License.md file.
