@@ -5,6 +5,7 @@
 
 @protocol QueuePassedDelegate;
 @protocol QueueViewWillOpenDelegate;
+@protocol QueueViewDidAppearDelegate;
 @protocol QueueDisabledDelegate;
 @protocol QueueITUnavailableDelegate;
 @protocol QueueUserExitedDelegate;
@@ -12,13 +13,14 @@
 @protocol QueueSessionRestartDelegate;
 
 @interface QueueITEngine : NSObject
-@property (nonatomic)id<QueuePassedDelegate> _Nonnull queuePassedDelegate;
-@property (nonatomic)id<QueueViewWillOpenDelegate> _Nullable queueViewWillOpenDelegate;
-@property (nonatomic)id<QueueDisabledDelegate> _Nonnull queueDisabledDelegate;
-@property (nonatomic)id<QueueITUnavailableDelegate> _Nullable queueITUnavailableDelegate;
-@property (nonatomic)id<QueueUserExitedDelegate> _Nullable queueUserExitedDelegate;
-@property (nonatomic)id<QueueViewClosedDelegate> _Nullable queueViewClosedDelegate;
-@property (nonatomic)id<QueueSessionRestartDelegate> _Nullable queueSessionRestartDelegate;
+@property (nonatomic, weak)id<QueuePassedDelegate> _Nullable queuePassedDelegate;
+@property (nonatomic, weak)id<QueueViewWillOpenDelegate> _Nullable queueViewWillOpenDelegate;
+@property (nonatomic, weak)id<QueueViewDidAppearDelegate> _Nullable queueViewDidAppearDelegate;
+@property (nonatomic, weak)id<QueueDisabledDelegate> _Nullable queueDisabledDelegate;
+@property (nonatomic, weak)id<QueueITUnavailableDelegate> _Nullable queueITUnavailableDelegate;
+@property (nonatomic, weak)id<QueueUserExitedDelegate> _Nullable queueUserExitedDelegate;
+@property (nonatomic, weak)id<QueueViewClosedDelegate> _Nullable queueViewClosedDelegate;
+@property (nonatomic, weak)id<QueueSessionRestartDelegate> _Nullable queueSessionRestartDelegate;
 @property (nonatomic, strong)NSString* _Nullable errorMessage;
 
 typedef enum {
@@ -66,6 +68,10 @@ typedef enum {
 
 @protocol QueueViewWillOpenDelegate <NSObject>
 -(void)notifyQueueViewWillOpen;
+@end
+
+@protocol QueueViewDidAppearDelegate <NSObject>
+-(void)notifyQueueViewDidAppear;
 @end
 
 @protocol QueueDisabledDelegate <NSObject>

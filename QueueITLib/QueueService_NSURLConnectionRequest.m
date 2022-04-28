@@ -31,10 +31,10 @@
         self.failureCallback = failure;
         self.uniqueIdentifier = [[NSUUID UUID] UUIDString];
         self.delegate = delegate;
-        
+
         [self initiateRequest];
     }
-    
+
     return self;
 }
 
@@ -43,7 +43,10 @@
     self.response = nil;
     self.data = [NSMutableData data];
     self.actualStatusCode = NSNotFound;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
+#pragma GCC diagnostic pop
 }
 
 #pragma mark - NSURLConnectionDelegate
@@ -53,7 +56,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.failureCallback(error, @"Unexpected failure occured.");
     });
-    
+
     [self.delegate requestDidComplete:self];
 }
 
@@ -80,7 +83,7 @@
     }
     else {
         NSString *message = [NSString stringWithFormat:@"Unexpected response code: %li", (long)self.actualStatusCode];
-        
+
         if (self.actualStatusCode >= 400 && self.actualStatusCode < 500)
         {
             message = [NSString stringWithCString:[self.data bytes] encoding:NSASCIIStringEncoding];
@@ -98,16 +101,16 @@
                 }
             }
         }
-        
+
         NSError *error = [NSError errorWithDomain:@"QueueService"
                                              code:self.actualStatusCode
                                          userInfo:@{ NSLocalizedDescriptionKey: message }];
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             self.failureCallback(error, message);
         });
     }
-    
+
     [self.delegate requestDidComplete:self];
 }
 
@@ -123,7 +126,7 @@
     if (self.actualStatusCode != NSNotFound) {
         return self.expectedStatusCode == self.actualStatusCode;
     }
-    
+
     return NO;
 }
 

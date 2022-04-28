@@ -21,7 +21,7 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
         self.queueUrlTTL = queueUrlTTL;
         self.queueitToken = queueitToken;
     }
-    
+
     return self;
 }
 
@@ -32,7 +32,7 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
     {
         queueUrlTTL = [dictionary[KEY_QUEUE_URL_TTL_IN_MINUTES] intValue];
     }
-    
+
     return [self init:dictionary[KEY_QUEUE_ID]
              queueUrl:dictionary[KEY_QUEUE_URL]
        eventTargetUrl:dictionary[KEY_EVENT_TARGET_URL]

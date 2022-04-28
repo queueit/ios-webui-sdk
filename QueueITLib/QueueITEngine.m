@@ -8,24 +8,24 @@
 
 @interface QueueITEngine()
 @property (nonatomic) Reachability *internetReachability;
-@property (nonatomic, strong)UIViewController* host;
-@property (nonatomic, strong)NSString* customerId;
-@property (nonatomic, strong)NSString* eventId;
-@property (nonatomic, strong)NSString* layoutName;
-@property (nonatomic, strong)NSString* language;
+@property (nonatomic, weak)UIViewController* host;
+@property (nonatomic, copy)NSString* customerId;
+@property (nonatomic, copy)NSString* eventId;
+@property (nonatomic, copy)NSString* layoutName;
+@property (nonatomic, copy)NSString* language;
 @property int delayInterval;
 @property bool isInQueue;
 @property bool requestInProgress;
 @property int queueUrlTtl;
-@property (nonatomic, strong)QueueCache* cache;
+@property (nonatomic, weak)QueueCache* cache;
 @property int deltaSec;
+@property (nonatomic, weak) QueueITWKViewController *currentWebView;
 @end
 
 @implementation QueueITEngine
 
 static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
-QueueITWKViewController *currentWebView;
 
 -(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
@@ -49,9 +49,9 @@ QueueITWKViewController *currentWebView;
 -(void)close:(void (^ __nullable)(void))onComplete
 {
     NSLog(@"Closing webview");
-    if(currentWebView!=nil){
+    if(self.currentWebView!=nil){
         dispatch_async(dispatch_get_main_queue(), ^{
-            [currentWebView close: onComplete];
+            [self.currentWebView close: onComplete];
         });
     }
 }
@@ -162,18 +162,22 @@ QueueITWKViewController *currentWebView;
                                                                         eventTargetUrl:targetUrl
                                                                             customerId:self.customerId
                                                                                eventId:self.eventId];
-    currentWebView = queueWKVC;
-    
     if (@available(iOS 13.0, *)) {
         [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
     }
     if (self.delayInterval > 0) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            [self.host presentViewController:queueWKVC animated:YES completion:^{
+                self.currentWebView = queueWKVC;
+                [self raiseQueueViewDidAppear];
+            }];
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueWKVC animated:YES completion:nil];
+            [self.host presentViewController:queueWKVC animated:YES completion:^{
+                self.currentWebView = queueWKVC;
+                [self raiseQueueViewDidAppear];
+            }];
         });
     }
 }
@@ -208,7 +212,8 @@ QueueITWKViewController *currentWebView;
                  eventTargetURL:(NSString*) targetURL
                    queueItToken:(NSString*) token {
     //SafetyNet
-    if ([self isSafetyNet:queueId queueURL:queueURL]){
+    if ([self isSafetyNet:queueId queueURL:queueURL])
+    {
         self.requestInProgress = NO;
         [self raiseQueuePassed:token];
         return;
@@ -309,23 +314,26 @@ QueueITWKViewController *currentWebView;
     [self.cache clear];
     
     self.isInQueue = NO;
-    
+    self.requestInProgress = NO;
     [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
 }
 
 
 -(void) raiseQueueViewWillOpen
 {
-    self.isInQueue = YES;
     [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
+}
+
+- (void)raiseQueueViewDidAppear
+{
+    self.isInQueue = YES;
+    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
 }
 
 -(void) raiseQueueDisabled:(NSString*) queueitToken
 {
     QueueDisabledInfo* queueDisabledInfo = [[QueueDisabledInfo alloc]initWithQueueitToken:queueitToken];
-    
     self.isInQueue = NO;
-    
     [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
 }
 
