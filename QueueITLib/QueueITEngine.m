@@ -9,10 +9,6 @@
 @interface QueueITEngine()
 @property (nonatomic) Reachability *internetReachability;
 @property (nonatomic, weak)UIViewController* host;
-@property (nonatomic, copy)NSString* customerId;
-@property (nonatomic, copy)NSString* eventId;
-@property (nonatomic, copy)NSString* layoutName;
-@property (nonatomic, copy)NSString* language;
 @property int delayInterval;
 @property bool isInQueue;
 @property bool requestInProgress;

@@ -22,6 +22,10 @@
 @property (nonatomic, weak)id<QueueViewClosedDelegate> _Nullable queueViewClosedDelegate;
 @property (nonatomic, weak)id<QueueSessionRestartDelegate> _Nullable queueSessionRestartDelegate;
 @property (nonatomic, strong)NSString* _Nullable errorMessage;
+@property (nonatomic, copy)NSString*  _Nonnull customerId;
+@property (nonatomic, copy)NSString*  _Nonnull  eventId;
+@property (nonatomic, copy)NSString*  _Nullable  layoutName;
+@property (nonatomic, copy)NSString*  _Nullable  language;
 
 typedef enum {
     NetworkUnavailable = -100,
