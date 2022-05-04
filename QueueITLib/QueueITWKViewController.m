@@ -84,30 +84,38 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:self.view.bounds];
+    [self.spinner setColor:[UIColor grayColor]];
+    [self.spinner startAnimating];
     
     WKPreferences* preferences = [[WKPreferences alloc]init];
     preferences.javaScriptEnabled = YES;
     WKWebViewConfiguration* config = [[WKWebViewConfiguration alloc]init];
     config.preferences = preferences;
-    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height) configuration:config];
-    view.navigationDelegate = self;
-    self.webView = view;
-    [self.webView setAutoresizingMask: UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-}
-
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    
-    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-    [self.spinner setColor:[UIColor grayColor]];
-    [self.spinner startAnimating];
+    WKWebView* webview = [[WKWebView alloc]initWithFrame:self.view.bounds configuration:config];
+    webview.navigationDelegate = self;
+    [webview setAutoresizingMask: UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+    // Make webview transparent
+    webview.opaque = NO;
+    webview.backgroundColor = [UIColor clearColor];
+    self.webView = webview;
     
     [self.view addSubview:self.webView];
     [self.webView addSubview:self.spinner];
     
-    NSURL *urlAddress = [NSURL URLWithString:self.queueUrl];
-    NSURLRequest *request = [NSURLRequest requestWithURL:urlAddress];
-    [self.webView loadRequest:request];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.queueUrl]]];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
