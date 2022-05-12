@@ -84,17 +84,8 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-}
-
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-}
-
--(void)viewWillLayoutSubviews{
-    [super viewWillLayoutSubviews];
     self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:self.view.bounds];
     [self.spinner setColor:[UIColor grayColor]];
-    [self.spinner startAnimating];
     
     WKPreferences* preferences = [[WKPreferences alloc]init];
     preferences.javaScriptEnabled = YES;
@@ -107,6 +98,17 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     webview.opaque = NO;
     webview.backgroundColor = [UIColor clearColor];
     self.webView = webview;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    [self.spinner startAnimating];
+    self.webView.frame = self.view.bounds;
+    self.spinner.frame = self.view.bounds;
     
     [self.view addSubview:self.webView];
     [self.webView addSubview:self.spinner];
