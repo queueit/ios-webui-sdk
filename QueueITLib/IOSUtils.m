@@ -2,6 +2,7 @@
 #import "IOSUtils.h"
 
 @implementation IOSUtils
+
 WKWebView* webView;
 
 +(NSString*)getUserId{
@@ -40,6 +41,15 @@ WKWebView* webView;
 
 +(NSString*)getSdkVersion{
     return SDKVersion;
+}
+
++(NSString*)convertTtlMinutesToSecondsString:(int)ttlMinutes
+{
+    long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
+    int secondsToAdd = ttlMinutes * 60.0;
+    long timeStamp = currentTime + secondsToAdd;
+    NSString* urlTtlString = [NSString stringWithFormat:@"%li", timeStamp];
+    return urlTtlString;
 }
 
 @end

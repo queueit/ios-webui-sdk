@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "QueueService.h"
+#import "QueueITApiClient.h"
 
 @protocol QueueService_NSURLConnectionRequestDelegate;
 

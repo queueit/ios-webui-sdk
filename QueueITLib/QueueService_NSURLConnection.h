@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-#import "QueueService.h"
+#import "QueueITApiClient.h"
 
-@interface QueueService_NSURLConnection : QueueService
+@interface QueueService_NSURLConnection : QueueITApiClient
 
 @end
