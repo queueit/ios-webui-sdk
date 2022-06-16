@@ -15,7 +15,7 @@ typedef enum {
 
 @property (nonatomic, weak)id<ProviderQueueDisabledDelegate> _Nullable providerQueueDisabledDelegate;
 @property (nonatomic, weak)id<ProviderQueueITUnavailableDelegate> _Nullable providerQueueITUnavailableDelegate;
-@property (nonatomic, weak)id<ProviderSuccessDelegate> _Nullable successViewDelegate;
+@property (nonatomic, weak)id<ProviderSuccessDelegate> _Nullable providerSuccessDelegate;
 
 -(instancetype _Nonnull)init:(NSString* _Nonnull)customerId
                        eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
