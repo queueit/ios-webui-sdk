@@ -37,23 +37,18 @@
         self.waitingRoomView.viewUserClosedDelegate = self;
         self.waitingRoomView.viewSessionRestartDelegate = self;
         self.waitingRoomView.viewQueuePassedDelegate = self;
+        self.waitingRoomView.viewQueueDidAppearDelegate = self;
         self.waitingRoomView.viewQueueWillOpenDelegate = self;
         self.waitingRoomView.viewQueueUpdatePageUrlDelegate = self;
-        self.waitingRoomView.viewQueueDidAppearDelegate = self;
         
-        self.waitingRoomProvider.providerQueueDisabledDelegate = self;
-        self.waitingRoomProvider.providerQueueITUnavailableDelegate = self;
         self.waitingRoomProvider.providerSuccessDelegate = self;
+        self.waitingRoomProvider.providerFailureDelegate = self;
     }
     return self;
 }
 
 -(void)setViewDelay:(int)delayInterval {
     [self.waitingRoomView setViewDelay:delayInterval];
-}
-
--(BOOL)isUserInQueue {
-    return [self.waitingRoomView isUserInQueue];
 }
 
 -(BOOL)isRequestInProgress {
@@ -63,13 +58,19 @@
 -(BOOL)runWithEnqueueKey:(NSString *)enqueueKey
                    error:(NSError *__autoreleasing *)error
 {
-    return [self.waitingRoomProvider TryPassWithEnqueueKey:enqueueKey error:error];
+    if(![self tryShowQueueFromCache]) {
+        return [self.waitingRoomProvider TryPassWithEnqueueKey:enqueueKey error:error];
+    }
+    return YES;
 }
 
 -(BOOL)runWithEnqueueToken:(NSString *)enqueueToken
                      error:(NSError *__autoreleasing *)error
 {
-    return [self.waitingRoomProvider TryPassWithEnqueueToken:enqueueToken error:error];
+    if(![self tryShowQueueFromCache]) {
+        return [self.waitingRoomProvider TryPassWithEnqueueToken:enqueueToken error:error];
+    }
+    return YES;
 }
 
 -(BOOL)run:(NSError **)error
@@ -100,8 +101,6 @@
 
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
-    [self notifyViewQueueWillOpen];
-    
     [self.waitingRoomView show:queueUrl targetUrl:targetUrl];
 }
 
@@ -114,6 +113,28 @@
     }
 }
 
+-(void) notifyViewPassedQueue:(QueuePassedInfo *)queuePassedInfo {
+    [self.cache clear];
+    [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
+}
+
+-(void) notifyViewQueueWillOpen {
+    [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
+}
+
+-(void)notifyProviderFailure:(NSString *)errorMessage errorCode:(long)errorCode {
+    if(errorCode == 3) {
+        [self.queueITUnavailableDelegate notifyQueueITUnavailable:errorMessage];
+    }
+    
+    [self.queueErrorDelegate notifyQueueError:errorMessage errorCode:errorCode];
+}
+
+-(void)notifyViewSessionRestart {
+    [self.cache clear];
+    [self.queueSessionRestartDelegate notifySessionRestart];
+}
+
 -(void)notifyViewUserExited {
     [self.queueUserExitedDelegate notifyUserExited];
 }
@@ -122,34 +143,13 @@
     [self.queueViewClosedDelegate notifyViewClosed];
 }
 
--(void)notifyViewSessionRestart {
-    [self.cache clear];
-    [self.queueSessionRestartDelegate notifySessionRestart];
-}
-
--(void) notifyViewPassedQueue:(QueuePassedInfo *)queuePassedInfo {
-    [self.cache clear];
-    [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
-}
-
--(void) notifyViewQueueDidAppear{
-    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
-}
-
--(void) notifyViewQueueWillOpen {
-    [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
-}
-
 -(void) notifyViewUpdatePageUrl:(NSString* _Nullable) urlString {
     [self updateQueuePageUrl:urlString];
+    [self.queueUrlChangedDelegate notifyQueueUrlChanged:urlString];
 }
 
--(void) notifyProviderQueueDisabled:(QueueDisabledInfo *)queueDisabledInfo {
-    [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
-}
-
--(void)notifyProviderQueueITUnavailable:(NSString* _Nonnull) errorMessage {
-    [self.queueITUnavailableDelegate notifyQueueITUnavailable:errorMessage];
+-(void) notifyViewQueueDidAppear {
+    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
 }
 
 -(void)notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult {
@@ -167,8 +167,11 @@
     }
     
     [self showQueue:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
-    [self.cache clear];
-    [self.queueSuccessDelegate notifyQueueSuccess:queuePassResult];
+    
+    if(queuePassResult.urlTTLInMinutes>0){
+        NSString* urlTtlString = [IOSUtils convertTtlMinutesToSecondsString:queuePassResult.urlTTLInMinutes];
+        [self.cache update:queuePassResult.queueUrl urlTTL:urlTtlString targetUrl:queuePassResult.targetUrl];
+    }
 }
 
 @end

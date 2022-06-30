@@ -8,7 +8,6 @@
 @property NSString* customerId;
 @property NSString* eventId;
 @property int delayInterval;
-@property BOOL isInQueue;
 @end
 
 @implementation QueueITWaitingRoomView
@@ -50,7 +49,6 @@
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.host presentViewController:queueWKVC animated:YES completion:^{
                 self.currentWebView = queueWKVC;
-                self.isInQueue = YES;
                 [self.viewQueueDidAppearDelegate notifyViewQueueDidAppear ];
             }];
         });
@@ -81,15 +79,8 @@
     self.delayInterval = delayInterval;
 }
 
--(BOOL)isUserInQueue {
-    return self.isInQueue;
-}
-
 -(void) notifyViewControllerUserExited {
-    if (self.isInQueue) {
-        [self.viewUserExitedDelegate notifyViewUserExited];
-        self.isInQueue = NO;
-    }
+    [self.viewUserExitedDelegate notifyViewUserExited];
 }
 
 -(void) notifyViewControllerClosed {
@@ -101,8 +92,6 @@
 }
 
 -(void) notifyViewControllerQueuePassed:(NSString *)queueToken {
-    self.isInQueue = NO;
-    
     QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc] initWithQueueitToken:queueToken];
     [self.viewQueuePassedDelegate notifyViewPassedQueue:queuePassedInfo];
 }

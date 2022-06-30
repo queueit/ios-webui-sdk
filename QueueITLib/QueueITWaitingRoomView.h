@@ -26,7 +26,6 @@
 
 -(void)show:(NSString* _Nonnull)queueUrl targetUrl:(NSString* _Nonnull)targetUrl;
 -(void)setViewDelay:(int)delayInterval;
--(BOOL)isUserInQueue;
 -(void)close:(void (^ __nullable)(void))onComplete;
 
 @end
