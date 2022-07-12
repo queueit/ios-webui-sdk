@@ -20,7 +20,7 @@
 {
     self = [super init];
     if(self) {
-        self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] init:customerId
+        self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] initWithCustomerId:customerId
                                                                         eventOrAliasId:eventOrAliasId
                                                                         layoutName:layoutName
                                                                         language:language];
@@ -33,27 +33,14 @@
         self.layoutName = layoutName;
         self.language = language;
         
-        self.waitingRoomView.viewUserExitedDelegate = self;
-        self.waitingRoomView.viewUserClosedDelegate = self;
-        self.waitingRoomView.viewSessionRestartDelegate = self;
-        self.waitingRoomView.viewQueuePassedDelegate = self;
-        self.waitingRoomView.viewQueueWillOpenDelegate = self;
-        self.waitingRoomView.viewQueueUpdatePageUrlDelegate = self;
-        self.waitingRoomView.viewQueueDidAppearDelegate = self;
-        
-        self.waitingRoomProvider.providerQueueDisabledDelegate = self;
-        self.waitingRoomProvider.providerQueueITUnavailableDelegate = self;
-        self.waitingRoomProvider.providerSuccessDelegate = self;
+        self.waitingRoomView.queueITWaitingRoomViewDelegate = self;
+        self.waitingRoomProvider.waitingRoomProviderDelegate = self;
     }
     return self;
 }
 
 -(void)setViewDelay:(int)delayInterval {
     [self.waitingRoomView setViewDelay:delayInterval];
-}
-
--(BOOL)isUserInQueue {
-    return [self.waitingRoomView isUserInQueue];
 }
 
 -(BOOL)isRequestInProgress {
@@ -63,13 +50,19 @@
 -(BOOL)runWithEnqueueKey:(NSString *)enqueueKey
                    error:(NSError *__autoreleasing *)error
 {
-    return [self.waitingRoomProvider TryPassWithEnqueueKey:enqueueKey error:error];
+    if(![self tryShowQueueFromCache]) {
+        return [self.waitingRoomProvider TryPassWithEnqueueKey:enqueueKey error:error];
+    }
+    return YES;
 }
 
 -(BOOL)runWithEnqueueToken:(NSString *)enqueueToken
                      error:(NSError *__autoreleasing *)error
 {
-    return [self.waitingRoomProvider TryPassWithEnqueueToken:enqueueToken error:error];
+    if(![self tryShowQueueFromCache]) {
+        return [self.waitingRoomProvider TryPassWithEnqueueToken:enqueueToken error:error];
+    }
+    return YES;
 }
 
 -(BOOL)run:(NSError **)error
@@ -100,8 +93,6 @@
 
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
-    [self notifyViewQueueWillOpen];
-    
     [self.waitingRoomView show:queueUrl targetUrl:targetUrl];
 }
 
@@ -114,45 +105,46 @@
     }
 }
 
--(void)notifyViewUserExited {
-    [self.queueUserExitedDelegate notifyUserExited];
-}
-
-- (void)notifyViewUserClosed {
-    [self.queueViewClosedDelegate notifyViewClosed];
-}
-
--(void)notifyViewSessionRestart {
-    [self.cache clear];
-    [self.queueSessionRestartDelegate notifySessionRestart];
-}
-
--(void) notifyViewPassedQueue:(QueuePassedInfo *)queuePassedInfo {
+- (void)waitingRoomView:(nonnull QueueITWaitingRoomView *)view notifyViewPassedQueue:(QueuePassedInfo * _Nullable)queuePassedInfo {
     [self.cache clear];
     [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
 }
 
--(void) notifyViewQueueDidAppear{
-    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
-}
-
--(void) notifyViewQueueWillOpen {
+- (void)notifyViewQueueWillOpen:(nonnull QueueITWaitingRoomView *)view {
     [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
 }
 
--(void) notifyViewUpdatePageUrl:(NSString* _Nullable) urlString {
+- (void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider *)provider notifyProviderFailure:(NSString * _Nullable)errorMessage errorCode:(long)errorCode {
+    if(errorCode == 3) {
+        [self.queueITUnavailableDelegate notifyQueueITUnavailable:errorMessage];
+    }
+    
+    [self.queueErrorDelegate notifyQueueError:errorMessage errorCode:errorCode];
+}
+
+- (void)notifyViewSessionRestart:(nonnull QueueITWaitingRoomView *)view {
+    [self.cache clear];
+    [self.queueSessionRestartDelegate notifySessionRestart];
+}
+
+- (void)notifyViewUserExited:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueUserExitedDelegate notifyUserExited];
+}
+
+- (void)notifyViewUserClosed:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueViewClosedDelegate notifyViewClosed];
+}
+
+- (void)waitingRoomView:(nonnull QueueITWaitingRoomView *)view notifyViewUpdatePageUrl:(NSString * _Nullable)urlString {
     [self updateQueuePageUrl:urlString];
+    [self.queueUrlChangedDelegate notifyQueueUrlChanged:urlString];
 }
 
--(void) notifyProviderQueueDisabled:(QueueDisabledInfo *)queueDisabledInfo {
-    [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
+-(void)notifyViewQueueDidAppear:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
 }
 
--(void)notifyProviderQueueITUnavailable:(NSString* _Nonnull) errorMessage {
-    [self.queueITUnavailableDelegate notifyQueueITUnavailable:errorMessage];
-}
-
--(void)notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult {
+- (void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider *)provider notifyProviderSuccess:(QueueTryPassResult * _Nonnull)queuePassResult {
     if([[queuePassResult redirectType]  isEqual: @"safetynet"])
     {
         QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc] initWithQueueitToken:queuePassResult.queueToken];
@@ -167,8 +159,10 @@
     }
     
     [self showQueue:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
-    [self.cache clear];
-    [self.queueSuccessDelegate notifyQueueSuccess:queuePassResult];
+    
+    if(queuePassResult.urlTTLInMinutes>0){
+        NSString* urlTtlString = [IOSUtils convertTtlMinutesToSecondsString:queuePassResult.urlTTLInMinutes];
+        [self.cache update:queuePassResult.queueUrl urlTTL:urlTtlString targetUrl:queuePassResult.targetUrl];
+    }
 }
-
 @end

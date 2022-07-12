@@ -1,9 +1,7 @@
 #import "QueueITWaitingRoomView.h"
 #import "QueueTryPassResult.h"
 
-@protocol ProviderQueueDisabledDelegate;
-@protocol ProviderQueueITUnavailableDelegate;
-@protocol ProviderSuccessDelegate;
+@protocol QueueITWaitingRoomProviderDelegate;
 
 @interface QueueITWaitingRoomProvider : NSObject
 
@@ -13,29 +11,24 @@ typedef enum {
 } QueueITRuntimeError;
 #define QueueITRuntimeErrorArray @"Network connection is unavailable", @"Enqueue request is already in progress", nil
 
-@property (nonatomic, weak)id<ProviderQueueDisabledDelegate> _Nullable providerQueueDisabledDelegate;
-@property (nonatomic, weak)id<ProviderQueueITUnavailableDelegate> _Nullable providerQueueITUnavailableDelegate;
-@property (nonatomic, weak)id<ProviderSuccessDelegate> _Nullable providerSuccessDelegate;
+@property (nonatomic, weak)id<QueueITWaitingRoomProviderDelegate> _Nullable waitingRoomProviderDelegate;
 
--(instancetype _Nonnull)init:(NSString* _Nonnull)customerId
+-(instancetype _Nonnull)initWithCustomerId:(NSString* _Nonnull)customerId
                        eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
                            layoutName:(NSString* _Nullable)layoutName
                              language:(NSString* _Nullable)language;
  
 -(BOOL)TryPass: (NSError* _Nullable*_Nullable)error;
--(BOOL)TryPassWithEnqueueToken:(NSString* _Nullable)enqueueToken error:(NSError* _Nullable*_Nullable)error;
--(BOOL)TryPassWithEnqueueKey:(NSString* _Nullable)enqueueKey error:(NSError* _Nullable*_Nullable)error;
+-(BOOL)TryPassWithEnqueueToken:(NSString* _Nullable)enqueueToken
+                         error:(NSError* _Nullable*_Nullable)error;
+-(BOOL)TryPassWithEnqueueKey:(NSString* _Nullable)enqueueKey
+                       error:(NSError* _Nullable*_Nullable)error;
 -(BOOL)IsRequestInProgress;
 @end
 
-@protocol ProviderQueueDisabledDelegate <NSObject>
--(void)notifyProviderQueueDisabled:(QueueDisabledInfo* _Nullable) queueDisabledInfo;
-@end
+@protocol QueueITWaitingRoomProviderDelegate <NSObject>
 
-@protocol ProviderQueueITUnavailableDelegate <NSObject>
--(void)notifyProviderQueueITUnavailable:(NSString* _Nonnull) errorMessage;
-@end
-
-@protocol ProviderSuccessDelegate <NSObject>
--(void)notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult;
+-(void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider*)provider notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult;
+-(void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider*)provider notifyProviderFailure:(NSString* _Nullable)errorMessage
+                   errorCode:(long)errorCode;
 @end

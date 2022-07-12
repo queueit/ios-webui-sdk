@@ -2,8 +2,8 @@
 
 @interface QueueTryPassResult : NSObject
 
-@property (nonatomic, strong) NSString* _Nonnull queueUrl;
-@property (nonatomic, strong) NSString* _Nonnull targetUrl;
+@property (nonatomic, strong) NSString* _Nullable queueUrl;
+@property (nonatomic, strong) NSString* _Nullable targetUrl;
 @property (nonatomic) int urlTTLInMinutes;
 @property (nonatomic, strong) NSString* _Nonnull redirectType;
 @property (nonatomic) BOOL isPassedThrough;
@@ -12,7 +12,7 @@
 
 -(instancetype _Nonnull )
     initWithQueueUrl: (NSString* _Nullable) queueUrl
-    targetUrl:(NSString* _Nonnull)targetUrl
+    targetUrl:(NSString* _Nullable)targetUrl
     urlTTLInMinutes: (int) urlTTLInMinutes
     redirectType: (NSString* _Nonnull) redirectType
     isPassedThrough: (BOOL) isPassedThrough

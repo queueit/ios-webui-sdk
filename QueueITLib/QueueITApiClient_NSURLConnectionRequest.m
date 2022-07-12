@@ -1,7 +1,7 @@
-#import "QueueService_NSURLConnectionRequest.h"
+#import "QueueITApiClient_NSURLConnectionRequest.h"
 
 
-@interface QueueService_NSURLConnectionRequest()
+@interface QueueITApiClient_NSURLConnectionRequest()
 
 @property (nonatomic, strong) NSURLConnection *connection;
 @property (nonatomic, strong) NSURLRequest *request;
@@ -16,7 +16,7 @@
 
 @end
 
-@implementation QueueService_NSURLConnectionRequest
+@implementation QueueITApiClient_NSURLConnectionRequest
 
 - (instancetype)initWithRequest:(NSURLRequest *)request
              expectedStatusCode:(NSInteger)statusCode

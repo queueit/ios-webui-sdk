@@ -1,11 +1,11 @@
-#import "QueueService_NSURLConnection.h"
-#import "QueueService_NSURLConnectionRequest.h"
+#import "QueueITApiClient_NSURLConnection.h"
+#import "QueueITApiClient_NSURLConnectionRequest.h"
 
-@interface QueueService_NSURLConnection()<QueueService_NSURLConnectionRequestDelegate>
+@interface QueueITApiClient_NSURLConnection()<QueueService_NSURLConnectionRequestDelegate>
 @end
 
 
-@implementation QueueService_NSURLConnection
+@implementation QueueITApiClient_NSURLConnection
 
 - (NSString *)submitRequestWithURL:(NSURL *)URL
                             method:(NSString *)httpMethod
@@ -25,8 +25,8 @@
     [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
-    QueueService_NSURLConnectionRequest *connectionRequest;
-    connectionRequest = [[QueueService_NSURLConnectionRequest alloc] initWithRequest:request
+    QueueITApiClient_NSURLConnectionRequest *connectionRequest;
+    connectionRequest = [[QueueITApiClient_NSURLConnectionRequest alloc] initWithRequest:request
                                                                   expectedStatusCode:expectedStatus
                                                                              success:success
                                                                              failure:failure
@@ -39,7 +39,7 @@
 
 #pragma mark - NSURLConnectionRequestDelegate
 
-- (void)requestDidComplete:(QueueService_NSURLConnectionRequest *)request
+- (void)requestDidComplete:(QueueITApiClient_NSURLConnectionRequest *)request
 {
 }
 

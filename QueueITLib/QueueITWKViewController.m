@@ -66,13 +66,13 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
           decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
     if([[url absoluteString] isEqualToString: QueueCloseUrl]){
         [self close: ^{
-            [self.viewControllerClosedDelegate notifyViewControllerClosed];
+            [self.viewControllerDelegate notifyViewControllerClosed];
         }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;
     } else if ([[url absoluteString] isEqualToString: QueueRestartSessionUrl]){
         [self close:^{
-            [self.viewControllerRestartDelegate notifyViewControllerSessionRestart];
+            [self.viewControllerDelegate notifyViewControllerSessionRestart];
         }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;
@@ -156,7 +156,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                            destinationUrl: url]) {
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
-                        [self.viewControllerQueuePassedDelegate notifyViewControllerQueuePassed:queueitToken];
+                        [self.viewControllerDelegate notifyViewControllerQueuePassed:queueitToken];
                         [self.host dismissViewControllerAnimated:YES completion:^{
                         }];
                         decisionHandler(WKNavigationActionPolicyCancel);
@@ -218,14 +218,14 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
             NSArray<NSString *> *htmlBodyClasses = [resultString componentsSeparatedByString:@" "];
             BOOL isExitClassPresent = [htmlBodyClasses containsObject:@"exit"];
             if (isExitClassPresent) {
-                [self.viewControllerUserExitedDelegate notifyViewControllerUserExited];
+                [self.viewControllerDelegate notifyViewControllerUserExited];
             }
         }
     }];
 }
 
 - (void)raiseQueuePageUrl:(NSString *)urlString {
-    [self.viewControllerPageUrlChangedDelegate notifyViewControllerPageUrlChanged:urlString];
+    [self.viewControllerDelegate notifyViewControllerPageUrlChanged:urlString];
 }
 
 -(void)appWillResignActive:(NSNotification*)note

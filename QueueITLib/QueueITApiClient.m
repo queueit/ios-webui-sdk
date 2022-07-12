@@ -1,5 +1,5 @@
 #import "QueueITApiClient.h"
-#import "QueueService_NSURLConnection.h"
+#import "QueueITApiClient_NSURLConnection.h"
 
 static QueueITApiClient *SharedInstance;
 
@@ -13,7 +13,7 @@ static bool testingIsEnabled = NO;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        SharedInstance = [[QueueService_NSURLConnection alloc] init];
+        SharedInstance = [[QueueITApiClient_NSURLConnection alloc] init];
     });
     
     return SharedInstance;

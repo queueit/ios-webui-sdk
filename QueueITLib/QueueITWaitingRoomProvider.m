@@ -24,7 +24,7 @@
 static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
 
--(instancetype _Nonnull)init:(NSString* _Nonnull)customerId
+-(instancetype _Nonnull)initWithCustomerId:(NSString* _Nonnull)customerId
                        eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
                            layoutName:(NSString* _Nullable)layoutName
                     language:(NSString* _Nullable)language {
@@ -112,7 +112,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
      {
         if (error.code >= 400 && error.code < 500)
         {
-            [self.providerQueueITUnavailableDelegate notifyProviderQueueITUnavailable: errorMessage];
+            [self.waitingRoomProviderDelegate waitingRoomProvider:self notifyProviderFailure:errorMessage errorCode:error.code];
         }
         else
         {
@@ -127,7 +127,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                  eventTargetURL:(NSString*) targetURL
                    queueItToken:(NSString*) token {
 
-    bool isPassedThrough = [self isNullOrEmpty:token];
+    bool isPassedThrough = ![self isNullOrEmpty:token];
     
     NSString* redirectType = [self getRedirectTypeFromToken:token];
     
@@ -138,7 +138,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                                               isPassedThrough:isPassedThrough
                                               queueToken:token];
     
-    [self.providerSuccessDelegate notifyProviderSuccess:queueTryPassResult];
+    [self.waitingRoomProviderDelegate waitingRoomProvider:self notifyProviderSuccess:queueTryPassResult];
 }
 
 -(void)enqueueRetryMonitor:(NSString*)enqueueToken
@@ -155,7 +155,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     {
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
         self.requestInProgress = NO;
-        [self.providerQueueITUnavailableDelegate notifyProviderQueueITUnavailable: @"Unexpected error. Try again later"];
+        [self.waitingRoomProviderDelegate waitingRoomProvider:self notifyProviderFailure:@"Error! Queue is unavailable." errorCode:3];
     }
 }
 
@@ -181,22 +181,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(BOOL)IsRequestInProgress {
     return self.requestInProgress;
-}
-
--(BOOL)isSafetyNet:(NSString*) queueId
-          queueURL:(NSString*) queueURL
-{
-    bool queueIdExists = queueId != nil && queueId != (id)[NSNull null];
-    bool queueUrlExists = queueURL != nil && queueURL != (id)[NSNull null];
-    return queueIdExists && !queueUrlExists;
-}
-
--(BOOL)isDisabled:(NSString*) queueId
-         queueURL:(NSString*) queueURL
-{
-    bool queueIdExists = queueId != nil && queueId != (id)[NSNull null];
-    bool queueUrlExists = queueURL != nil && queueURL != (id)[NSNull null];
-    return !queueIdExists && !queueUrlExists;
 }
 
 -(BOOL)isNullOrEmpty:(NSString*)queueToken {

@@ -8,7 +8,6 @@
 @property NSString* customerId;
 @property NSString* eventId;
 @property int delayInterval;
-@property BOOL isInQueue;
 @end
 
 @implementation QueueITWaitingRoomView
@@ -37,11 +36,7 @@
                                                                           customerId:self.customerId
                                                                             eventId:self.eventId];
     
-    queueWKVC.viewControllerClosedDelegate = self;
-    queueWKVC.viewControllerUserExitedDelegate = self;
-    queueWKVC.viewControllerRestartDelegate = self;
-    queueWKVC.viewControllerQueuePassedDelegate = self;
-    queueWKVC.viewControllerPageUrlChangedDelegate = self;
+    queueWKVC.viewControllerDelegate = self;
     
     if (@available(iOS 13.0, *)) {
         [queueWKVC setModalPresentationStyle: UIModalPresentationFullScreen];
@@ -50,15 +45,14 @@
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.host presentViewController:queueWKVC animated:YES completion:^{
                 self.currentWebView = queueWKVC;
-                self.isInQueue = YES;
-                [self.viewQueueDidAppearDelegate notifyViewQueueDidAppear ];
+                [self.queueITWaitingRoomViewDelegate notifyViewQueueDidAppear:self ];
             }];
         });
     } else {	
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.host presentViewController:queueWKVC animated:YES completion:^{
                 self.currentWebView = queueWKVC;
-                [self.viewQueueDidAppearDelegate notifyViewQueueDidAppear ];
+                [self.queueITWaitingRoomViewDelegate notifyViewQueueDidAppear:self ];
             }];
         });
     }
@@ -74,41 +68,32 @@
 }
 
 - (void)raiseQueueViewWillOpen {
-    [self.viewQueueWillOpenDelegate notifyViewQueueWillOpen];
+    [self.queueITWaitingRoomViewDelegate notifyViewQueueWillOpen:self];
 }
 
 -(void)setViewDelay:(int)delayInterval {
     self.delayInterval = delayInterval;
 }
 
--(BOOL)isUserInQueue {
-    return self.isInQueue;
-}
-
 -(void) notifyViewControllerUserExited {
-    if (self.isInQueue) {
-        [self.viewUserExitedDelegate notifyViewUserExited];
-        self.isInQueue = NO;
-    }
+    [self.queueITWaitingRoomViewDelegate notifyViewUserExited:self];
 }
 
 -(void) notifyViewControllerClosed {
-    [self.viewUserClosedDelegate notifyViewUserClosed];
+    [self.queueITWaitingRoomViewDelegate notifyViewUserClosed:self];
 }
 
 -(void) notifyViewControllerSessionRestart {
-    [self.viewSessionRestartDelegate notifyViewSessionRestart];
+    [self.queueITWaitingRoomViewDelegate notifyViewSessionRestart:self];
 }
 
 -(void) notifyViewControllerQueuePassed:(NSString *)queueToken {
-    self.isInQueue = NO;
-    
     QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc] initWithQueueitToken:queueToken];
-    [self.viewQueuePassedDelegate notifyViewPassedQueue:queuePassedInfo];
+    [self.queueITWaitingRoomViewDelegate waitingRoomView:self notifyViewPassedQueue:queuePassedInfo];
 }
 
 -(void)notifyViewControllerPageUrlChanged:(NSString* _Nullable) urlString {
-    [self.viewQueueUpdatePageUrlDelegate notifyViewUpdatePageUrl:urlString];
+    [self.queueITWaitingRoomViewDelegate waitingRoomView:self notifyViewUpdatePageUrl:urlString];
 }
 
 @end

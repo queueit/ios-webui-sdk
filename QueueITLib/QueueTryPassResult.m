@@ -5,7 +5,7 @@
 
 -(instancetype _Nonnull )
     initWithQueueUrl: (NSString* _Nullable) queueUrl
-    targetUrl:(NSString* _Nonnull)targetUrl
+    targetUrl:(NSString* _Nullable)targetUrl
     urlTTLInMinutes: (int) urlTTLInMinutes
     redirectType: (NSString* _Nonnull) redirectType
     isPassedThrough: (BOOL) isPassedThrough
@@ -17,6 +17,7 @@
         self.urlTTLInMinutes = urlTTLInMinutes;
         self.redirectType = redirectType;
         self.isPassedThrough = isPassedThrough;
+        self.queueToken = queueToken;
     }
     
     return self;
