@@ -188,5 +188,5 @@ When the waiting room is queueing visitors, each visitor has to visit it once. U
 }
 ```
 
-#### Lifecycle diagram
+### Lifecycle diagram
 ![App Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
