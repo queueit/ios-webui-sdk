@@ -1,10 +1,10 @@
 #import "QueueITWKViewController.h"
-#import "QueueITEngine.h"
+#import "QueueConsts.h"
 
 @interface QueueITWKViewController ()<WKNavigationDelegate>
 @property (nonatomic) WKWebView* webView;
 @property (nonatomic, strong) UIViewController* host;
-@property (nonatomic, strong) QueueITEngine* engine;
+
 @property (nonatomic, strong)NSString* queueUrl;
 @property (nonatomic, strong)NSString* eventTargetUrl;
 @property (nonatomic, strong)UIActivityIndicatorView* spinner;
@@ -18,7 +18,6 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 @implementation QueueITWKViewController
 
 -(instancetype)initWithHost:(UIViewController *)host
-                queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
              eventTargetUrl:(NSString*)eventTargetUrl
                  customerId:(NSString*)customerId
@@ -27,7 +26,6 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     self = [super init];
     if(self) {
         self.host = host;
-        self.engine = engine;
         self.queueUrl = queueUrl;
         self.eventTargetUrl = eventTargetUrl;
         self.customerId = customerId;
@@ -68,13 +66,13 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
           decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
     if([[url absoluteString] isEqualToString: QueueCloseUrl]){
         [self close: ^{
-            [self.engine raiseViewClosed];
+            [self.delegate notifyViewControllerClosed];
         }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;
     } else if ([[url absoluteString] isEqualToString: QueueRestartSessionUrl]){
         [self close:^{
-            [self.engine raiseSessionRestart];
+            [self.delegate notifyViewControllerSessionRestart];
         }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return true;
@@ -130,7 +128,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 #pragma mark - WKNavigationDelegate
 
 - (void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(nonnull WKNavigationAction *)navigationAction decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler{
-    if (!self.isQueuePassed) {
+	    if (!self.isQueuePassed) {
         NSURLRequest* request = navigationAction.request;
         NSString* urlString = [[request URL] absoluteString];
         NSString* targetUrlString = self.eventTargetUrl;
@@ -152,13 +150,13 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
                 if (isNotFrame) {
                     if (isQueueUrl) {
-                        [self.engine updateQueuePageUrl:urlString];
+                        [self raiseQueuePageUrl:urlString];
                     }
                     if ([self isTargetUrl: targetUrl
                            destinationUrl: url]) {
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
-                        [self.engine raiseQueuePassed:queueitToken];
+                        [self.delegate notifyViewControllerQueuePassed:queueitToken];
                         [self.host dismissViewControllerAnimated:YES completion:^{
                         }];
                         decisionHandler(WKNavigationActionPolicyCancel);
@@ -182,7 +180,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                     return;
                 }
             }
-        }
+	        }
     }
 
     decisionHandler(WKNavigationActionPolicyAllow);
@@ -209,7 +207,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
-
+    
     // Check if user exitted through the default exit link and notify the engine
     [self.webView evaluateJavaScript:JAVASCRIPT_GET_BODY_CLASSES completionHandler:^(id result, NSError* error){
         if (error != nil) {
@@ -220,10 +218,14 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
             NSArray<NSString *> *htmlBodyClasses = [resultString componentsSeparatedByString:@" "];
             BOOL isExitClassPresent = [htmlBodyClasses containsObject:@"exit"];
             if (isExitClassPresent) {
-                [self.engine raiseUserExited];
+                [self.delegate notifyViewControllerUserExited];
             }
         }
     }];
+}
+
+- (void)raiseQueuePageUrl:(NSString *)urlString {
+    [self.delegate notifyViewControllerPageUrlChanged:urlString];
 }
 
 -(void)appWillResignActive:(NSNotification*)note

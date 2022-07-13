@@ -27,17 +27,42 @@ NSString * const KEY_QUEUEIT_TOKEN = @"QueueitToken";
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
+    NSString *queueId;
+    NSString *queueUrlString;
+    NSString *eventTargetUrl;
+    NSString *queueitToken;
     int queueUrlTTL = 0;
+    id value;
+    
     if(![dictionary[KEY_QUEUE_URL_TTL_IN_MINUTES] isEqual:[NSNull null]])
     {
         queueUrlTTL = [dictionary[KEY_QUEUE_URL_TTL_IN_MINUTES] intValue];
     }
 
-    return [self init:dictionary[KEY_QUEUE_ID]
-             queueUrl:dictionary[KEY_QUEUE_URL]
-       eventTargetUrl:dictionary[KEY_EVENT_TARGET_URL]
-          queueUrlTTL:queueUrlTTL
-         queueitToken:dictionary[KEY_QUEUEIT_TOKEN]];
-}
+    value = dictionary[KEY_QUEUE_ID];
+    if ([value isKindOfClass:[NSString class]]) {
+        queueId = (NSString*)value;
+    }
 
+    value = dictionary[KEY_QUEUE_URL];
+    if ([value isKindOfClass:[NSString class]]) {
+        queueUrlString = (NSString*)value;
+    }
+
+    value = dictionary[KEY_EVENT_TARGET_URL];
+    if ([value isKindOfClass:[NSString class]]) {
+        eventTargetUrl = (NSString*)value;
+    }
+
+    value = dictionary[KEY_QUEUEIT_TOKEN];
+    if ([value isKindOfClass:[NSString class]]) {
+        queueitToken = (NSString*)value;
+    }
+
+    return [self init:queueId
+             queueUrl:queueUrlString
+       eventTargetUrl:eventTargetUrl
+          queueUrlTTL:queueUrlTTL
+         queueitToken:queueitToken];
+}
 @end
