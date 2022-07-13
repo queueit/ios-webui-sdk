@@ -167,7 +167,7 @@ If you're using version ```3.1.14``` or newer, it's possible to get the state of
 * ```TryPassWithEnqueueToken``` 
 * ```TryPassWithEnqueueKey```
 
-Calling one of the above methods will trigger either the ```notifyProviderSuccess``` callback on success, or ```notifyProviderQueueITUnavailable``` callback on failure.
+Calling one of the above methods will trigger either the ```notifyProviderSuccess``` callback on success, or ```notifyProviderFailure``` callback on failure.
 
 When using the ```notifyProviderQueueITUnavailable``` from the ```ProviderSuccessDelegate``` it'll provide with a ```QueueTryPassResult``` depending on the ```isPassThrough``` result:
 
