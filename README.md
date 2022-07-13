@@ -159,4 +159,34 @@ After you have received the "notifyYourTurn callback", the app must remember thi
 When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
 When the user clicks back, the same check needs to be done.
 
+### Getting the status of a waiting room
+
+If you're using version ```3.1.14``` or newer, it's possible to get the state of the waiting room using the new ```QueueITWaitingRoomProvider``` with one of the following methods:
+
+* ```TryPass```
+* ```TryPassWithEnqueueToken``` 
+* ```TryPassWithEnqueueKey```
+
+Calling one of the above methods will trigger either the ```notifyProviderSuccess``` callback on success, or ```notifyProviderFailure``` callback on failure.
+
+When using the ```notifyProviderQueueITUnavailable``` from the ```ProviderSuccessDelegate``` it'll provide with a ```QueueTryPassResult``` depending on the ```isPassThrough``` result:
+
+* ```true``` means that the ```QueueItToken``` is *not* empty, and more information is available in the ```QueueTryPassResult```
+* ```false``` means that the waiting room is *active*. You can show the visitor the waiting room by calling ```show``` from the ```QueueITWaitingRoomView```, by providing a ```queueUrl``` and ```targetUrl``` *([Read more about it here](#showing-the-queue-page-to-visitors))*
+
+### Showing the queue page to visitors
+
+If you're using version ```3.1.14``` or newer, the ```QueueITWaitingRoomView``` class is available.
+
+When the waiting room is queueing visitors, each visitor has to visit it once. Using the ```show``` method you can do this, you have to provide the ```queueUrl```, and the ```targetUrl``` which is returned by the ```notifyProviderSuccess``` from ```QueueITWaitingRoomProvider``` class, given the waiting room is *active* ([Read more about it here](#getting-the-status-of-a-waiting-room)) 
+
+
+#### Sample code showing the queue page:
+``` objc
+-(void)notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult {   
+   [self.waitingRoomView show:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
+}
+```
+
+### Lifecycle diagram
 ![App Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
