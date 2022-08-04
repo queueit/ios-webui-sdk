@@ -19,6 +19,8 @@ From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will 
 
 Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
 
+From version 3.3.0 and alternative to run function of `QueueITEngine` has been added to allow for more control of the queueing experience. 
+ 
 ### XCFramework
 
 You can manually add the XCFramework that's published in [releases](https://github.com/queueit/ios-webui-sdk/releases).
@@ -50,10 +52,12 @@ pod install
 ```
 
 ## Usage
+### QueueITEngine run function. 
+Queue-it IOS SDK exposed a single function, run of `QueueITEngine`, as a mechanism for integration to Queue it and starting the web view. 
 
 We have a repository with a demo app [here](https://github.com/queueit/ios-demo-app "iOS demo app"), but you can get the basic idea of how to use the library in the following example.
 
-In this example we have a `UITableViewController` that we want to protect using Queue-it. The header file of `UIViewController` has following signature:
+In this demo application we have a `UITableViewController` that we want to protect using Queue-it. The header file of `UIViewController` has following signature:
 
 ```objc
 #import <UIKit/UIKit.h>
@@ -156,13 +160,15 @@ The implementation of the example controller looks like follows:
 
 As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
 After you have received the "notifyYourTurn callback", the app must remember this, possibly with a date / time expiration.
-When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
+When the user wants to navigate to specific screen on the app which needs Queue-it protection, your code will check this state/saved variable, and only call SDK method QueueITEngine.run in the case the user did not previously queue up (or his session time expired). 
 When the user clicks back, the same check needs to be done.
 
-### Getting the status of a waiting room
+### Using QueueITWaitingRoomProvider and QueueITWaitingRoomView (From SDK version 3.3.0)
 
-If you're using version ```3.1.14``` or newer, it's possible to get the state of the waiting room using the new ```QueueITWaitingRoomProvider``` with one of the following methods:
+If you're using SDK version ```3.3.0``` or newer, it's possible to get finner control of application queueing logic using methods exposed by the new ```QueueITWaitingRoomProvider``` and ```QueueITWaitingRoomView``` instead of the single run function exposed by QueueITEngine. 
 
+#### Verifying if user need to wait with QueueITWaitingRoomProvider
+Using one of ```QueueITWaitingRoomProvider``` methods below, it is possible to check if the given end user needs to wait on the waiting room, or for example the waiting room status is on idle or safetynet modes and there is no need to wait / open the webview and show the waiting room.  
 * ```TryPass```
 * ```TryPassWithEnqueueToken``` 
 * ```TryPassWithEnqueueKey```
@@ -174,11 +180,11 @@ When using the ```notifyProviderQueueITUnavailable``` from the ```ProviderSucces
 * ```true``` means that the ```QueueItToken``` is *not* empty, and more information is available in the ```QueueTryPassResult```
 * ```false``` means that the waiting room is *active*. You can show the visitor the waiting room by calling ```show``` from the ```QueueITWaitingRoomView```, by providing a ```queueUrl``` and ```targetUrl``` *([Read more about it here](#showing-the-queue-page-to-visitors))*
 
-### Showing the queue page to visitors
+#### Showing the queue page to visitors with QueueITWaitingRoomView: 
 
-If you're using version ```3.1.14``` or newer, the ```QueueITWaitingRoomView``` class is available.
+The ```QueueITWaitingRoomView``` class is available to show the Waiting room on a webview.
 
-When the waiting room is queueing visitors, each visitor has to visit it once. Using the ```show``` method you can do this, you have to provide the ```queueUrl```, and the ```targetUrl``` which is returned by the ```notifyProviderSuccess``` from ```QueueITWaitingRoomProvider``` class, given the waiting room is *active* ([Read more about it here](#getting-the-status-of-a-waiting-room)) 
+When the waiting room is queueing visitors, each visitor has to visit it once. Using the ```show``` method you can do this, you have to provide the ```queueUrl```, and the ```targetUrl``` which is returned by the ```notifyProviderSuccess``` from ```QueueITWaitingRoomProvider``` class, given the waiting room is *active*. 
 
 
 #### Sample code showing the queue page:
@@ -188,5 +194,6 @@ When the waiting room is queueing visitors, each visitor has to visit it once. U
 }
 ```
 
-### Lifecycle diagram
+### Lifecycle diagram 
+The following diagram shows a sample application logic using Queue it SDK, and denoting when the state of end user needs to be checked before calling QueueITEngine run function, to avoid queueing the same user more than once for a single use case. 
 ![App Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
