@@ -151,7 +151,7 @@
         [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
         return;
     }
-    else if([[queuePassResult redirectType]  isEqual: @"disabled"])
+    else if([[queuePassResult redirectType]  isEqual: @"disabled"] || [[queuePassResult redirectType]  isEqual: @"idle"] || [[queuePassResult redirectType]  isEqual: @"afterevent"])
     {
         QueueDisabledInfo* queueDisabledInfo = [[QueueDisabledInfo alloc]initWithQueueitToken:queuePassResult.queueToken];
         [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
