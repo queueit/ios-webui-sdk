@@ -1,7 +1,6 @@
 #import "QueueITWaitingRoomProvider.h"
 #import "IOSUtils.h"
 #import "QueueITApiClient.h"
-#import "QueueCache.h"
 #import "QueueTryPassResult.h"
 #import "Reachability.h"
 
@@ -14,7 +13,6 @@
 @property NSString* language;
 @property BOOL requestInProgress;
 @property int deltaSec;
-@property QueueCache* cache;
 
 
 @end
@@ -30,7 +28,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                     language:(NSString* _Nullable)language {
     
     if(self = [super init]) {
-        self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
         self.customerId = customerId;
         self.eventOrAliasId = eventOrAliasId;
         self.layoutName = layoutName;
@@ -102,7 +99,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         
         [self handleAppEnqueueResponse: queueStatus.queueId
                               queueURL:queueStatus.queueUrlString
-                  queueURLTTLInMinutes:queueStatus.queueUrlTTL
                         eventTargetURL:queueStatus.eventTargetUrl
                           queueItToken:queueStatus.queueitToken];
         
@@ -123,7 +119,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(void)handleAppEnqueueResponse:(NSString*) queueId
                        queueURL:(NSString*) queueURL
-           queueURLTTLInMinutes:(int) ttl
                  eventTargetURL:(NSString*) targetURL
                    queueItToken:(NSString*) token {
 
@@ -132,8 +127,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     NSString* redirectType = [self getRedirectTypeFromToken:token];
     
     QueueTryPassResult* queueTryPassResult =  [[QueueTryPassResult alloc]
-                                              initWithQueueUrl:queueURL targetUrl:targetURL
-                                              urlTTLInMinutes:ttl
+                                              initWithQueueUrl:queueURL
+                                              targetUrl:targetURL
                                               redirectType:redirectType
                                               isPassedThrough:isPassedThrough
                                               queueToken:token];
