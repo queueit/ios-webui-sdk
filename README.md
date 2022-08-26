@@ -49,6 +49,13 @@ Then, run the following command:
 pod install
 ```
 
+## Swift Package Manager
+
+1. In Xcode, select File > Add Packages
+2. For the URL, paste in `https://github.com/queueit/ios-webui-sdk.git`
+3. Configure how you'd like to track changes, and add to your project
+4. Finally, click Add Package
+
 ## Usage
 
 We have a repository with a demo app [here](https://github.com/queueit/ios-demo-app "iOS demo app"), but you can get the basic idea of how to use the library in the following example.
