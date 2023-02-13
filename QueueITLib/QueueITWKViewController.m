@@ -57,6 +57,10 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                                                                  self.view.bounds.size.height - navigationBarOffset) configuration:config];
     view.navigationDelegate = self;
     self.webView = view;
+
+    if (@available(iOS 13.0, *)) {
+        self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated{
