@@ -66,7 +66,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     }
     
     [IOSUtils getUserAgent:^(NSString * userAgent) {
-        [self tryEnqueueWithUserAgent:userAgent enqueueToken:enqueueToken enqueueKey:enqueueKey];
+        [self tryEnqueueWithUserAgent:userAgent enqueueToken:enqueueToken enqueueKey:enqueueKey error:error];
     }];
     
     return YES;
@@ -75,6 +75,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
                   enqueueToken:(NSString*)enqueueToken
                     enqueueKey:(NSString*)enqueueKey
+                    error:(NSError**)error
 {
     NSString* userId = [IOSUtils getUserId];
     NSString* userAgent = [NSString stringWithFormat:@"%@;%@", secretAgent, [IOSUtils getLibraryVersion]];
@@ -93,7 +94,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                success:^(QueueStatus *queueStatus)
 {
         if (queueStatus == NULL) {
-            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey];
+            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey error:error];
             return;
         }
         
@@ -112,7 +113,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         }
         else
         {
-            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey];
+            [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey error:&error];
         }
     }];
 }
@@ -138,10 +139,11 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(void)enqueueRetryMonitor:(NSString*)enqueueToken
                 enqueueKey:(NSString*)enqueueKey
+                error:(NSError**)error
 {
     if (self.deltaSec < MAX_RETRY_SEC)
     {
-        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey error:nil];
+        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey error:error];
         
         [NSThread sleepForTimeInterval:self.deltaSec];
         self.deltaSec = self.deltaSec * 2;
