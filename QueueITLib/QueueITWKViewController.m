@@ -10,6 +10,7 @@
 @property (nonatomic, strong)UIActivityIndicatorView* spinner;
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
+@property (nonatomic, strong)NSString* customUserAgent;
 @property BOOL isQueuePassed;
 @end
 
@@ -27,6 +28,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
              eventTargetUrl:(NSString*)eventTargetUrl
                  customerId:(NSString*)customerId
                     eventId:(NSString*)eventId
+            customUserAgent:(NSString*)customUserAgent
 {
     self = [super init];
     if(self) {
@@ -37,6 +39,7 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
         self.customerId = customerId;
         self.eventId = eventId;
         self.isQueuePassed = NO;
+        self.customUserAgent = customUserAgent;
     }
     return self;
 }
@@ -56,6 +59,11 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
                                                                  self.view.bounds.size.width,
                                                                  self.view.bounds.size.height - navigationBarOffset) configuration:config];
     view.navigationDelegate = self;
+
+    if (_customUserAgent != nil) {
+        view.customUserAgent = _customUserAgent;
+    }
+
     self.webView = view;
 
     if (@available(iOS 13.0, *)) {

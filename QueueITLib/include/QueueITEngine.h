@@ -27,7 +27,8 @@ typedef enum {
              eventOrAliasId:(NSString*)eventOrAliasId
                  layoutName:(NSString*)layoutName
                    language:(NSString*)language
-               encodedToken:(NSString*)encodedToken;
+               encodedToken:(NSString*)encodedToken
+            customUserAgent:(NSString*)customUserAgent;
 
 -(instancetype)initWithHost:(UIViewController *)host
                  customerId:(NSString*)customerId
@@ -37,7 +38,8 @@ typedef enum {
                     queueId:(NSString*)queueId
                  layoutName:(NSString*)layoutName
                    language:(NSString*)language
-               encodedToken:(NSString*)encodedToken;
+               encodedToken:(NSString*)encodedToken
+            customUserAgent:(NSString*)customUserAgent;
 
 -(void)setViewDelay:(int)delayInterval;
 -(void)run;

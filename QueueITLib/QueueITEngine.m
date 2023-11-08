@@ -17,6 +17,7 @@
 @property (nonatomic, strong)NSString* queueId;
 @property (nonatomic, strong)NSString* layoutName;
 @property (nonatomic, strong)NSString* language;
+@property (nonatomic, strong)NSString* customUserAgent;
 @property int delayInterval;
 @property bool isInQueue;
 @property bool requestInProgress;
@@ -32,6 +33,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
                  layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
+            customUserAgent:(NSString*)customUserAgent
 {
     self = [super init];
     if(self) {
@@ -47,13 +49,16 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.requestInProgress = NO;
         self.internetReachability = [Reachability reachabilityForInternetConnection];
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
+        self.customUserAgent = customUserAgent;
     }
     return self;
 }
 
 -(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
                 eventDomain:(NSString*)eventDomain targetURL:(NSString*)targetURL queueId:(NSString*)queueId
-                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken {
+                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
+            customUserAgent:(NSString*)customUserAgent
+{
     if (self = [super init]) {
         self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
         self.host = host;
@@ -69,6 +74,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.requestInProgress = NO;
         self.internetReachability = [Reachability reachabilityForInternetConnection];
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
+        self.customUserAgent = customUserAgent;
     }
     return self;
 }
@@ -159,7 +165,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                                                                               queueUrl:queueUrl
                                                                         eventTargetUrl:targetUrl
                                                                             customerId:self.customerId
-                                                                               eventId:self.eventId];
+                                                                               eventId:self.eventId
+                                                                       customUserAgent:self.customUserAgent];
 
     queueWKVC.closeImage = self.closeImage;
     queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
@@ -192,7 +199,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     [qs enqueue:self.customerId
    encodedToken:self.encodedToken
  eventOrAliasId:self.eventId
-         userId:userId userAgent:userAgent
+         userId:userId 
+      userAgent:userAgent
      sdkVersion:sdkVersion
      layoutName:self.layoutName
        language:self.language
