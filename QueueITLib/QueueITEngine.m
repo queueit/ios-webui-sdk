@@ -69,7 +69,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.eventTargetURL = targetURL;
         self.layoutName = layoutName;
         self.language = language;
-        self.encodedToken = encodedToken;
         self.delayInterval = 0;
         self.isInQueue = NO;
         self.requestInProgress = NO;
