@@ -1,19 +1,19 @@
-#import "QueueService.h"
-#import "QueueService_NSURLConnection.h"
+#import "QueueITApiClient.h"
+#import "QueueITApiClient_NSURLConnection.h"
 
-static QueueService *SharedInstance;
+static QueueITApiClient *SharedInstance;
 
 static NSString * const API_ROOT = @"https://%@.queue-it.net/api/mobileapp/queue";
 static NSString * const TESTING_API_ROOT = @"https://%@.test.queue-it.net/api/mobileapp/queue";
 static bool testingIsEnabled = NO;
 
-@implementation QueueService
+@implementation QueueITApiClient
 
-+ (QueueService *)sharedInstance
++ (QueueITApiClient *)getInstance
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        SharedInstance = [[QueueService_NSURLConnection alloc] init];
+        SharedInstance = [[QueueITApiClient_NSURLConnection alloc] init];
     });
     
     return SharedInstance;

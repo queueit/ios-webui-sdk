@@ -1,16 +1,15 @@
 #import "QueueITWKViewController.h"
-#import "QueueITEngine.h"
+#import "QueueConsts.h"
 
 @interface QueueITWKViewController ()<WKNavigationDelegate>
 @property (nonatomic) WKWebView* webView;
 @property (nonatomic, strong) UIViewController* host;
-@property (nonatomic, strong) QueueITEngine* engine;
+
 @property (nonatomic, strong)NSString* queueUrl;
 @property (nonatomic, strong)NSString* eventTargetUrl;
 @property (nonatomic, strong)UIActivityIndicatorView* spinner;
 @property (nonatomic, strong)NSString* customerId;
 @property (nonatomic, strong)NSString* eventId;
-@property (nonatomic, strong)NSString* customUserAgent;
 @property BOOL isQueuePassed;
 @end
 
@@ -18,145 +17,172 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 
 @implementation QueueITWKViewController
 
-- (UIStatusBarStyle)preferredStatusBarStyle {
-    return UIStatusBarStyleDefault;
-}
-
 -(instancetype)initWithHost:(UIViewController *)host
-                queueEngine:(QueueITEngine*) engine
                    queueUrl:(NSString*)queueUrl
              eventTargetUrl:(NSString*)eventTargetUrl
                  customerId:(NSString*)customerId
                     eventId:(NSString*)eventId
-            customUserAgent:(NSString*)customUserAgent
 {
     self = [super init];
     if(self) {
         self.host = host;
-        self.engine = engine;
         self.queueUrl = queueUrl;
         self.eventTargetUrl = eventTargetUrl;
         self.customerId = customerId;
         self.eventId = eventId;
         self.isQueuePassed = NO;
-        self.customUserAgent = customUserAgent;
     }
     return self;
 }
 
-#pragma mark - Lifeycle
+- (void)close:(void (^ __nullable)(void))onComplete {
+    [self.host dismissViewControllerAnimated:YES completion:^{
+        if(onComplete!=nil){
+            onComplete();
+        }
+    }];
+}
 
-- (void)viewDidLoad{
-    [super viewDidLoad];
+- (BOOL) isTargetUrl:(nonnull NSURL*) targetUrl
+      destinationUrl:(nonnull NSURL*) destinationUrl {
+    NSString* destinationHost = destinationUrl.host;
+    NSString* destinationPath = destinationUrl.path;
+    NSString* targetHost = targetUrl.host;
+    NSString* targetPath = targetUrl.path;
     
-    WKPreferences* preferences = [WKPreferences new];
+    return [destinationHost isEqualToString: targetHost]
+    && [destinationPath isEqualToString: targetPath];
+}
+
+- (BOOL) isBlockedUrl:(nonnull NSURL*) destinationUrl {
+    NSString* path = destinationUrl.path;
+    if([path hasPrefix: @"/what-is-this.html"]){
+        return true;
+    }
+    return false;
+}
+
+- (BOOL)handleSpecialUrls:(NSURL*) url
+          decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler {
+    if([[url absoluteString] isEqualToString: QueueCloseUrl]){
+        [self close: ^{
+            [self.delegate notifyViewControllerClosed];
+        }];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return true;
+    } else if ([[url absoluteString] isEqualToString: QueueRestartSessionUrl]){
+        [self close:^{
+            [self.delegate notifyViewControllerSessionRestart];
+        }];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return true;
+    }
+    return NO;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:self.view.bounds];
+    [self.spinner setColor:[UIColor grayColor]];
+    
+    WKPreferences* preferences = [[WKPreferences alloc]init];
     preferences.javaScriptEnabled = YES;
-    WKWebViewConfiguration* config = [WKWebViewConfiguration new];
+    WKWebViewConfiguration* config = [[WKWebViewConfiguration alloc]init];
     config.preferences = preferences;
-    CGFloat navigationBarOffset = [self setupNavigationBar];
-    WKWebView* view = [[WKWebView alloc]initWithFrame:CGRectMake(0,
-                                                                 navigationBarOffset,
-                                                                 self.view.bounds.size.width,
-                                                                 self.view.bounds.size.height - navigationBarOffset) configuration:config];
-    view.navigationDelegate = self;
-
-    if (_customUserAgent != nil) {
-        view.customUserAgent = _customUserAgent;
-    }
-
-    self.webView = view;
-
-    if (@available(iOS 13.0, *)) {
-        self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-    }
+    WKWebView* webview = [[WKWebView alloc]initWithFrame:self.view.bounds configuration:config];
+    webview.navigationDelegate = self;
+    [webview setAutoresizingMask: UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+    // Make webview transparent
+    webview.opaque = NO;
+    webview.backgroundColor = [UIColor clearColor];
+    self.webView = webview;
 }
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    
-    self.spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-    [self.spinner setColor:[UIColor grayColor]];
+}
+
+-(void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
     [self.spinner startAnimating];
+    self.webView.frame = self.view.bounds;
+    self.spinner.frame = self.view.bounds;
     
     [self.view addSubview:self.webView];
     [self.webView addSubview:self.spinner];
     
-    NSURL *urlAddress = [NSURL URLWithString:self.queueUrl];
-    NSURLRequest *request = [NSURLRequest requestWithURL:urlAddress];
-    [self.webView loadRequest:request];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.queueUrl]]];
 }
 
-#pragma mark - Navigation Bar
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+}
 
-- (CGFloat)setupNavigationBar{
-    CGFloat navigationBarHeight = 44.0;
-    CGFloat statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
-    CGFloat navigationBarDividerHeight = 1.0;
-    CGFloat navigationBarOffset = navigationBarHeight + navigationBarDividerHeight + statusBarHeight;
-    UINavigationBar *navigationBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0,
-                                                                                       statusBarHeight,
-                                                                                       self.view.frame.size.width,
-                                                                                       navigationBarHeight)];
-    [navigationBar setBarTintColor:[UIColor whiteColor]];
-
-    UINavigationItem* navigationItem = [UINavigationItem new];
-    if (self.closeImage != nil) {
-        UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:self.closeImage
-                                                                        style:UIBarButtonItemStylePlain
-                                                                       target:self
-                                                                       action:@selector(dismissController)];
-        navigationItem.leftBarButtonItem = closeButton;
-    }
-    [navigationBar setItems:@[navigationItem]];
-    [self.view addSubview:navigationBar];
-    self.view.backgroundColor = [UIColor whiteColor];
-    return navigationBarOffset;
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    [self.webView removeFromSuperview];
+    self.webView = nil;
 }
 
 #pragma mark - WKNavigationDelegate
 
 - (void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(nonnull WKNavigationAction *)navigationAction decisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler{
-    
-    if (!self.isQueuePassed) {
+	    if (!self.isQueuePassed) {
         NSURLRequest* request = navigationAction.request;
         NSString* urlString = [[request URL] absoluteString];
         NSString* targetUrlString = self.eventTargetUrl;
-        NSLog(@"request Url: %@", urlString);
-        NSLog(@"target Url: %@", targetUrlString);
         if (urlString != nil) {
             NSURL* url = [NSURL URLWithString:urlString];
             NSURL* targetUrl = [NSURL URLWithString:targetUrlString];
             if(urlString != nil && ![urlString isEqualToString:@"about:blank"]) {
                 BOOL isQueueUrl = [self.queueUrl containsString:url.host];
                 BOOL isNotFrame = [[[request URL] absoluteString] isEqualToString:[[request mainDocumentURL] absoluteString]];
+
+                if([self handleSpecialUrls:url decisionHandler:decisionHandler]){
+                    return;
+                }
+
+                if([self isBlockedUrl: url]){
+                    decisionHandler(WKNavigationActionPolicyCancel);
+                    return;
+                }
+
                 if (isNotFrame) {
                     if (isQueueUrl) {
-                        [self.engine updateQueuePageUrl:urlString];
+                        [self raiseQueuePageUrl:urlString];
                     }
-                    if ([targetUrl.host isEqualToString:url.host] && [targetUrl.path isEqualToString:url.path]) {
+                    if ([self isTargetUrl: targetUrl
+                           destinationUrl: url]) {
                         self.isQueuePassed = YES;
                         NSString* queueitToken = [self extractQueueToken:url.absoluteString];
-                        [self.engine raiseQueuePassed:queueitToken];
+                        [self.delegate notifyViewControllerQueuePassed:queueitToken];
                         [self.host dismissViewControllerAnimated:YES completion:^{
-                            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
                         }];
+                        decisionHandler(WKNavigationActionPolicyCancel);
+                        return;
                     }
                 }
                 if (navigationAction.navigationType == WKNavigationTypeLinkActivated && !isQueueUrl) {
                     if (@available(iOS 10, *)){
-                        [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:nil];
+                        [[UIApplication sharedApplication] openURL:[request URL] options:@{} completionHandler:^(BOOL success){
+
+                        }];
                     }
                     else {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
                         [[UIApplication sharedApplication] openURL:[request URL]];
+#pragma GCC diagnostic pop
                     }
-                    
+
                     decisionHandler(WKNavigationActionPolicyCancel);
                     return;
                 }
             }
-        }
+	        }
     }
-    
+
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
@@ -173,12 +199,9 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation{
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    
     [self.spinner stopAnimating];
     if (![self.webView isLoading])
     {
@@ -195,21 +218,18 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
             NSArray<NSString *> *htmlBodyClasses = [resultString componentsSeparatedByString:@" "];
             BOOL isExitClassPresent = [htmlBodyClasses containsObject:@"exit"];
             if (isExitClassPresent) {
-                [self.engine raiseUserExited];
+                [self.delegate notifyViewControllerUserExited];
             }
         }
     }];
 }
 
--(void)appWillResignActive:(NSNotification*)note{
+- (void)raiseQueuePageUrl:(NSString *)urlString {
+    [self.delegate notifyViewControllerPageUrlChanged:urlString];
 }
 
-#pragma mark - Actions
-- (void)dismissController{
-    [self.host dismissViewControllerAnimated:YES completion:^{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    }];
+-(void)appWillResignActive:(NSNotification*)note
+{
 }
-
 
 @end

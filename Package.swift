@@ -1,24 +1,23 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 import PackageDescription
 
 let package = Package(
-    name: "QueueITLib",
+    name: "QueueITLibrary",
     platforms: [
         .iOS(.v11)
     ],
     products: [
         .library(
-            name: "QueueITLib",
-            targets: ["QueueITLib"])
+            name: "QueueITLibrary",
+            targets: ["QueueITLibrary"]),
     ],
-    dependencies: [],
     targets: [
         .target(
-            name: "QueueITLib",
-            path: "QueueITLib",
-            publicHeadersPath: "include")
-    ],
-    swiftLanguageVersions: [
-        .version("5")
+            name: "QueueITLibrary",
+            path: "QueueItLib/",
+            publicHeadersPath: ""
+        )
     ]
 )

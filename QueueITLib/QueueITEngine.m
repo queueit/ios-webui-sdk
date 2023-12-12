@@ -1,335 +1,125 @@
 #import "QueueITEngine.h"
-#import "QueueITWKViewController.h"
-#import "QueueService.h"
+#import "QueueITApiClient.h"
 #import "QueueStatus.h"
 #import "IOSUtils.h"
-#import "Reachability.h"
-#import "QueueCache.h"
+#import "QueueITWaitingRoomView.h"
+#import "QueueITWaitingRoomProvider.h"
 
 @interface QueueITEngine()
-@property (nonatomic) Reachability *internetReachability;
-@property (nonatomic, strong)UIViewController* host;
-@property (nonatomic, strong)NSString* customerId;
-@property (nonatomic, strong)NSString* eventId;
-@property (nonatomic, strong)NSString* encodedToken;
-@property (nonatomic, strong)NSString* eventDomain;
-@property (nonatomic, strong)NSString* eventTargetURL;
-@property (nonatomic, strong)NSString* queueId;
-@property (nonatomic, strong)NSString* layoutName;
-@property (nonatomic, strong)NSString* language;
-@property (nonatomic, strong)NSString* customUserAgent;
-@property int delayInterval;
-@property bool isInQueue;
-@property bool requestInProgress;
-@property int queueUrlTtl;
-@property (nonatomic, strong)QueueCache* cache;
-@property int deltaSec;
+@property (nonatomic, weak)UIViewController* host;
+
+@property QueueITWaitingRoomProvider* waitingRoomProvider;
+@property QueueITWaitingRoomView* waitingRoomView;
 @end
 
 @implementation QueueITEngine
 
-static int MAX_RETRY_SEC = 10;
-static int INITIAL_WAIT_RETRY_SEC = 1;
-
--(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
-                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
-            customUserAgent:(NSString*)customUserAgent
+-(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
 {
     self = [super init];
     if(self) {
-        self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
+        self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] initWithCustomerId:customerId
+                                                                        eventOrAliasId:eventOrAliasId
+                                                                        layoutName:layoutName
+                                                                        language:language];
+        
+        self.waitingRoomView = [[QueueITWaitingRoomView alloc] initWithHost: host customerId: customerId eventId: eventOrAliasId];
         self.host = host;
         self.customerId = customerId;
         self.eventId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
-        self.encodedToken = encodedToken;
-        self.delayInterval = 0;
-        self.isInQueue = NO;
-        self.requestInProgress = NO;
-        self.internetReachability = [Reachability reachabilityForInternetConnection];
-        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
-        self.customUserAgent = customUserAgent;
-    }
-    return self;
-}
-
--(instancetype)initWithHost:(UIViewController*)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId
-                eventDomain:(NSString*)eventDomain targetURL:(NSString*)targetURL queueId:(NSString*)queueId
-                 layoutName:(NSString*)layoutName language:(NSString*)language encodedToken:(NSString*)encodedToken
-            customUserAgent:(NSString*)customUserAgent
-{
-    if (self = [super init]) {
-        self.cache = [QueueCache instance:customerId eventId:eventOrAliasId];
-        self.host = host;
-        self.customerId = customerId;
-        self.eventId = eventOrAliasId;
-        self.eventDomain = eventDomain;
-        self.queueId = queueId;
-        self.eventTargetURL = targetURL;
-        self.layoutName = layoutName;
-        self.language = language;
-        self.delayInterval = 0;
-        self.isInQueue = NO;
-        self.requestInProgress = NO;
-        self.internetReachability = [Reachability reachabilityForInternetConnection];
-        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
-        self.customUserAgent = customUserAgent;
+        
+        self.waitingRoomView.delegate = self;
+        self.waitingRoomProvider.delegate = self;
     }
     return self;
 }
 
 -(void)setViewDelay:(int)delayInterval {
-    self.delayInterval = delayInterval;
-}
-
--(void)checkConnection
-{
-    int count = 0;
-    while (count < 5)
-    {
-        NetworkStatus netStatus = [self.internetReachability currentReachabilityStatus];
-        if (netStatus == NotReachable)
-        {
-            [NSThread sleepForTimeInterval:1.0f];
-            count++;
-        }
-        else
-        {
-            return;
-        }
-    }
-    @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:NetworkUnavailable] userInfo:nil];
-}
-
--(NSString*) errorTypeEnumToString:(QueueITRuntimeError)errorEnumVal
-{
-    NSArray *errorTypeArray = [[NSArray alloc] initWithObjects:QueueITRuntimeErrorArray];
-    return [errorTypeArray objectAtIndex:errorEnumVal];
-}
-
--(BOOL)isUserInQueue {
-    return self.isInQueue;
+    [self.waitingRoomView setViewDelay:delayInterval];
 }
 
 -(BOOL)isRequestInProgress {
-    return self.requestInProgress;
+    return [self.waitingRoomProvider IsRequestInProgress];
 }
 
--(void)run
+-(BOOL)runWithEnqueueKey:(NSString *)enqueueKey
+                   error:(NSError *__autoreleasing *)error
 {
-    [self checkConnection];
-    
-    if(self.requestInProgress)
-    {
-        @throw [NSException exceptionWithName:@"QueueITRuntimeException" reason:[self errorTypeEnumToString:RequestAlreadyInProgress] userInfo:nil];
-    }
-    
-    self.requestInProgress = YES;
-    
-    NSString * queueURL = [self queueURL];
-    if (queueURL != NULL && self.eventTargetURL != NULL)
-    {
-        [self showQueue:queueURL targetUrl:self.eventTargetURL];
-    } else if (![self tryShowQueueFromCache])
-    {
-        [self tryEnqueue];
-    }
-
+        return [self.waitingRoomProvider TryPassWithEnqueueKey:enqueueKey error:error];
 }
 
--(BOOL)tryShowQueueFromCache
+-(BOOL)runWithEnqueueToken:(NSString *)enqueueToken
+                     error:(NSError *__autoreleasing *)error
 {
-    if (![self.cache isEmpty])
-    {
-        NSString* urlTtlString = [self.cache getUrlTtl];
-        long long cachedTime = [urlTtlString longLongValue];
-        long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
-        if (currentTime < cachedTime)
-        {
-            NSString* targetUrl = [self.cache getTargetUrl];
-            NSString* queueUrl = [self.cache getQueueUrl];
-            [self showQueue:queueUrl targetUrl:targetUrl];
-            return YES;
-        }
-    }
-    return NO;
+        return [self.waitingRoomProvider TryPassWithEnqueueToken:enqueueToken error:error];
 }
+
+-(BOOL)run:(NSError **)error
+{
+        return [self.waitingRoomProvider TryPass:error];
+}
+
+
 
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
-    [self raiseQueueViewWillOpen];
-    
-    QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
-                                                                           queueEngine:self
-                                                                              queueUrl:queueUrl
-                                                                        eventTargetUrl:targetUrl
-                                                                            customerId:self.customerId
-                                                                               eventId:self.eventId
-                                                                       customUserAgent:self.customUserAgent];
-
-    queueWKVC.closeImage = self.closeImage;
-    queueWKVC.modalPresentationStyle = UIModalPresentationFullScreen;
-
-    if (self.delayInterval > 0) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueWKVC animated:YES completion:nil];
-        });
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.host presentViewController:queueWKVC animated:YES completion:nil];
-        });
-    }
+    [self.waitingRoomView show:queueUrl targetUrl:targetUrl];
 }
 
--(void)tryEnqueue
-{
-    [IOSUtils getUserAgent:^(NSString * userAgent) {
-        [self tryEnqueueWithUserAgent:userAgent];
-    }];
-}
 
--(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
-{
-    NSString* userId = [IOSUtils getUserId];
-    NSString* userAgent = [NSString stringWithFormat:@"%@;%@", secretAgent, [IOSUtils getLibraryVersion]];
-    NSString* sdkVersion = [IOSUtils getSdkVersion];
-    
-    QueueService* qs = [QueueService sharedInstance];
-    [qs enqueue:self.customerId
-   encodedToken:self.encodedToken
- eventOrAliasId:self.eventId
-         userId:userId 
-      userAgent:userAgent
-     sdkVersion:sdkVersion
-     layoutName:self.layoutName
-       language:self.language
-        success:^(QueueStatus *queueStatus)
-     {
-         if (queueStatus == NULL) {
-             [self enqueueRetryMonitor];
-             return;
-         }
-         
-         bool queueIdExists = queueStatus.queueId != nil && queueStatus.queueId != (id)[NSNull null];
-         bool queueUrlExists = queueStatus.queueUrlString != nil && queueStatus.queueUrlString != (id)[NSNull null];
-         
-         //SafetyNet
-         if (queueIdExists && !queueUrlExists)
-         {
-             [self.queueViewWillOpenDelegate notifyOnQueueIdChanged:queueStatus.queueId];
-             [self raiseQueuePassed:queueStatus.queueitToken];
-         }
-         //InQueue
-         else if (queueIdExists && queueUrlExists)
-         {
-             self.queueUrlTtl = queueStatus.queueUrlTTL;
-             [self.queueViewWillOpenDelegate notifyOnQueueIdChanged:queueStatus.queueId];
-             [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
-             
-             NSString* urlTtlString = [self convertTtlMinutesToSecondsString:queueStatus.queueUrlTTL];
-             [self.cache update:queueStatus.queueUrlString urlTTL:urlTtlString targetUrl:queueStatus.eventTargetUrl];
-         }
-         //PostQueue or Idle
-         else if (!queueIdExists && queueUrlExists)
-         {
-             [self showQueue:queueStatus.queueUrlString targetUrl:queueStatus.eventTargetUrl];
-         }
-         //Disabled
-         else
-         {
-             self.requestInProgress = NO;
-             [self raiseQueueDisabled];
-         }
-     }
-        failure:^(NSError *error, NSString* errorMessage)
-     {
-         if (error.code >= 400 && error.code < 500)
-         {
-             [self.queueITUnavailableDelegate notifyQueueITUnavailable: errorMessage];
-         }
-         else
-         {
-             [self enqueueRetryMonitor];
-         }
-     }];
-}
-
--(void)enqueueRetryMonitor
-{
-    if (self.deltaSec < MAX_RETRY_SEC)
-    {
-        [self tryEnqueue];
-        
-        [NSThread sleepForTimeInterval:self.deltaSec];
-        self.deltaSec = self.deltaSec * 2;
-    }
-    else
-    {
-        self.deltaSec = INITIAL_WAIT_RETRY_SEC;
-        self.requestInProgress = NO;
-        [self.queueITUnavailableDelegate notifyQueueITUnavailable: @"Unexpected error. Try again later"];
-    }
-}
-
--(NSString*)convertTtlMinutesToSecondsString:(int)ttlMinutes
-{
-    long currentTime = (long)(NSTimeInterval)([[NSDate date] timeIntervalSince1970]);
-    int secondsToAdd = ttlMinutes * 60.0;
-    long timeStapm = currentTime + secondsToAdd;
-    NSString* urlTtlString = [NSString stringWithFormat:@"%li", timeStapm];
-    return urlTtlString;
-}
-
--(void) raiseQueuePassed:(NSString*) queueitToken
-{
-    QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc]initWithQueueitToken:queueitToken];
-    
-    NSLog(@"clearing the cache: RAISEQUEUEPASSED");
-    [self.cache clear];
-    
-    self.isInQueue = NO;
-    self.requestInProgress = NO;
+- (void)waitingRoomView:(nonnull QueueITWaitingRoomView *)view notifyViewPassedQueue:(QueuePassedInfo * _Nullable)queuePassedInfo {
     [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
 }
 
-
--(void) raiseQueueViewWillOpen
-{
-    self.isInQueue = YES;
+- (void)notifyViewQueueWillOpen:(nonnull QueueITWaitingRoomView *)view {
     [self.queueViewWillOpenDelegate notifyQueueViewWillOpen];
 }
 
--(void) raiseQueueDisabled
-{
-    [self.queueDisabledDelegate notifyQueueDisabled];
-}
-
--(void) raiseUserExited
-{
-    if (self.isInQueue) {
-        [self.queueUserExitedDelegate notifyUserExited];
-        self.isInQueue = NO;
+- (void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider *)provider notifyProviderFailure:(NSString * _Nullable)errorMessage errorCode:(long)errorCode {
+    if(errorCode == 3) {
+        [self.queueITUnavailableDelegate notifyQueueITUnavailable:errorMessage];
     }
+    
+    [self.queueErrorDelegate notifyQueueError:errorMessage errorCode:errorCode];
 }
 
--(void)updateQueuePageUrl:(NSString *)queuePageUrl
-{
-    if (![self.cache isEmpty]) {
-        NSString* urlTtlString = [self.cache getUrlTtl];
-        NSString* targetUrl = [self.cache getTargetUrl];
-        [self.cache update:queuePageUrl urlTTL:urlTtlString targetUrl:targetUrl];
+- (void)notifyViewSessionRestart:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueSessionRestartDelegate notifySessionRestart];
+}
+
+- (void)notifyViewUserExited:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueUserExitedDelegate notifyUserExited];
+}
+
+- (void)notifyViewUserClosed:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueViewClosedDelegate notifyViewClosed];
+}
+
+- (void)waitingRoomView:(nonnull QueueITWaitingRoomView *)view notifyViewUpdatePageUrl:(NSString * _Nullable)urlString {
+    [self.queueUrlChangedDelegate notifyQueueUrlChanged:urlString];
+}
+
+-(void)notifyViewQueueDidAppear:(nonnull QueueITWaitingRoomView *)view {
+    [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
+}
+
+- (void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider *)provider notifyProviderSuccess:(QueueTryPassResult * _Nonnull)queuePassResult {
+    if([[queuePassResult redirectType]  isEqual: @"safetynet"])
+    {
+        QueuePassedInfo* queuePassedInfo = [[QueuePassedInfo alloc] initWithQueueitToken:queuePassResult.queueToken];
+        [self.queuePassedDelegate notifyYourTurn:queuePassedInfo];
+        return;
     }
-}
-
--(NSString*)queueURL {
-    if (self.eventDomain != NULL && self.queueId != NULL && self.eventId != NULL) {
-        NSString *sdkVersion = [IOSUtils getSdkVersion];
-        NSString *urlFormat = @"http://%@/?c=%@&e=%@&q=%@&cid=%@&sdkv=%@";
-        NSString *queueURL = [NSString stringWithFormat:urlFormat,self.eventDomain, self.customerId, self.eventId, self.queueId, self.language, sdkVersion];
-        return queueURL;
+    else if([[queuePassResult redirectType]  isEqual: @"disabled"] || [[queuePassResult redirectType]  isEqual: @"idle"] || [[queuePassResult redirectType]  isEqual: @"afterevent"])
+    {
+        QueueDisabledInfo* queueDisabledInfo = [[QueueDisabledInfo alloc]initWithQueueitToken:queuePassResult.queueToken];
+        [self.queueDisabledDelegate notifyQueueDisabled:queueDisabledInfo];
+        return;
     }
-    return NULL;
+    
+    [self showQueue:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
+    
 }
-
 @end
