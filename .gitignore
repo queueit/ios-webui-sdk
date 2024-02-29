@@ -4,3 +4,6 @@ QueueITLib.xcworkspace
 builds
 xcuserdata/
 /.idea
+build
+QueueITLibSwift.xcframework.zip
+.DS_Store
