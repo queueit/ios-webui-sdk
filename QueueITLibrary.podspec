@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name = "QueueITLibrary"
-s.version = "3.4.0"
+s.version = "3.4.1"
 s.summary = "Library for integrating Queue-it into an iOS app using web uI"
 s.homepage = "https://github.com/queueit/ios-webui-sdk"
 s.license = 'MIT'
