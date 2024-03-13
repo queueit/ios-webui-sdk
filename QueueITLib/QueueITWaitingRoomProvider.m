@@ -2,11 +2,11 @@
 #import "IOSUtils.h"
 #import "QueueITApiClient.h"
 #import "QueueTryPassResult.h"
-#import "Reachability.h"
+#import "QueueITReachability.h"
 
 // TODO: Include all the method calls here 
 @interface QueueITWaitingRoomProvider()
-@property (nonatomic) Reachability *internetReachability;
+@property (nonatomic) QueueITReachability *internetReachability;
 @property NSString* customerId;
 @property NSString* eventOrAliasId;
 @property NSString* layoutName;
@@ -33,7 +33,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.layoutName = layoutName;
         self.language = language;
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
-        self.internetReachability = [Reachability reachabilityForInternetConnection];
+        self.internetReachability = [QueueITReachability reachabilityForInternetConnection];
     }
     
     return self;
