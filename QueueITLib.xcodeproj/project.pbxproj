@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D0970CD1F5EA46E00495466 /* QueuePassedInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */; };
 		1D2413212164D86400DFACE1 /* QueueITWKViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D2413202164D86400DFACE1 /* QueueITWKViewController.m */; };
-		1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCB83FC1BCE5375009B489A /* Reachability.m */; };
+		1DCB83FD1BCE5375009B489A /* QueueITReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCB83FC1BCE5375009B489A /* QueueITReachability.m */; };
 		1DDF312E1C931DC00036E5EB /* QueueCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF312D1C931DC00036E5EB /* QueueCache.m */; };
 		1DE12F901B57E2ED00DD3BBE /* libQueueITLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */; };
 		1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FA61B57F0C000DD3BBE /* QueueService.m */; };
@@ -53,8 +53,8 @@
 		1D0970CC1F5EA46E00495466 /* QueuePassedInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueuePassedInfo.m; sourceTree = "<group>"; };
 		1D24131F2164D86400DFACE1 /* QueueITWKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QueueITWKViewController.h; sourceTree = "<group>"; };
 		1D2413202164D86400DFACE1 /* QueueITWKViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QueueITWKViewController.m; sourceTree = "<group>"; };
-		1DCB83FB1BCE5375009B489A /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		1DCB83FC1BCE5375009B489A /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		1DCB83FB1BCE5375009B489A /* QueueITReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueITReachability.h; sourceTree = "<group>"; };
+		1DCB83FC1BCE5375009B489A /* QueueITReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueITReachability.m; sourceTree = "<group>"; };
 		1DDF312C1C931DC00036E5EB /* QueueCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueCache.h; sourceTree = "<group>"; };
 		1DDF312D1C931DC00036E5EB /* QueueCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueCache.m; sourceTree = "<group>"; };
 		1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libQueueITLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,8 +97,8 @@
 		1DCB83FA1BCE5350009B489A /* Reachability */ = {
 			isa = PBXGroup;
 			children = (
-				1DCB83FB1BCE5375009B489A /* Reachability.h */,
-				1DCB83FC1BCE5375009B489A /* Reachability.m */,
+				1DCB83FB1BCE5375009B489A /* QueueITReachability.h */,
+				1DCB83FC1BCE5375009B489A /* QueueITReachability.m */,
 			);
 			name = Reachability;
 			sourceTree = "<group>";
@@ -287,7 +287,7 @@
 			files = (
 				1DE12FB01B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m in Sources */,
 				1DE12FC21B57F42500DD3BBE /* QueueITEngine.m in Sources */,
-				1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */,
+				1DCB83FD1BCE5375009B489A /* QueueITReachability.m in Sources */,
 				1DE12FAA1B57F14D00DD3BBE /* QueueService_NSURLConnection.m in Sources */,
 				1DDF312E1C931DC00036E5EB /* QueueCache.m in Sources */,
 				1D0970CD1F5EA46E00495466 /* QueuePassedInfo.m in Sources */,
