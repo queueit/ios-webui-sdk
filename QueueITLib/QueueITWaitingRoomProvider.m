@@ -53,24 +53,31 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 
 -(BOOL)tryEnqueue:(NSString*)enqueueToken
-       enqueueKey:(NSString*)enqueueKey
-            error:(NSError**)error
-{
-    if(![self checkConnection:error]) {
-        return NO;
-    }
-    
-    if(self.requestInProgress) {
-        *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:RequestAlreadyInProgress userInfo:nil];
-        return NO;
-    }
-    
-    [IOSUtils getUserAgent:^(NSString * userAgent) {
-        [self tryEnqueueWithUserAgent:userAgent enqueueToken:enqueueToken enqueueKey:enqueueKey error:error];
-    }];
-    
-    return YES;
-}
+        enqueueKey:(NSString*)enqueueKey
+             error:(NSError**)error
+ {
+     if (self.requestInProgress) {
+         *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:RequestAlreadyInProgress userInfo:nil];
+         return NO;
+     }
+
+     [self checkConnectionWithCompletion:^(BOOL isConnected) {
+         if (!isConnected) {
+             *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:NetworkUnavailable userInfo:nil];
+             self.requestInProgress = NO;
+             return;
+         }
+
+         self.requestInProgress = YES;
+
+         [IOSUtils getUserAgent:^(NSString *userAgent) {
+             [self tryEnqueueWithUserAgent:userAgent enqueueToken:enqueueToken enqueueKey:enqueueKey error:error];
+         }];
+     }];
+
+     return YES;
+ }
+
 
 -(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
                   enqueueToken:(NSString*)enqueueToken
@@ -141,39 +148,45 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
                 enqueueKey:(NSString*)enqueueKey
                 error:(NSError**)error
 {
-    if (self.deltaSec < MAX_RETRY_SEC)
-    {
-        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey error:error];
-        
-        [NSThread sleepForTimeInterval:self.deltaSec];
-        self.deltaSec = self.deltaSec * 2;
-    }
-    else
-    {
+    if (self.deltaSec < MAX_RETRY_SEC) {
+
+        // Schedule retry on a background thread
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.deltaSec * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self tryEnqueue:enqueueToken enqueueKey:enqueueKey error:error];
+            self.deltaSec = self.deltaSec * 2;
+        });
+
+    } else {
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
         self.requestInProgress = NO;
         [self.delegate waitingRoomProvider:self notifyProviderFailure:@"Error! Queue is unavailable." errorCode:3];
     }
 }
 
--(BOOL)checkConnection:(NSError **)error
-{
-    int count = 0;
-    while (count < 5)
-    {
-        NetworkStatus netStatus = [self.internetReachability currentReachabilityStatus];
-        if (netStatus == NotReachable)
-        {
-            [NSThread sleepForTimeInterval:1.0f];
-            count++;
+- (void)checkConnectionWithCompletion:(void(^)(BOOL isConnected))completion {
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+        BOOL isConnected = NO;
+        int count = 0;
+        while (count < 5) {
+            NetworkStatus netStatus = [self.internetReachability currentReachabilityStatus];
+            if (netStatus == NotReachable) {
+                [NSThread sleepForTimeInterval:1.0f];  // Blocking sleep
+                count++;
+            } else {
+                isConnected = YES;
+                break;
+            }
         }
-        else
-        {
-            return YES;
-        }
-    }
-    *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:NetworkUnavailable userInfo:nil];
-    return NO;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion(isConnected);
+            }
+        });
+
+    });
 }
 
 -(BOOL)IsRequestInProgress {
