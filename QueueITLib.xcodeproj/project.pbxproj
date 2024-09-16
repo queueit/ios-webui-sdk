@@ -14,7 +14,7 @@
 		1DE12F901B57E2ED00DD3BBE /* libQueueITLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DE12F841B57E2ED00DD3BBE /* libQueueITLib.a */; };
 		1DE12FA71B57F0C000DD3BBE /* QueueService.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FA61B57F0C000DD3BBE /* QueueService.m */; };
 		1DE12FAA1B57F14D00DD3BBE /* QueueService_NSURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FA91B57F14D00DD3BBE /* QueueService_NSURLConnection.m */; };
-		1DE12FB01B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FAF1B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m */; };
+		1DE12FB01B57F24000DD3BBE /* SDKQueueService_NSURLConnectionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FAF1B57F24000DD3BBE /* SDKQueueService_NSURLConnectionRequest.m */; };
 		1DE12FBC1B57F3A300DD3BBE /* QueueStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FBB1B57F3A300DD3BBE /* QueueStatus.m */; };
 		1DE12FBF1B57F3DD00DD3BBE /* IOSUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FBE1B57F3DD00DD3BBE /* IOSUtils.m */; };
 		1DE12FC21B57F42500DD3BBE /* QueueITEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DE12FC11B57F42500DD3BBE /* QueueITEngine.m */; };
@@ -64,8 +64,8 @@
 		1DE12FA61B57F0C000DD3BBE /* QueueService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService.m; sourceTree = "<group>"; };
 		1DE12FA81B57F14D00DD3BBE /* QueueService_NSURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService_NSURLConnection.h; sourceTree = "<group>"; };
 		1DE12FA91B57F14D00DD3BBE /* QueueService_NSURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService_NSURLConnection.m; sourceTree = "<group>"; };
-		1DE12FAE1B57F23F00DD3BBE /* QueueService_NSURLConnectionRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueService_NSURLConnectionRequest.h; sourceTree = "<group>"; };
-		1DE12FAF1B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueService_NSURLConnectionRequest.m; sourceTree = "<group>"; };
+		1DE12FAE1B57F23F00DD3BBE /* SDKQueueService_NSURLConnectionRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDKQueueService_NSURLConnectionRequest.h; sourceTree = "<group>"; };
+		1DE12FAF1B57F24000DD3BBE /* SDKQueueService_NSURLConnectionRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDKQueueService_NSURLConnectionRequest.m; sourceTree = "<group>"; };
 		1DE12FBA1B57F3A300DD3BBE /* QueueStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueStatus.h; sourceTree = "<group>"; };
 		1DE12FBB1B57F3A300DD3BBE /* QueueStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueStatus.m; sourceTree = "<group>"; };
 		1DE12FBD1B57F3DD00DD3BBE /* IOSUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSUtils.h; sourceTree = "<group>"; };
@@ -159,8 +159,8 @@
 				1DE12FA61B57F0C000DD3BBE /* QueueService.m */,
 				1DE12FA81B57F14D00DD3BBE /* QueueService_NSURLConnection.h */,
 				1DE12FA91B57F14D00DD3BBE /* QueueService_NSURLConnection.m */,
-				1DE12FAE1B57F23F00DD3BBE /* QueueService_NSURLConnectionRequest.h */,
-				1DE12FAF1B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m */,
+				1DE12FAE1B57F23F00DD3BBE /* SDKQueueService_NSURLConnectionRequest.h */,
+				1DE12FAF1B57F24000DD3BBE /* SDKQueueService_NSURLConnectionRequest.m */,
 				1DDF312C1C931DC00036E5EB /* QueueCache.h */,
 				1DDF312D1C931DC00036E5EB /* QueueCache.m */,
 			);
@@ -285,7 +285,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1DE12FB01B57F24000DD3BBE /* QueueService_NSURLConnectionRequest.m in Sources */,
+				1DE12FB01B57F24000DD3BBE /* SDKQueueService_NSURLConnectionRequest.m in Sources */,
 				1DE12FC21B57F42500DD3BBE /* QueueITEngine.m in Sources */,
 				1DCB83FD1BCE5375009B489A /* Reachability.m in Sources */,
 				1DE12FAA1B57F14D00DD3BBE /* QueueService_NSURLConnection.m in Sources */,
