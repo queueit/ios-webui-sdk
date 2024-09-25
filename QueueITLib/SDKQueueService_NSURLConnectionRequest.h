@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "QueueService.h"
 
-@protocol QueueService_NSURLConnectionRequestDelegate;
+@protocol SDKQueueService_NSURLConnectionRequestDelegate;
 
 @interface SDKQueueService_NSURLConnectionRequest : NSObject<NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
@@ -11,10 +11,10 @@
              expectedStatusCode:(NSInteger)statusCode
                         success:(QueueServiceSuccess)success
                         failure:(QueueServiceFailure)failure
-                       delegate:(id<QueueService_NSURLConnectionRequestDelegate>)delegate;
+                       delegate:(id<SDKQueueService_NSURLConnectionRequestDelegate>)delegate;
 
 @end
 
-@protocol QueueService_NSURLConnectionRequestDelegate <NSObject>
+@protocol SDKQueueService_NSURLConnectionRequestDelegate <NSObject>
 - (void)requestDidComplete:(SDKQueueService_NSURLConnectionRequest *)request;
 @end

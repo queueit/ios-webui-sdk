@@ -9,7 +9,7 @@
 @property (nonatomic, strong) NSMutableData *data;
 @property (nonatomic, copy) QueueServiceSuccess successCallback;
 @property (nonatomic, copy) QueueServiceFailure failureCallback;
-@property (nonatomic, weak) id<QueueService_NSURLConnectionRequestDelegate> delegate;
+@property (nonatomic, weak) id<SDKQueueService_NSURLConnectionRequestDelegate> delegate;
 @property (nonatomic, strong) NSString *uniqueIdentifier;
 @property (nonatomic, assign) NSInteger expectedStatusCode;
 @property (nonatomic, assign) NSInteger actualStatusCode;
@@ -22,7 +22,7 @@
              expectedStatusCode:(NSInteger)statusCode
                         success:(QueueServiceSuccess)success
                         failure:(QueueServiceFailure)failure
-                       delegate:(id<QueueService_NSURLConnectionRequestDelegate>)delegate
+                       delegate:(id<SDKQueueService_NSURLConnectionRequestDelegate>)delegate
 {
     if ((self = [super init])) {
         self.request = request;

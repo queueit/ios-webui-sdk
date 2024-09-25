@@ -1,7 +1,7 @@
 #import "QueueService_NSURLConnection.h"
 #import "SDKQueueService_NSURLConnectionRequest.h"
 
-@interface QueueService_NSURLConnection()<QueueService_NSURLConnectionRequestDelegate>
+@interface QueueService_NSURLConnection()<SDKQueueService_NSURLConnectionRequestDelegate>
 @end
 
 
