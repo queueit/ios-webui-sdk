@@ -7,3 +7,4 @@ xcuserdata/
 build
 QueueITLibSwift.xcframework.zip
 .DS_Store
+.index-build
