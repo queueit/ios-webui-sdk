@@ -1,6 +1,6 @@
 import Foundation
 
-final class Connection: QueueITApiClient {
+final class Connection: ApiClient {
     private var connectionRequest: ConnectionRequest?
 
     override func submitRequest(

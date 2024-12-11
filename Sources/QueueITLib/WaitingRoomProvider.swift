@@ -1,7 +1,7 @@
 import Foundation
 
-protocol QueueITWaitingRoomProviderDelegate: AnyObject {
-    func notifyProviderSuccess(queuePassResult: QueueTryPassResult)
+protocol WaitingRoomProviderDelegate: AnyObject {
+    func notifyProviderSuccess(queuePassResult: TryPassResult)
     func notifyProviderFailure(errorMessage: String?, errorCode: Int)
 }
 
@@ -15,27 +15,27 @@ enum QueueITRuntimeError: Int {
     ]
 }
 
-final class QueueITWaitingRoomProvider {
+final class WaitingRoomProvider {
     static let maxRetrySec = 10
     static let initialWaitRetrySec = 1
 
-    weak var delegate: QueueITWaitingRoomProviderDelegate?
+    weak var delegate: WaitingRoomProviderDelegate?
 
     private let customerId: String
     private let eventOrAliasId: String
     private let layoutName: String?
     private let language: String?
 
-    private var deltaSec: Int = QueueITWaitingRoomProvider.initialWaitRetrySec
+    private var deltaSec: Int = WaitingRoomProvider.initialWaitRetrySec
     private var requestInProgress: Bool = false
-    private let internetReachability: QueueITReachability
+    private let internetReachability: Reachability
 
     init(customerId: String, eventOrAliasId: String, layoutName: String? = nil, language: String? = nil) {
         self.customerId = customerId
         self.eventOrAliasId = eventOrAliasId
         self.layoutName = layoutName
         self.language = language
-        internetReachability = QueueITReachability.reachabilityForInternetConnection()
+        internetReachability = Reachability.reachabilityForInternetConnection()
     }
 
     func tryPass() throws {
@@ -55,7 +55,7 @@ final class QueueITWaitingRoomProvider {
     }
 }
 
-private extension QueueITWaitingRoomProvider {
+private extension WaitingRoomProvider {
     func tryEnqueue(enqueueToken: String?, enqueueKey: String?) throws {
         guard checkConnection() else {
             throw NSError(
@@ -75,7 +75,7 @@ private extension QueueITWaitingRoomProvider {
 
         requestInProgress = true
 
-        IOSUtils.getUserAgent { [weak self] userAgent in
+        Utils.getUserAgent { [weak self] userAgent in
             guard let self else {
                 return
             }
@@ -96,10 +96,10 @@ private extension QueueITWaitingRoomProvider {
     }
 
     func tryEnqueueWithUserAgent(secretAgent: String, enqueueToken: String?, enqueueKey: String?) throws {
-        let userId = IOSUtils.getUserId()
-        let userAgent = "\(secretAgent);\(IOSUtils.getLibraryVersion())"
-        let sdkVersion = IOSUtils.getSdkVersion()
-        let apiClient = QueueITApiClient.getInstance()
+        let userId = Utils.getUserId()
+        let userAgent = "\(secretAgent);\(Utils.getLibraryVersion())"
+        let sdkVersion = Utils.getSdkVersion()
+        let apiClient = ApiClient.getInstance()
 
         apiClient.enqueue(
             customerId: customerId,
@@ -111,19 +111,19 @@ private extension QueueITWaitingRoomProvider {
             language: language,
             enqueueToken: enqueueToken,
             enqueueKey: enqueueKey,
-            success: { [weak self] queueStatus in
+            success: { [weak self] Status in
                 guard let self else {
                     return
                 }
-                guard let queueStatus else {
+                guard let Status else {
                     self.enqueueRetryMonitor(enqueueToken: enqueueToken, enqueueKey: enqueueKey)
                     return
                 }
 
                 self.handleAppEnqueueResponse(
-                    queueURL: queueStatus.queueUrlString,
-                    eventTargetURL: queueStatus.eventTargetUrl,
-                    queueItToken: queueStatus.queueitToken
+                    queueURL: Status.queueUrlString,
+                    eventTargetURL: Status.eventTargetUrl,
+                    queueItToken: Status.queueitToken
                 )
                 self.requestInProgress = false
             },
@@ -150,23 +150,23 @@ private extension QueueITWaitingRoomProvider {
         let isPassedThrough = !(queueItToken?.isEmpty ?? true)
         let redirectType = getRedirectType(fromToken: queueItToken)
 
-        let queueTryPassResult = QueueTryPassResult(
+        let TryPassResult = TryPassResult(
             queueUrl: queueURL,
             targetUrl: eventTargetURL,
             redirectType: redirectType,
             isPassedThrough: isPassedThrough,
             queueToken: queueItToken
         )
-        delegate?.notifyProviderSuccess(queuePassResult: queueTryPassResult)
+        delegate?.notifyProviderSuccess(queuePassResult: TryPassResult)
     }
 
     func enqueueRetryMonitor(enqueueToken: String?, enqueueKey: String?) {
-        if deltaSec < QueueITWaitingRoomProvider.maxRetrySec {
+        if deltaSec < WaitingRoomProvider.maxRetrySec {
             try? tryEnqueue(enqueueToken: enqueueToken, enqueueKey: enqueueKey)
             Thread.sleep(forTimeInterval: TimeInterval(deltaSec))
             deltaSec *= 2
         } else {
-            deltaSec = QueueITWaitingRoomProvider.initialWaitRetrySec
+            deltaSec = WaitingRoomProvider.initialWaitRetrySec
             requestInProgress = false
             delegate?.notifyProviderFailure(errorMessage: "Error! Queue is unavailable.", errorCode: 3)
         }

@@ -53,19 +53,19 @@ public final class QueueItEngine {
     public weak var queueViewDidAppearDelegate: QueueViewDidAppearDelegate?
 
     public weak var host: UIViewController?
-    private var waitingRoomProvider: QueueITWaitingRoomProvider
-    private var waitingRoomView: QueueITWaitingRoomView
+    private var waitingRoomProvider: WaitingRoomProvider
+    private var waitingRoomView: WaitingRoomView
 
     public init(host: UIViewController, customerId: String, eventOrAliasId: String, layoutName: String?, language: String?) {
         self.host = host
 
-        waitingRoomProvider = QueueITWaitingRoomProvider(
+        waitingRoomProvider = WaitingRoomProvider(
             customerId: customerId,
             eventOrAliasId: eventOrAliasId,
             layoutName: layoutName,
             language: language
         )
-        waitingRoomView = QueueITWaitingRoomView(host: host, eventId: eventOrAliasId)
+        waitingRoomView = WaitingRoomView(host: host, eventId: eventOrAliasId)
         waitingRoomView.delegate = self
         waitingRoomProvider.delegate = self
     }
@@ -95,7 +95,7 @@ public final class QueueItEngine {
     }
 }
 
-extension QueueItEngine: QueueITWaitingRoomViewDelegate {
+extension QueueItEngine: WaitingRoomViewDelegate {
     func notifyViewUserExited() {
         queueUserExitedDelegate?.notifyUserExited()
     }
@@ -126,8 +126,8 @@ extension QueueItEngine: QueueITWaitingRoomViewDelegate {
     }
 }
 
-extension QueueItEngine: QueueITWaitingRoomProviderDelegate {
-    func notifyProviderSuccess(queuePassResult: QueueTryPassResult) {
+extension QueueItEngine: WaitingRoomProviderDelegate {
+    func notifyProviderSuccess(queuePassResult: TryPassResult) {
         switch queuePassResult.redirectType {
         case "safetynet":
             let queuePassedInfo = QueuePassedInfo(queueitToken: queuePassResult.queueToken)

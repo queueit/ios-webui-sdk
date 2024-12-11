@@ -3,13 +3,13 @@ import Foundation
 typealias QueueServiceSuccess = (Data) -> Void
 typealias QueueServiceFailure = (Error, String) -> Void
 
-class QueueITApiClient {
+class ApiClient {
     static let API_ROOT = "https://%@.queue-it.net/api/mobileapp/queue"
     static let TESTING_API_ROOT = "https://%@.test.queue-it.net/api/mobileapp/queue"
     private static var testingIsEnabled = false
-    private static var sharedInstance: QueueITApiClient?
+    private static var sharedInstance: ApiClient?
 
-    static func getInstance() -> QueueITApiClient {
+    static func getInstance() -> ApiClient {
         if sharedInstance == nil {
             sharedInstance = Connection()
         }
@@ -30,7 +30,7 @@ class QueueITApiClient {
         language: String?,
         enqueueToken: String?,
         enqueueKey: String?,
-        success: @escaping (QueueStatus?) -> Void,
+        success: @escaping (Status?) -> Void,
         failure: @escaping QueueServiceFailure
     ) {
         var bodyDict: [String: Any] = [
@@ -55,7 +55,7 @@ class QueueITApiClient {
             bodyDict["enqueueKey"] = enqueueKey
         }
 
-        let apiRoot = QueueITApiClient.testingIsEnabled ? QueueITApiClient.TESTING_API_ROOT : QueueITApiClient.API_ROOT
+        let apiRoot = ApiClient.testingIsEnabled ? ApiClient.TESTING_API_ROOT : ApiClient.API_ROOT
         var urlAsString = String(format: apiRoot, customerId)
         urlAsString += "/\(customerId)"
         urlAsString += "/\(eventOrAliasId)"
@@ -70,8 +70,8 @@ class QueueITApiClient {
                         with: data,
                         options: []
                     ) as? [String: Any] {
-                        let queueStatus = QueueStatus(dictionary: userDict)
-                        success(queueStatus)
+                        let Status = Status(dictionary: userDict)
+                        success(Status)
                     } else {
                         success(nil)
                     }
@@ -91,7 +91,7 @@ class QueueITApiClient {
     ) {
         guard let url = URL(string: path) else {
             let error = NSError(
-                domain: "QueueITApiClient",
+                domain: "ApiClient",
                 code: -1,
                 userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
             )

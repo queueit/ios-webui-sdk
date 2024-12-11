@@ -7,33 +7,33 @@ extension Notification.Name {
     static let reachabilityChanged = Notification.Name("kNetworkReachabilityChangedNotification")
 }
 
-final class QueueITReachability {
+final class Reachability {
     private var monitor: NWPathMonitor?
     private var isMonitoringLocalWiFi: Bool = false
     private var queue = DispatchQueue.global(qos: .background)
 
     private init() {}
 
-    static func reachabilityWithHostName(_ hostName: String) -> QueueITReachability {
-        let reachability = QueueITReachability()
+    static func reachabilityWithHostName(_ hostName: String) -> Reachability {
+        let reachability = Reachability()
         reachability.startMonitoringHost(hostName: hostName)
         return reachability
     }
 
-    static func reachabilityWithAddress(_ hostAddress: sockaddr_in) -> QueueITReachability {
-        let reachability = QueueITReachability()
+    static func reachabilityWithAddress(_ hostAddress: sockaddr_in) -> Reachability {
+        let reachability = Reachability()
         reachability.startMonitoringIP(address: hostAddress)
         return reachability
     }
 
-    static func reachabilityForInternetConnection() -> QueueITReachability {
-        let reachability = QueueITReachability()
+    static func reachabilityForInternetConnection() -> Reachability {
+        let reachability = Reachability()
         reachability.startMonitoringInternet()
         return reachability
     }
 
-    static func reachabilityForLocalWiFi() -> QueueITReachability {
-        let reachability = QueueITReachability()
+    static func reachabilityForLocalWiFi() -> Reachability {
+        let reachability = Reachability()
         reachability.startMonitoringWiFi()
         return reachability
     }
@@ -74,7 +74,7 @@ final class QueueITReachability {
     }
 }
 
-extension QueueITReachability {
+extension Reachability {
     enum NetworkStatus: Int {
         case notReachable = 0
         case reachableViaWiFi
@@ -82,7 +82,7 @@ extension QueueITReachability {
     }
 }
 
-private extension QueueITReachability {
+private extension Reachability {
     func startMonitoringHost(hostName _: String) {
         monitor = NWPathMonitor(requiredInterfaceType: .other)
         monitor?.pathUpdateHandler = { _ in

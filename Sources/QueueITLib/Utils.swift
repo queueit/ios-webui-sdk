@@ -1,7 +1,7 @@
 import Foundation
 import WebKit
 
-enum IOSUtils {
+enum Utils {
     static func getUserId() -> String {
         let device = UIDevice()
         if let deviceId = device.identifierForVendor {
@@ -35,6 +35,6 @@ enum IOSUtils {
     }
 
     static func getSdkVersion() -> String {
-        return QueueConsts.sdkVersion
+        return Constants.sdkVersion
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct QueueTryPassResult {
+struct TryPassResult {
     let queueUrl: String?
     let targetUrl: String?
     let redirectType: String

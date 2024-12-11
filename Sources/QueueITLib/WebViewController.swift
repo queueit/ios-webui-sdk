@@ -1,7 +1,7 @@
 import UIKit
 import WebKit
 
-protocol QueueITViewControllerDelegate: AnyObject {
+protocol WebViewControllerDelegate: AnyObject {
     func notifyViewControllerClosed()
     func notifyViewControllerUserExited()
     func notifyViewControllerSessionRestart()
@@ -9,8 +9,8 @@ protocol QueueITViewControllerDelegate: AnyObject {
     func notifyViewControllerPageUrlChanged(urlString: String?)
 }
 
-final class QueueITWKViewController: UIViewController {
-    weak var delegate: QueueITViewControllerDelegate?
+final class WebViewController: UIViewController {
+    weak var delegate: WebViewControllerDelegate?
     weak var webView: WKWebView?
 
     private var spinner: UIActivityIndicatorView?
@@ -76,7 +76,7 @@ final class QueueITWKViewController: UIViewController {
     }
 }
 
-extension QueueITWKViewController: WKNavigationDelegate {
+extension WebViewController: WKNavigationDelegate {
     func webView(
         _: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
@@ -93,11 +93,11 @@ extension QueueITWKViewController: WKNavigationDelegate {
                 let isNotFrame = request.url?.absoluteString == request.mainDocumentURL?.absoluteString
 
 
-                if url.absoluteString == QueueConsts.queueCloseUrl {
+                if url.absoluteString == Constants.queueCloseUrl {
                     delegate?.notifyViewControllerClosed()
                     decisionHandler(.cancel)
                     return
-                } else if url.absoluteString == QueueConsts.queueRestartSessionUrl {
+                } else if url.absoluteString == Constants.queueRestartSessionUrl {
                     delegate?.notifyViewControllerSessionRestart()
                     decisionHandler(.cancel)
                     return
@@ -164,7 +164,7 @@ extension QueueITWKViewController: WKNavigationDelegate {
     }
 }
 
-private extension QueueITWKViewController {
+private extension WebViewController {
     func isTargetUrl(targetUrl: URL, destinationUrl: URL) -> Bool {
         return destinationUrl.host == targetUrl.host && destinationUrl.path == targetUrl.path
     }

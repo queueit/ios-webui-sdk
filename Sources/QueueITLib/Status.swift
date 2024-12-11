@@ -1,4 +1,4 @@
-struct QueueStatus {
+struct Status {
     let queueId: String
     let queueUrlString: String
     let eventTargetUrl: String
@@ -21,7 +21,7 @@ struct QueueStatus {
     }
 }
 
-private extension QueueStatus {
+private extension Status {
     enum Constants {
         static let KEY_QUEUE_ID = "QueueId"
         static let KEY_QUEUE_URL = "QueueUrl"

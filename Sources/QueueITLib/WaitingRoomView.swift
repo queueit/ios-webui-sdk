@@ -1,6 +1,6 @@
 import UIKit
 
-protocol QueueITWaitingRoomViewDelegate: AnyObject {
+protocol WaitingRoomViewDelegate: AnyObject {
     func notifyViewUserExited()
     func notifyViewUserClosed()
     func notifyViewSessionRestart()
@@ -10,10 +10,10 @@ protocol QueueITWaitingRoomViewDelegate: AnyObject {
     func notifyViewUpdatePageUrl(urlString: String?)
 }
 
-final class QueueITWaitingRoomView {
+final class WaitingRoomView {
     weak var host: UIViewController?
-    weak var delegate: QueueITWaitingRoomViewDelegate?
-    weak var currentWebView: QueueITWKViewController?
+    weak var delegate: WaitingRoomViewDelegate?
+    weak var currentWebView: WebViewController?
 
     private var eventId: String
     private var delayInterval: Int = 0
@@ -26,7 +26,7 @@ final class QueueITWaitingRoomView {
     func show(queueUrl: String, targetUrl: String) {
         raiseQueueViewWillOpen()
 
-        let queueWKVC = QueueITWKViewController(
+        let queueWKVC = WebViewController(
             queueUrl: queueUrl,
             eventTargetUrl: targetUrl,
             eventId: eventId
@@ -58,7 +58,7 @@ final class QueueITWaitingRoomView {
     }
 }
 
-extension QueueITWaitingRoomView: QueueITViewControllerDelegate {
+extension WaitingRoomView: WebViewControllerDelegate {
     func notifyViewControllerClosed() {
         delegate?.notifyViewUserClosed()
         close()
@@ -84,7 +84,7 @@ extension QueueITWaitingRoomView: QueueITViewControllerDelegate {
     }
 }
 
-private extension QueueITWaitingRoomView {
+private extension WaitingRoomView {
     func close(onComplete: (() -> Void)? = nil) {
         DispatchQueue.main.async { [weak self] in
             guard let self, let host else {
