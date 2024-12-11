@@ -10,7 +10,7 @@ final class Connection: QueueITApiClient {
         expectedStatus: Int,
         success: @escaping QueueServiceSuccess,
         failure: @escaping QueueServiceFailure
-    ) -> String {
+    ) {
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
 
@@ -19,7 +19,7 @@ final class Connection: QueueITApiClient {
             request.httpBody = jsonData
         } catch {
             failure(error, "Failed to serialize request body.")
-            return ""
+            return
         }
 
         request.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -32,8 +32,6 @@ final class Connection: QueueITApiClient {
             failure: failure,
             delegate: self
         )
-
-        return connectionRequest?.uniqueIdentifier ?? ""
     }
 }
 

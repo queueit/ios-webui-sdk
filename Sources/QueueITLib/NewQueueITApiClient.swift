@@ -32,7 +32,7 @@ class QueueITApiClient {
         enqueueKey: String?,
         success: @escaping (QueueStatus?) -> Void,
         failure: @escaping QueueServiceFailure
-    ) -> String {
+    ) {
         var bodyDict: [String: Any] = [
             "userId": userId,
             "userAgent": userAgent,
@@ -61,7 +61,7 @@ class QueueITApiClient {
         urlAsString += "/\(eventOrAliasId)"
         urlAsString += "/enqueue"
 
-        return submitPOSTPath(
+        submitPOSTPath(
             path: urlAsString,
             body: bodyDict,
             success: { data in
@@ -88,7 +88,7 @@ class QueueITApiClient {
         body bodyDict: [String: Any],
         success: @escaping QueueServiceSuccess,
         failure: @escaping QueueServiceFailure
-    ) -> String {
+    ) {
         guard let url = URL(string: path) else {
             let error = NSError(
                 domain: "QueueITApiClient",
@@ -96,10 +96,10 @@ class QueueITApiClient {
                 userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
             )
             failure(error, "Invalid URL")
-            return ""
+            return
         }
 
-        return submitRequest(
+        submitRequest(
             with: url,
             method: "POST",
             body: bodyDict,
@@ -116,7 +116,7 @@ class QueueITApiClient {
         expectedStatus _: Int,
         success _: @escaping QueueServiceSuccess,
         failure _: @escaping QueueServiceFailure
-    ) -> String {
-        return ""
+    ) {
+        return
     }
 }

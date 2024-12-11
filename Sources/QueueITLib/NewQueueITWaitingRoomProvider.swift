@@ -38,16 +38,16 @@ final class QueueITWaitingRoomProvider {
         internetReachability = QueueITReachability.reachabilityForInternetConnection()
     }
 
-    func tryPass() throws -> Bool {
-        return try tryEnqueue(enqueueToken: nil, enqueueKey: nil)
+    func tryPass() throws {
+        try tryEnqueue(enqueueToken: nil, enqueueKey: nil)
     }
 
-    func tryPassWithEnqueueToken(_ enqueueToken: String?) throws -> Bool {
-        return try tryEnqueue(enqueueToken: enqueueToken, enqueueKey: nil)
+    func tryPassWithEnqueueToken(_ enqueueToken: String?) throws {
+        try tryEnqueue(enqueueToken: enqueueToken, enqueueKey: nil)
     }
 
-    func tryPassWithEnqueueKey(_ enqueueKey: String?) throws -> Bool {
-        return try tryEnqueue(enqueueToken: nil, enqueueKey: enqueueKey)
+    func tryPassWithEnqueueKey(_ enqueueKey: String?) throws {
+        try tryEnqueue(enqueueToken: nil, enqueueKey: enqueueKey)
     }
 
     func isRequestInProgress() -> Bool {
@@ -56,7 +56,7 @@ final class QueueITWaitingRoomProvider {
 }
 
 private extension QueueITWaitingRoomProvider {
-    func tryEnqueue(enqueueToken: String?, enqueueKey: String?) throws -> Bool {
+    func tryEnqueue(enqueueToken: String?, enqueueKey: String?) throws {
         guard checkConnection() else {
             throw NSError(
                 domain: "QueueITRuntimeException",
@@ -93,7 +93,6 @@ private extension QueueITWaitingRoomProvider {
                 )
             }
         }
-        return true
     }
 
     func tryEnqueueWithUserAgent(secretAgent: String, enqueueToken: String?, enqueueKey: String?) throws {

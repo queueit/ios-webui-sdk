@@ -78,16 +78,16 @@ public final class QueueItEngine {
         return waitingRoomProvider.isRequestInProgress()
     }
 
-    public func run(withEnqueueKey enqueueKey: String) throws -> Bool {
-        return try waitingRoomProvider.tryPassWithEnqueueKey(enqueueKey)
+    public func run(withEnqueueKey enqueueKey: String) throws {
+        try waitingRoomProvider.tryPassWithEnqueueKey(enqueueKey)
     }
 
-    public func run(withEnqueueToken enqueueToken: String) throws -> Bool {
-        return try waitingRoomProvider.tryPassWithEnqueueToken(enqueueToken)
+    public func run(withEnqueueToken enqueueToken: String) throws {
+        try waitingRoomProvider.tryPassWithEnqueueToken(enqueueToken)
     }
 
-    public func run() throws -> Bool {
-        return try waitingRoomProvider.tryPass()
+    public func run() throws {
+        try waitingRoomProvider.tryPass()
     }
 
     public func showQueue(queueUrl: String, targetUrl: String) {
