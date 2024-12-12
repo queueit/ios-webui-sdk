@@ -1,13 +1,13 @@
 import UIKit
 
 public protocol WaitingRoomViewDelegate: AnyObject {
-    func notifyViewUserExited()
-    func notifyViewUserClosed()
-    func notifyViewSessionRestart()
-    func notifyQueuePassed(info: QueuePassedInfo?)
-    func notifyViewQueueDidAppear()
-    func notifyViewQueueWillOpen()
-    func notifyViewUpdatePageUrl(urlString: String?)
+    @MainActor func notifyViewUserExited()
+    @MainActor func notifyViewUserClosed()
+    @MainActor func notifyViewSessionRestart()
+    @MainActor func notifyQueuePassed(info: QueuePassedInfo?)
+    @MainActor func notifyViewQueueDidAppear()
+    @MainActor func notifyViewQueueWillOpen()
+    @MainActor func notifyViewUpdatePageUrl(urlString: String?)
 }
 
 public final class WaitingRoomView {
@@ -23,7 +23,7 @@ public final class WaitingRoomView {
         self.eventId = eventId
     }
 
-    public func show(queueUrl: String, targetUrl: String) {
+    @MainActor public func show(queueUrl: String, targetUrl: String) {
         raiseQueueViewWillOpen()
 
         let queueWKVC = WebViewController(
@@ -59,33 +59,33 @@ public final class WaitingRoomView {
 }
 
 extension WaitingRoomView: WebViewControllerDelegate {
-    func notifyViewControllerClosed() {
+    @MainActor func notifyViewControllerClosed() {
         delegate?.notifyViewUserClosed()
         close()
     }
 
-    func notifyViewControllerUserExited() {
+    @MainActor func notifyViewControllerUserExited() {
         delegate?.notifyViewUserExited()
     }
 
-    func notifyViewControllerSessionRestart() {
+    @MainActor func notifyViewControllerSessionRestart() {
         delegate?.notifyViewSessionRestart()
         close()
     }
 
-    func notifyViewControllerQueuePassed(queueToken: String?) {
+    @MainActor func notifyViewControllerQueuePassed(queueToken: String?) {
         let queuePassedInfo = QueuePassedInfo(queueitToken: queueToken)
         delegate?.notifyQueuePassed(info: queuePassedInfo)
         close()
     }
 
-    func notifyViewControllerPageUrlChanged(urlString: String?) {
+    @MainActor func notifyViewControllerPageUrlChanged(urlString: String?) {
         delegate?.notifyViewUpdatePageUrl(urlString: urlString)
     }
 }
 
 private extension WaitingRoomView {
-    func close(onComplete: (() -> Void)? = nil) {
+    @MainActor func close(onComplete: (() -> Void)? = nil) {
         DispatchQueue.main.async { [weak self] in
             guard let self, let host else {
                 return
@@ -94,7 +94,7 @@ private extension WaitingRoomView {
         }
     }
 
-    func raiseQueueViewWillOpen() {
+    @MainActor func raiseQueueViewWillOpen() {
         delegate?.notifyViewQueueWillOpen()
     }
 }

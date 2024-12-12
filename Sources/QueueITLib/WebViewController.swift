@@ -1,18 +1,18 @@
 import UIKit
-import WebKit
+@preconcurrency import WebKit
 
 protocol WebViewControllerDelegate: AnyObject {
-    func notifyViewControllerClosed()
-    func notifyViewControllerUserExited()
-    func notifyViewControllerSessionRestart()
-    func notifyViewControllerQueuePassed(queueToken: String?)
-    func notifyViewControllerPageUrlChanged(urlString: String?)
+    @MainActor func notifyViewControllerClosed()
+    @MainActor func notifyViewControllerUserExited()
+    @MainActor func notifyViewControllerSessionRestart()
+    @MainActor func notifyViewControllerQueuePassed(queueToken: String?)
+    @MainActor func notifyViewControllerPageUrlChanged(urlString: String?)
 }
 
 final class WebViewController: UIViewController {
     weak var delegate: WebViewControllerDelegate?
-    weak var webView: WKWebView?
 
+    private var webView: WKWebView?
     private var spinner: UIActivityIndicatorView?
     private var isQueuePassed: Bool
 

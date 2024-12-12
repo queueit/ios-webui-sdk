@@ -1,4 +1,4 @@
-struct Status {
+struct Status: Sendable {
     let queueId: String
     let queueUrlString: String
     let eventTargetUrl: String

@@ -3,20 +3,13 @@ import Foundation
 typealias QueueServiceSuccess = (Data) -> Void
 typealias QueueServiceFailure = (Error, String) -> Void
 
-class ApiClient {
+@MainActor
+final class ApiClient {
     static let API_ROOT = "https://%@.queue-it.net/api/mobileapp/queue"
     static let TESTING_API_ROOT = "https://%@.test.queue-it.net/api/mobileapp/queue"
-    private static var testingIsEnabled = false
-    private static var sharedInstance: ApiClient?
+    private var testingIsEnabled = false
 
-    static func getInstance() -> ApiClient {
-        if sharedInstance == nil {
-            sharedInstance = Connection()
-        }
-        return sharedInstance!
-    }
-
-    static func setTesting(_ enabled: Bool) {
+    func setTesting(_ enabled: Bool) {
         testingIsEnabled = enabled
     }
 
@@ -29,10 +22,8 @@ class ApiClient {
         layoutName: String?,
         language: String?,
         enqueueToken: String?,
-        enqueueKey: String?,
-        success: @escaping (Status?) -> Void,
-        failure: @escaping QueueServiceFailure
-    ) {
+        enqueueKey: String?
+    ) async throws -> Status? {
         var bodyDict: [String: Any] = [
             "userId": userId,
             "userAgent": userAgent,
@@ -55,68 +46,102 @@ class ApiClient {
             bodyDict["enqueueKey"] = enqueueKey
         }
 
-        let apiRoot = ApiClient.testingIsEnabled ? ApiClient.TESTING_API_ROOT : ApiClient.API_ROOT
+        let apiRoot = testingIsEnabled ? ApiClient.TESTING_API_ROOT : ApiClient.API_ROOT
         var urlAsString = String(format: apiRoot, customerId)
         urlAsString += "/\(customerId)"
         urlAsString += "/\(eventOrAliasId)"
         urlAsString += "/enqueue"
 
-        submitPOSTPath(
-            path: urlAsString,
-            body: bodyDict,
-            success: { data in
-                do {
-                    if let userDict = try JSONSerialization.jsonObject(
-                        with: data,
-                        options: []
-                    ) as? [String: Any] {
-                        let Status = Status(dictionary: userDict)
-                        success(Status)
-                    } else {
-                        success(nil)
-                    }
-                } catch {
-                    success(nil)
-                }
-            },
-            failure: failure
-        )
+        let data = try await submitPOSTPath(path: urlAsString, body: bodyDict)
+        do {
+            if let userDict = try JSONSerialization.jsonObject(
+                with: data,
+                options: []
+            ) as? [String: Any] {
+                return Status(dictionary: userDict)
+            } else {
+                return nil
+            }
+        } catch {
+            return nil
+        }
     }
+}
 
+private extension ApiClient {
     func submitPOSTPath(
         path: String,
-        body bodyDict: [String: Any],
-        success: @escaping QueueServiceSuccess,
-        failure: @escaping QueueServiceFailure
-    ) {
+        body bodyDict: [String: Any]
+    ) async throws -> Data {
         guard let url = URL(string: path) else {
             let error = NSError(
                 domain: "ApiClient",
                 code: -1,
                 userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
             )
-            failure(error, "Invalid URL")
-            return
+            throw error
         }
 
-        submitRequest(
+        return try await submitRequest(
             with: url,
             method: "POST",
-            body: bodyDict,
-            expectedStatus: 200,
-            success: success,
-            failure: failure
+            body: bodyDict
         )
     }
 
     func submitRequest(
-        with _: URL,
-        method _: String,
-        body _: [String: Any],
-        expectedStatus _: Int,
-        success _: @escaping QueueServiceSuccess,
-        failure _: @escaping QueueServiceFailure
-    ) {
-        return
+        with url: URL,
+        method httpMethod: String,
+        body bodyDict: [String: Any]
+    ) async throws -> Data {
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: bodyDict, options: [])
+            request.httpBody = jsonData
+        } catch {
+            throw error
+        }
+
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        return try await initiateRequest(request: request)
     }
+
+    func initiateRequest(request: URLRequest) async throws -> Data {
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let response = response as? HTTPURLResponse else {
+            throw ApiClientError.nilResponse
+        }
+
+        let actualStatusCode = response.statusCode
+        if actualStatusCode == 200 {
+            return data
+        } else {
+            var message = "Unexpected response code: \(actualStatusCode)"
+            if actualStatusCode >= 400, actualStatusCode < 500 {
+                if let decodedMessage = String(data: data, encoding: .ascii) {
+                    message = decodedMessage
+                }
+            } else if let json = try? JSONSerialization.jsonObject(with: data, options: []),
+                      let jsonDict = json as? [String: Any],
+                      let errorMessage = jsonDict["error"] as? String
+            {
+                message = errorMessage
+            }
+
+            throw NSError(
+                domain: "QueueService",
+                code: actualStatusCode,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
+        }
+    }
+}
+
+enum ApiClientError: Error {
+    case nilResponse
 }

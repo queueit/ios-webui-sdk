@@ -2,7 +2,7 @@ import Foundation
 import WebKit
 
 enum Utils {
-    static func getUserId() -> String {
+    @MainActor static func getUserId() -> String {
         let device = UIDevice()
         if let deviceId = device.identifierForVendor {
             return deviceId.uuidString
@@ -10,14 +10,14 @@ enum Utils {
         return ""
     }
 
-    static func getUserAgent(completionHandler: @escaping (String) -> Void) {
-        DispatchQueue.main.async {
+    @MainActor static func getUserAgent() async -> String {
+        await withCheckedContinuation { continuation in
             let view = WKWebView(frame: .zero)
             view.evaluateJavaScript("navigator.userAgent") { result, error in
                 if let userAgent = result as? String, error == nil {
-                    completionHandler(userAgent)
+                    continuation.resume(returning: userAgent)
                 } else {
-                    completionHandler("")
+                    continuation.resume(returning: "")
                 }
             }
         }

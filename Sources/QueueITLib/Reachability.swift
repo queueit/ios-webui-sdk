@@ -41,7 +41,7 @@ final class Reachability {
     func startNotifier() -> Bool {
         guard monitor == nil else { return true }
         monitor = NWPathMonitor()
-        monitor?.pathUpdateHandler = { [weak self] _ in
+        monitor?.pathUpdateHandler = { _ in
             NotificationCenter.default.post(name: .reachabilityChanged, object: nil)
         }
         monitor?.start(queue: queue)
