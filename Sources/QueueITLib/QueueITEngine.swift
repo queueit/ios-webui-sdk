@@ -96,38 +96,38 @@ public final class QueueItEngine {
 }
 
 extension QueueItEngine: WaitingRoomViewDelegate {
-    func notifyViewUserExited() {
+    public func notifyViewUserExited() {
         queueUserExitedDelegate?.notifyUserExited()
     }
 
-    func notifyViewUserClosed() {
+    public func notifyViewUserClosed() {
         queueViewClosedDelegate?.notifyViewClosed()
     }
 
-    func notifyViewSessionRestart() {
+    public func notifyViewSessionRestart() {
         queueSessionRestartDelegate?.notifySessionRestart()
     }
 
-    func notifyQueuePassed(info: QueuePassedInfo?) {
+    public func notifyQueuePassed(info: QueuePassedInfo?) {
         queuePassedDelegate?.notifyYourTurn(queuePassedInfo: info)
     }
 
-    func notifyViewQueueDidAppear() {
+    public func notifyViewQueueDidAppear() {
         queueViewDidAppearDelegate?.notifyQueueViewDidAppear()
     }
 
-    func notifyViewQueueWillOpen() {
+    public func notifyViewQueueWillOpen() {
         queueViewWillOpenDelegate?.notifyQueueViewWillOpen()
     }
 
-    func notifyViewUpdatePageUrl(urlString: String?) {
+    public func notifyViewUpdatePageUrl(urlString: String?) {
         // TODO: fix optional parameter
         queueUrlChangedDelegate?.notifyQueueUrlChanged(url: urlString ?? "")
     }
 }
 
 extension QueueItEngine: WaitingRoomProviderDelegate {
-    func notifyProviderSuccess(queuePassResult: TryPassResult) {
+    public func notifyProviderSuccess(queuePassResult: TryPassResult) {
         switch queuePassResult.redirectType {
         case "safetynet":
             let queuePassedInfo = QueuePassedInfo(queueitToken: queuePassResult.queueToken)
@@ -141,7 +141,7 @@ extension QueueItEngine: WaitingRoomProviderDelegate {
         }
     }
 
-    func notifyProviderFailure(errorMessage: String?, errorCode: Int) {
+    public func notifyProviderFailure(errorMessage: String?, errorCode: Int) {
         // TODO: fix optional parameter
         let errorMessage = errorMessage ?? ""
         if errorCode == 3 {

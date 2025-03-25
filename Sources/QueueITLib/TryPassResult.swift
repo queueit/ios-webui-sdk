@@ -1,9 +1,9 @@
 import Foundation
 
-struct TryPassResult {
-    let queueUrl: String?
-    let targetUrl: String?
-    let redirectType: String
-    let isPassedThrough: Bool
-    let queueToken: String?
+public struct TryPassResult {
+    public let queueUrl: String?
+    public let targetUrl: String?
+    public let redirectType: String
+    public let isPassedThrough: Bool
+    public let queueToken: String?
 }

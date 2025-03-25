@@ -1,6 +1,6 @@
 import UIKit
 
-protocol WaitingRoomViewDelegate: AnyObject {
+public protocol WaitingRoomViewDelegate: AnyObject {
     func notifyViewUserExited()
     func notifyViewUserClosed()
     func notifyViewSessionRestart()
@@ -10,20 +10,20 @@ protocol WaitingRoomViewDelegate: AnyObject {
     func notifyViewUpdatePageUrl(urlString: String?)
 }
 
-final class WaitingRoomView {
+public final class WaitingRoomView {
     weak var host: UIViewController?
-    weak var delegate: WaitingRoomViewDelegate?
+    public weak var delegate: WaitingRoomViewDelegate?
     weak var currentWebView: WebViewController?
 
     private var eventId: String
     private var delayInterval: Int = 0
 
-    init(host: UIViewController, eventId: String) {
+    public init(host: UIViewController, eventId: String) {
         self.host = host
         self.eventId = eventId
     }
 
-    func show(queueUrl: String, targetUrl: String) {
+    public func show(queueUrl: String, targetUrl: String) {
         raiseQueueViewWillOpen()
 
         let queueWKVC = WebViewController(
@@ -53,7 +53,7 @@ final class WaitingRoomView {
         }
     }
 
-    func setViewDelay(_ delayInterval: Int) {
+    public func setViewDelay(_ delayInterval: Int) {
         self.delayInterval = delayInterval
     }
 }

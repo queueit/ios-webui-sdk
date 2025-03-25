@@ -1,6 +1,6 @@
 import Foundation
 
-protocol WaitingRoomProviderDelegate: AnyObject {
+public protocol WaitingRoomProviderDelegate: AnyObject {
     func notifyProviderSuccess(queuePassResult: TryPassResult)
     func notifyProviderFailure(errorMessage: String?, errorCode: Int)
 }
@@ -15,11 +15,11 @@ enum QueueITRuntimeError: Int {
     ]
 }
 
-final class WaitingRoomProvider {
+public final class WaitingRoomProvider {
     static let maxRetrySec = 10
     static let initialWaitRetrySec = 1
 
-    weak var delegate: WaitingRoomProviderDelegate?
+    public weak var delegate: WaitingRoomProviderDelegate?
 
     private let customerId: String
     private let eventOrAliasId: String
@@ -30,7 +30,7 @@ final class WaitingRoomProvider {
     private var requestInProgress: Bool = false
     private let internetReachability: Reachability
 
-    init(customerId: String, eventOrAliasId: String, layoutName: String? = nil, language: String? = nil) {
+    public init(customerId: String, eventOrAliasId: String, layoutName: String? = nil, language: String? = nil) {
         self.customerId = customerId
         self.eventOrAliasId = eventOrAliasId
         self.layoutName = layoutName
@@ -38,19 +38,19 @@ final class WaitingRoomProvider {
         internetReachability = Reachability.reachabilityForInternetConnection()
     }
 
-    func tryPass() throws {
+    public func tryPass() throws {
         try tryEnqueue(enqueueToken: nil, enqueueKey: nil)
     }
 
-    func tryPassWithEnqueueToken(_ enqueueToken: String?) throws {
+    public func tryPassWithEnqueueToken(_ enqueueToken: String?) throws {
         try tryEnqueue(enqueueToken: enqueueToken, enqueueKey: nil)
     }
 
-    func tryPassWithEnqueueKey(_ enqueueKey: String?) throws {
+    public func tryPassWithEnqueueKey(_ enqueueKey: String?) throws {
         try tryEnqueue(enqueueToken: nil, enqueueKey: enqueueKey)
     }
 
-    func isRequestInProgress() -> Bool {
+    public func isRequestInProgress() -> Bool {
         return requestInProgress
     }
 }
