@@ -41,8 +41,11 @@ public final class WaitingRoomProvider {
         internetReachability = Reachability.reachabilityForInternetConnection()
     }
 
-    public func tryPass() async throws {
-        try await tryEnqueue(enqueueToken: nil, enqueueKey: nil)
+    @MainActor
+    public func tryPass() {
+        Task {
+            try await tryEnqueue(enqueueToken: nil, enqueueKey: nil)
+        }
     }
 
     public func tryPassWithEnqueueToken(_ enqueueToken: String?) async throws {
