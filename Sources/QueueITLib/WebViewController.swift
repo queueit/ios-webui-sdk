@@ -77,11 +77,7 @@ final class WebViewController: UIViewController {
 }
 
 extension WebViewController: WKNavigationDelegate {
-    func webView(
-        _: WKWebView,
-        decidePolicyFor navigationAction: WKNavigationAction,
-        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-    ) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, preferences: WKWebpagePreferences) async -> (WKNavigationActionPolicy, WKWebpagePreferences) {
         if !isQueuePassed {
             let request = navigationAction.request
             let urlString = request.url?.absoluteString
@@ -95,17 +91,14 @@ extension WebViewController: WKNavigationDelegate {
 
                 if url.absoluteString == Constants.queueCloseUrl {
                     delegate?.notifyViewControllerClosed()
-                    decisionHandler(.cancel)
-                    return
+                    return (.cancel, preferences)
                 } else if url.absoluteString == Constants.queueRestartSessionUrl {
                     delegate?.notifyViewControllerSessionRestart()
-                    decisionHandler(.cancel)
-                    return
+                    return (.cancel, preferences)
                 }
 
                 if isBlockedUrl(destinationUrl: url) {
-                    decisionHandler(.cancel)
-                    return
+                    return (.cancel, preferences)
                 }
 
                 if isNotFrame {
@@ -116,20 +109,18 @@ extension WebViewController: WKNavigationDelegate {
                         isQueuePassed = true
                         let queueitToken = extractQueueToken(urlString)
                         delegate?.notifyViewControllerQueuePassed(queueToken: queueitToken)
-                        decisionHandler(.cancel)
-                        return
+                        return (.cancel, preferences)
                     }
                 }
 
                 if navigationAction.navigationType == .linkActivated && !isQueueUrl {
-                    UIApplication.shared.open(request.url!)
-                    decisionHandler(.cancel)
-                    return
+                    await UIApplication.shared.open(request.url!)
+                    return (.cancel, preferences)
                 }
             }
         }
-
-        decisionHandler(.allow)
+        
+        return (.allow, preferences)
     }
 
     func webView(_: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {}
