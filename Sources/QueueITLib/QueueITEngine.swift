@@ -137,8 +137,7 @@ extension QueueItEngine: WaitingRoomProviderDelegate {
             let queueDisabledInfo = QueueDisabledInfo(queueitToken: queuePassResult.queueToken)
             queueDisabledDelegate?.notifyQueueDisabled(queueDisabledInfo: queueDisabledInfo)
         default:
-            // TODO: fix optional parameter
-            showQueue(queueUrl: queuePassResult.queueUrl ?? "", targetUrl: queuePassResult.targetUrl ?? "")
+            showQueue(queueUrl: queuePassResult.queueUrl, targetUrl: queuePassResult.targetUrl)
         }
     }
 

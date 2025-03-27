@@ -98,7 +98,7 @@ private extension WaitingRoomProvider {
     }
 
     func tryEnqueueWithUserAgent(secretAgent: String, enqueueToken: String?, enqueueKey: String?) async throws {
-        let userId = await Utils.getUserId()
+        let userId = Utils.getUserId()
         let userAgent = "\(secretAgent);\(Utils.getLibraryVersion())"
         let sdkVersion = Utils.getSdkVersion()
         apiClient = ApiClient()
@@ -138,10 +138,10 @@ private extension WaitingRoomProvider {
 
     func handleAppEnqueueResponse(
         queueURL: String,
-        eventTargetURL: String?,
-        queueItToken: String?
+        eventTargetURL: String,
+        queueItToken: String
     ) async {
-        let isPassedThrough = !(queueItToken?.isEmpty ?? true)
+        let isPassedThrough = !queueItToken.isEmpty
         let redirectType = getRedirectType(fromToken: queueItToken)
 
         let tryPassResult = TryPassResult(
