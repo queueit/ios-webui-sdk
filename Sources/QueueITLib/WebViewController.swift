@@ -55,7 +55,7 @@ final class WebViewController: UIViewController {
         webView.navigationDelegate = self
         webView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         webView.isOpaque = false
-        webView.backgroundColor = .clear
+        webView.backgroundColor = .white
 
         view.addSubview(webView)
         view.addSubview(spinner)
