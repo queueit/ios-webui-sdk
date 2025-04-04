@@ -1,57 +1,21 @@
 import UIKit
 
-public protocol QueuePassedDelegate: AnyObject {
-    @MainActor func notifyYourTurn(queuePassedInfo: QueuePassedInfo?)
-}
-
-public protocol QueueViewWillOpenDelegate: AnyObject {
+public protocol QueueItEngineDelegate: AnyObject {
+    @MainActor func notifyQueuePassed(info: QueuePassedInfo?)
     @MainActor func notifyQueueViewWillOpen()
-}
-
-public protocol QueueDisabledDelegate: AnyObject {
     @MainActor func notifyQueueDisabled(queueDisabledInfo: QueueDisabledInfo?)
-}
-
-public protocol QueueUnavailableDelegate: AnyObject {
-    @MainActor func notifyQueueITUnavailable(errorMessage: String)
-}
-
-public protocol QueueErrorDelegate: AnyObject {
+    @MainActor func notifyQueueUnavailable(errorMessage: String)
     @MainActor func notifyQueueError(errorMessage: String, errorCode: Int)
-}
-
-public protocol QueueViewClosedDelegate: AnyObject {
     @MainActor func notifyViewClosed()
-}
-
-public protocol QueueUserExitedDelegate: AnyObject {
     @MainActor func notifyUserExited()
-}
-
-public protocol QueueSessionRestartDelegate: AnyObject {
     @MainActor func notifySessionRestart()
-}
-
-public protocol QueueUrlChangedDelegate: AnyObject {
     @MainActor func notifyQueueUrlChanged(url: String)
-}
-
-public protocol QueueViewDidAppearDelegate: AnyObject {
     @MainActor func notifyQueueViewDidAppear()
 }
 
 @MainActor
 public final class QueueItEngine {
-    public weak var queuePassedDelegate: QueuePassedDelegate?
-    public weak var queueViewWillOpenDelegate: QueueViewWillOpenDelegate?
-    public weak var queueDisabledDelegate: QueueDisabledDelegate?
-    public weak var queueUnavailableDelegate: QueueUnavailableDelegate?
-    public weak var queueErrorDelegate: QueueErrorDelegate?
-    public weak var queueViewClosedDelegate: QueueViewClosedDelegate?
-    public weak var queueUserExitedDelegate: QueueUserExitedDelegate?
-    public weak var queueSessionRestartDelegate: QueueSessionRestartDelegate?
-    public weak var queueUrlChangedDelegate: QueueUrlChangedDelegate?
-    public weak var queueViewDidAppearDelegate: QueueViewDidAppearDelegate?
+    public weak var delegate: QueueItEngineDelegate?
 
     public weak var host: UIViewController?
     private var waitingRoomProvider: WaitingRoomProvider
@@ -86,9 +50,12 @@ public final class QueueItEngine {
     public func run(withEnqueueToken enqueueToken: String) async throws {
         try await waitingRoomProvider.tryPassWithEnqueueToken(enqueueToken)
     }
-
-    public func run() async throws {
-        try await waitingRoomProvider.tryPass()
+    
+    @MainActor
+    public func run() {
+        Task { @MainActor in
+            try await waitingRoomProvider.tryPass()
+        }
     }
 
     @MainActor public func showQueue(queueUrl: String, targetUrl: String) {
@@ -98,32 +65,31 @@ public final class QueueItEngine {
 
 extension QueueItEngine: WaitingRoomViewDelegate {
     @MainActor public func notifyViewUserExited() {
-        queueUserExitedDelegate?.notifyUserExited()
+        delegate?.notifyUserExited()
     }
 
     @MainActor public func notifyViewUserClosed() {
-        queueViewClosedDelegate?.notifyViewClosed()
+        delegate?.notifyViewClosed()
     }
 
     @MainActor public func notifyViewSessionRestart() {
-        queueSessionRestartDelegate?.notifySessionRestart()
+        delegate?.notifySessionRestart()
     }
 
     @MainActor public func notifyQueuePassed(info: QueuePassedInfo?) {
-        queuePassedDelegate?.notifyYourTurn(queuePassedInfo: info)
+        delegate?.notifyQueuePassed(info: info)
     }
 
     @MainActor public func notifyViewQueueDidAppear() {
-        queueViewDidAppearDelegate?.notifyQueueViewDidAppear()
+        delegate?.notifyQueueViewDidAppear()
     }
 
     @MainActor public func notifyViewQueueWillOpen() {
-        queueViewWillOpenDelegate?.notifyQueueViewWillOpen()
+        delegate?.notifyQueueViewWillOpen()
     }
 
-    @MainActor public func notifyViewUpdatePageUrl(urlString: String?) {
-        // TODO: fix optional parameter
-        queueUrlChangedDelegate?.notifyQueueUrlChanged(url: urlString ?? "")
+    @MainActor public func notifyViewUpdatePageUrl(urlString: String) {
+        delegate?.notifyQueueUrlChanged(url: urlString)
     }
 }
 
@@ -132,21 +98,19 @@ extension QueueItEngine: WaitingRoomProviderDelegate {
         switch queuePassResult.redirectType {
         case "safetynet":
             let queuePassedInfo = QueuePassedInfo(queueitToken: queuePassResult.queueToken)
-            queuePassedDelegate?.notifyYourTurn(queuePassedInfo: queuePassedInfo)
+            delegate?.notifyQueuePassed(info: queuePassedInfo)
         case "disabled", "idle", "afterevent":
             let queueDisabledInfo = QueueDisabledInfo(queueitToken: queuePassResult.queueToken)
-            queueDisabledDelegate?.notifyQueueDisabled(queueDisabledInfo: queueDisabledInfo)
+            delegate?.notifyQueueDisabled(queueDisabledInfo: queueDisabledInfo)
         default:
             showQueue(queueUrl: queuePassResult.queueUrl, targetUrl: queuePassResult.targetUrl)
         }
     }
 
-    @MainActor public func notifyProviderFailure(errorMessage: String?, errorCode: Int) async {
-        // TODO: fix optional parameter
-        let errorMessage = errorMessage ?? ""
+    @MainActor public func notifyProviderFailure(errorMessage: String, errorCode: Int) async {
         if errorCode == 3 {
-            queueUnavailableDelegate?.notifyQueueITUnavailable(errorMessage: errorMessage)
+            delegate?.notifyQueueUnavailable(errorMessage: errorMessage)
         }
-        queueErrorDelegate?.notifyQueueError(errorMessage: errorMessage, errorCode: errorCode)
+        delegate?.notifyQueueError(errorMessage: errorMessage, errorCode: errorCode)
     }
 }
