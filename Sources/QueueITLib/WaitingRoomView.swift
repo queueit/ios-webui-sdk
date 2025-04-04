@@ -7,7 +7,7 @@ public protocol WaitingRoomViewDelegate: AnyObject {
     @MainActor func notifyQueuePassed(info: QueuePassedInfo?)
     @MainActor func notifyViewQueueDidAppear()
     @MainActor func notifyViewQueueWillOpen()
-    @MainActor func notifyViewUpdatePageUrl(urlString: String?)
+    @MainActor func notifyViewUpdatePageUrl(urlString: String)
 }
 
 public final class WaitingRoomView {
@@ -79,7 +79,7 @@ extension WaitingRoomView: WebViewControllerDelegate {
         close()
     }
 
-    @MainActor func notifyViewControllerPageUrlChanged(urlString: String?) {
+    @MainActor func notifyViewControllerPageUrlChanged(urlString: String) {
         delegate?.notifyViewUpdatePageUrl(urlString: urlString)
     }
 }

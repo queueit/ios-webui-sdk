@@ -6,7 +6,7 @@ protocol WebViewControllerDelegate: AnyObject {
     @MainActor func notifyViewControllerUserExited()
     @MainActor func notifyViewControllerSessionRestart()
     @MainActor func notifyViewControllerQueuePassed(queueToken: String?)
-    @MainActor func notifyViewControllerPageUrlChanged(urlString: String?)
+    @MainActor func notifyViewControllerPageUrlChanged(urlString: String)
 }
 
 final class WebViewController: UIViewController {

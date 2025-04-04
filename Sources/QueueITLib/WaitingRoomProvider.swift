@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 public protocol WaitingRoomProviderDelegate: AnyObject {
     func notifyProviderSuccess(queuePassResult: TryPassResult) async
-    func notifyProviderFailure(errorMessage: String?, errorCode: Int) async
+    func notifyProviderFailure(errorMessage: String, errorCode: Int) async
 }
 
 enum QueueITRuntimeError: Int {
@@ -129,7 +129,7 @@ private extension WaitingRoomProvider {
         } catch {
             let nsError = error as NSError
             if nsError.code >= 400, nsError.code < 500 {
-                await self.delegate?.notifyProviderFailure(errorMessage: "", errorCode: nsError.code)
+                await self.delegate?.notifyProviderFailure(errorMessage: error.localizedDescription, errorCode: nsError.code)
             } else {
                 await self.enqueueRetryMonitor(enqueueToken: enqueueToken, enqueueKey: enqueueKey)
             }
