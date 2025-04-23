@@ -77,6 +77,12 @@ final class WebViewController: UIViewController {
             closeButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        self.delegate?.notifyViewControllerClosed()
+    }
 
     func loadWebView() {
         guard let spinner,
