@@ -14,6 +14,7 @@ final class WebViewController: UIViewController {
 
     private var webView: WKWebView?
     private var spinner: UIActivityIndicatorView?
+    private var closeButton: UIButton?
     private var isQueuePassed: Bool
 
     private var queueUrl: String
@@ -46,8 +47,14 @@ final class WebViewController: UIViewController {
 
         spinner = UIActivityIndicatorView(frame: view.bounds)
         webView = WKWebView(frame: view.bounds, configuration: config)
+        
+        closeButton = UIButton(type: .system)
+        closeButton?.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        closeButton?.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+        closeButton?.translatesAutoresizingMaskIntoConstraints = false
+        closeButton?.tintColor = .white
 
-        guard let spinner, let webView else {
+        guard let spinner, let webView, let closeButton else {
             return
         }
 
@@ -59,9 +66,16 @@ final class WebViewController: UIViewController {
 
         view.addSubview(webView)
         view.addSubview(spinner)
+        view.addSubview(closeButton)
 
         webView.frame = view.bounds
         spinner.frame = view.bounds
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            closeButton.widthAnchor.constraint(equalToConstant: 44),
+            closeButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
     }
 
     func loadWebView() {
@@ -181,4 +195,8 @@ private extension WebViewController {
     }
 
     @objc func appWillResignActive(_: Notification) {}
+    
+    @objc func closeTapped() {
+        delegate?.notifyViewControllerClosed()
+    }
 }

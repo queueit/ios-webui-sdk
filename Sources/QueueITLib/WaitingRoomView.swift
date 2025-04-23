@@ -35,7 +35,7 @@ public final class WaitingRoomView {
         queueWKVC.delegate = self
 
         if #available(iOS 13.0, *) {
-            queueWKVC.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+            queueWKVC.modalPresentationStyle = UIModalPresentationStyle.pageSheet
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delayInterval)) { [weak self] in
@@ -90,7 +90,7 @@ private extension WaitingRoomView {
             guard let self, let host else {
                 return
             }
-            host.dismiss(animated: true)
+            host.dismiss(animated: true, completion: onComplete)
         }
     }
 
