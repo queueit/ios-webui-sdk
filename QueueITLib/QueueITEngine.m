@@ -14,14 +14,16 @@
 
 @implementation QueueITEngine
 
--(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language
+-(instancetype)initWithHost:(UIViewController *)host customerId:(NSString*)customerId eventOrAliasId:(NSString*)eventOrAliasId layoutName:(NSString*)layoutName language:(NSString*)language waitingRoomDomain:(NSString * _Nullable)waitingRoomDomain queuePathPrefix:(NSString * _Nullable)queuePathPrefix
 {
     self = [super init];
     if(self) {
         self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] initWithCustomerId:customerId
-                                                                        eventOrAliasId:eventOrAliasId
-                                                                        layoutName:layoutName
-                                                                        language:language];
+                                                                           eventOrAliasId:eventOrAliasId
+                                                                               layoutName:layoutName
+                                                                                 language:language
+                                                                        waitingRoomDomain:waitingRoomDomain
+                                                                          queuePathPrefix:queuePathPrefix];
         
         self.waitingRoomView = [[QueueITWaitingRoomView alloc] initWithHost: host customerId: customerId eventId: eventOrAliasId];
         self.host = host;
@@ -29,6 +31,8 @@
         self.eventId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
+        self.waitingRoomDomain = waitingRoomDomain;
+        self.queuePathPrefix = queuePathPrefix;
         
         self.waitingRoomView.delegate = self;
         self.waitingRoomProvider.delegate = self;
@@ -60,8 +64,6 @@
 {
         return [self.waitingRoomProvider TryPass:error];
 }
-
-
 
 -(void)showQueue:(NSString*)queueUrl targetUrl:(NSString*)targetUrl
 {
@@ -105,6 +107,11 @@
     [self.queueViewDidAppearDelegate notifyQueueViewDidAppear];
 }
 
+- (void)waitingRoomView:(nonnull QueueITWaitingRoomView *)view notifyViewError:(NSError *)error {
+    NSString* errorMessage = [NSString stringWithFormat:@"WebView Error: %@", error.localizedDescription];
+    [self.queueErrorDelegate notifyQueueError:errorMessage errorCode:error.code];
+}
+
 - (void)waitingRoomProvider:(nonnull QueueITWaitingRoomProvider *)provider notifyProviderSuccess:(QueueTryPassResult * _Nonnull)queuePassResult {
     if([[queuePassResult redirectType]  isEqual: @"safetynet"])
     {
@@ -122,4 +129,5 @@
     [self showQueue:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
     
 }
+
 @end

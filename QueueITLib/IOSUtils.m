@@ -52,4 +52,10 @@ WKWebView* webView;
     return urlTtlString;
 }
 
++(NSString*)sanitizeQueuePathPrefix:(NSString*)queuePathPrefix{
+    NSCharacterSet *slashCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"/ "];
+    NSString *sanitizedQueuePathPrefix = [queuePathPrefix stringByTrimmingCharactersInSet:slashCharacterSet];
+    return sanitizedQueuePathPrefix;
+}
+
 @end

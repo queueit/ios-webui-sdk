@@ -14,9 +14,11 @@ typedef enum {
 @property (nonatomic, weak)id<QueueITWaitingRoomProviderDelegate> _Nullable delegate;
 
 -(instancetype _Nonnull)initWithCustomerId:(NSString* _Nonnull)customerId
-                       eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
-                           layoutName:(NSString* _Nullable)layoutName
-                             language:(NSString* _Nullable)language;
+                            eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
+                                layoutName:(NSString* _Nullable)layoutName
+                                  language:(NSString* _Nullable)language
+                         waitingRoomDomain:(NSString* _Nullable)waitingRoomDomain
+                           queuePathPrefix:(NSString* _Nullable)queuePathPrefix;
  
 -(BOOL)TryPass: (NSError* _Nullable*_Nullable)error;
 -(BOOL)TryPassWithEnqueueToken:(NSString* _Nullable)enqueueToken

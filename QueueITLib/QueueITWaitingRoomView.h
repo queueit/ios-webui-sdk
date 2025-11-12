@@ -26,4 +26,5 @@
 -(void) notifyViewQueueDidAppear:(nonnull QueueITWaitingRoomView*)view;
 -(void) notifyViewQueueWillOpen:(nonnull QueueITWaitingRoomView*)view;
 -(void) waitingRoomView:(nonnull QueueITWaitingRoomView*)view notifyViewUpdatePageUrl:(NSString* _Nullable) urlString;
+-(void) waitingRoomView:(nonnull QueueITWaitingRoomView*)view notifyViewError:(NSError* _Nonnull)error;
 @end
