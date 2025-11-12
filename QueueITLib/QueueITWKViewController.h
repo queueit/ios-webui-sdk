@@ -27,4 +27,5 @@
 -(void)notifyViewControllerSessionRestart;
 -(void)notifyViewControllerQueuePassed:(NSString* _Nullable) queueToken;
 -(void)notifyViewControllerPageUrlChanged:(NSString* _Nullable) urlString;
+-(void)notifyViewControllerError:(NSError* _Nonnull) error;
 @end

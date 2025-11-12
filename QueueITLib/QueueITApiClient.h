@@ -7,10 +7,11 @@ typedef void (^QueueServiceFailure)(NSError *error, NSString* errorMessage);
 @interface QueueITApiClient: NSObject
 
 + (QueueITApiClient *)getInstance;
-+ (void) setTesting:(bool)enabled;
 
 -(NSString*)enqueue:(NSString*)customerId
      eventOrAliasId:(NSString*)eventorAliasId
+  waitingRoomDomain:(NSString*)waitingRoomDomain
+    queuePathPrefix:(NSString*)queuePathPrefix
              userId:(NSString*)userId
           userAgent:(NSString*)userAgent
          sdkVersion:(NSString*)sdkVersion

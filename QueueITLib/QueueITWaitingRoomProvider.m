@@ -11,6 +11,8 @@
 @property NSString* eventOrAliasId;
 @property NSString* layoutName;
 @property NSString* language;
+@property NSString* waitingRoomDomain;
+@property NSString* queuePathPrefix;
 @property BOOL requestInProgress;
 @property int deltaSec;
 
@@ -23,15 +25,20 @@ static int MAX_RETRY_SEC = 10;
 static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(instancetype _Nonnull)initWithCustomerId:(NSString* _Nonnull)customerId
-                       eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
-                           layoutName:(NSString* _Nullable)layoutName
-                    language:(NSString* _Nullable)language {
+                            eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
+                                layoutName:(NSString* _Nullable)layoutName
+                                  language:(NSString* _Nullable)language
+                         waitingRoomDomain:(NSString* _Nullable)waitingRoomDomain
+                           queuePathPrefix:(NSString* _Nullable)queuePathPrefix
+{
     
     if(self = [super init]) {
         self.customerId = customerId;
         self.eventOrAliasId = eventOrAliasId;
         self.layoutName = layoutName;
         self.language = language;
+        self.waitingRoomDomain = waitingRoomDomain;
+        self.queuePathPrefix = queuePathPrefix;
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
         self.internetReachability = [QueueITReachability reachabilityForInternetConnection];
     }
@@ -75,7 +82,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)tryEnqueueWithUserAgent:(NSString*)secretAgent
                   enqueueToken:(NSString*)enqueueToken
                     enqueueKey:(NSString*)enqueueKey
-                    error:(NSError**)error
+                         error:(NSError**)error
 {
     NSString* userId = [IOSUtils getUserId];
     NSString* userAgent = [NSString stringWithFormat:@"%@;%@", secretAgent, [IOSUtils getLibraryVersion]];
@@ -83,22 +90,24 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     
     QueueITApiClient* apiClient = [QueueITApiClient getInstance];
     [apiClient enqueue:self.customerId
-               eventOrAliasId:self.eventOrAliasId
-               userId:userId
-               userAgent:userAgent
-               sdkVersion:sdkVersion
-               layoutName:self.layoutName
-               language:self.language
-               enqueueToken:enqueueToken
-               enqueueKey:enqueueKey
+        eventOrAliasId:self.eventOrAliasId
+     waitingRoomDomain:self.waitingRoomDomain
+       queuePathPrefix:self.queuePathPrefix
+                userId:userId
+             userAgent:userAgent
+            sdkVersion:sdkVersion
+            layoutName:self.layoutName
+              language:self.language
+          enqueueToken:enqueueToken
+            enqueueKey:enqueueKey
                success:^(QueueStatus *queueStatus)
-{
+    {
         if (queueStatus == NULL) {
             [self enqueueRetryMonitor:enqueueToken enqueueKey:enqueueKey error:error];
             return;
         }
         
-        [self handleAppEnqueueResponse: queueStatus.queueId
+        [self handleAppEnqueueResponse:queueStatus.queueId
                               queueURL:queueStatus.queueUrlString
                         eventTargetURL:queueStatus.eventTargetUrl
                           queueItToken:queueStatus.queueitToken];
@@ -121,8 +130,8 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 -(void)handleAppEnqueueResponse:(NSString*) queueId
                        queueURL:(NSString*) queueURL
                  eventTargetURL:(NSString*) targetURL
-                   queueItToken:(NSString*) token {
-
+                   queueItToken:(NSString*) token
+{
     bool isPassedThrough = ![self isNullOrEmpty:token];
     
     NSString* redirectType = [self getRedirectTypeFromToken:token];
@@ -139,7 +148,7 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(void)enqueueRetryMonitor:(NSString*)enqueueToken
                 enqueueKey:(NSString*)enqueueKey
-                error:(NSError**)error
+                     error:(NSError**)error
 {
     if (self.deltaSec < MAX_RETRY_SEC)
     {
@@ -188,7 +197,6 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 }
 
 -(NSString*) getRedirectTypeFromToken: (NSString*) queueToken {
-    
     if([self isNullOrEmpty:queueToken])
     {
         return @"queue";

@@ -212,6 +212,10 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
     [self.webView evaluateJavaScript:JAVASCRIPT_GET_BODY_CLASSES completionHandler:^(id result, NSError* error){
         if (error != nil) {
             NSLog(@"evaluateJavaScript error : %@", error.localizedDescription);
+            
+            [self close:^{
+                    [self.delegate notifyViewControllerError:error];
+                }];
         }
         else {
             NSString* resultString = [NSString stringWithFormat:@"%@", result];

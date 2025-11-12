@@ -8,5 +8,6 @@
 +(NSString*)getLibraryVersion;
 +(NSString*)getSdkVersion;
 +(NSString*)convertTtlMinutesToSecondsString:(int)ttlMinutes;
++(NSString*)sanitizeQueuePathPrefix:(NSString*)queuePathPrefix;
 
 @end

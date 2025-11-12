@@ -37,12 +37,16 @@
 @property (nonatomic, copy)NSString*  _Nonnull  eventId;
 @property (nonatomic, copy)NSString*  _Nullable  layoutName;
 @property (nonatomic, copy)NSString*  _Nullable  language;
+@property (nonatomic, copy)NSString* _Nullable waitingRoomDomain;
+@property (nonatomic, copy)NSString* _Nullable queuePathPrefix;
 
 -(instancetype _Nonnull )initWithHost:(UIViewController* _Nonnull)host
                            customerId:(NSString* _Nonnull)customerId
                        eventOrAliasId:(NSString* _Nonnull)eventOrAliasId
                            layoutName:(NSString* _Nullable)layoutName
-                             language:(NSString* _Nullable)language;
+                             language:(NSString* _Nullable)language
+                    waitingRoomDomain:(NSString* _Nullable)waitingRoomDomain
+                      queuePathPrefix:(NSString* _Nullable)queuePathPrefix;
 
 -(void)setViewDelay:(int)delayInterval;
 
