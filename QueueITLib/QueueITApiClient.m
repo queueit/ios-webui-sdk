@@ -1,11 +1,11 @@
 #import "QueueITApiClient.h"
 #import "QueueITApiClient_NSURLConnection.h"
+#import "IOSUtils.h"
 
 static QueueITApiClient *SharedInstance;
 
 static NSString * const API_ROOT = @"https://%@.queue-it.net/api/mobileapp/queue";
-static NSString * const TESTING_API_ROOT = @"https://%@.test.queue-it.net/api/mobileapp/queue";
-static bool testingIsEnabled = NO;
+static NSString * const API_ROOT_WITH_CUSTOM_DOMAIN = @"https://%@/api/mobileapp/queue";
 
 @implementation QueueITApiClient
 
@@ -19,13 +19,10 @@ static bool testingIsEnabled = NO;
     return SharedInstance;
 }
 
-+ (void) setTesting:(bool)enabled
-{
-    testingIsEnabled = enabled;
-}
-
 -(NSString*)enqueue:(NSString *)customerId
      eventOrAliasId:(NSString *)eventorAliasId
+  waitingRoomDomain:(NSString *)waitingRoomDomain
+    queuePathPrefix:(NSString *)queuePathPrefix
              userId:(NSString *)userId
           userAgent:(NSString *)userAgent
          sdkVersion:(NSString*)sdkVersion
@@ -58,11 +55,18 @@ static bool testingIsEnabled = NO;
     }
     
     NSString* urlAsString;
-    if(testingIsEnabled){
-        urlAsString = [NSString stringWithFormat:TESTING_API_ROOT, customerId];
-    }else{
+        
+    if ([waitingRoomDomain length] > 0) {
+        NSString* newAPIDomain = waitingRoomDomain;
+        if ([queuePathPrefix length] > 0) {
+            queuePathPrefix = [IOSUtils sanitizeQueuePathPrefix:queuePathPrefix];
+            newAPIDomain = [newAPIDomain stringByAppendingString:[NSString stringWithFormat:@"/%@", queuePathPrefix]];
+        }
+        urlAsString = [NSString stringWithFormat:API_ROOT_WITH_CUSTOM_DOMAIN, newAPIDomain];
+     } else {
         urlAsString = [NSString stringWithFormat:API_ROOT, customerId];
-    }
+     }
+    
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", customerId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/%@", eventorAliasId]];
     urlAsString = [urlAsString stringByAppendingString:[NSString stringWithFormat:@"/enqueue"]];

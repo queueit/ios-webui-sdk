@@ -32,9 +32,9 @@
     
     QueueITWKViewController *queueWKVC = [[QueueITWKViewController alloc] initWithHost:self.host
                                                                           queueUrl:queueUrl
-                                                                          eventTargetUrl:targetUrl
-                                                                          customerId:self.customerId
-                                                                            eventId:self.eventId];
+                                                                    eventTargetUrl:targetUrl
+                                                                        customerId:self.customerId
+                                                                           eventId:self.eventId];
     
     queueWKVC.delegate = self;
     
@@ -94,6 +94,10 @@
 
 -(void)notifyViewControllerPageUrlChanged:(NSString* _Nullable) urlString {
     [self.delegate waitingRoomView:self notifyViewUpdatePageUrl:urlString];
+}
+
+-(void)notifyViewControllerError:(NSError *)error {
+    [self.delegate waitingRoomView:self notifyViewError:error];
 }
 
 @end

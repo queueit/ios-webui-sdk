@@ -3,6 +3,6 @@
 
 #define QueueCloseUrl @"queueit://close"
 #define QueueRestartSessionUrl @"queueit://restartSession"
-#define SDKVersion @"iOS-3.4.4";
+#define SDKVersion @"iOS-3.5.0";
 
 #endif
