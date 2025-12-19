@@ -134,9 +134,11 @@ static NSString * const JAVASCRIPT_GET_BODY_CLASSES = @"document.getElementsByTa
         NSString* targetUrlString = self.eventTargetUrl;
         if (urlString != nil) {
             NSURL* url = [NSURL URLWithString:urlString];
+            NSURL* queueUrl = [NSURL URLWithString:self.queueUrl];
             NSURL* targetUrl = [NSURL URLWithString:targetUrlString];
+
             if(urlString != nil && ![urlString isEqualToString:@"about:blank"]) {
-                BOOL isQueueUrl = [self.queueUrl containsString:url.host];
+                BOOL isQueueUrl = queueUrl != nil && queueUrl.host != nil && [queueUrl.host isEqualToString:url.host];
                 BOOL isNotFrame = [[[request URL] absoluteString] isEqualToString:[[request mainDocumentURL] absoluteString]];
 
                 if([self handleSpecialUrls:url decisionHandler:decisionHandler]){

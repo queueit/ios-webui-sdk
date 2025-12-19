@@ -19,11 +19,27 @@ From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will 
 
 Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
 
+## Swift Package Manager
+
+1. In Xcode, select File > Add Packages
+2. For the URL, paste in `https://github.com/queueit/ios-webui-sdk.git`
+3. Configure how you'd like to track changes, and add to your project
+4. Finally, click Add Package
+
+### Possible error generated when adding Package Dependency
+* Error generated during build "product 'QueueIt' required by package 'mylibrary' target 'MyLibrary' not found"
+* resolved by updating the dependency product name to "QueueItLibrary" for package "ios-web-sdk" 
+
+#### Example: 
+![Screenshot](dev_screenshot.png)
+
 ### XCFramework
 
 You can manually add the XCFramework that's published in [releases](https://github.com/queueit/ios-webui-sdk/releases).
 
-### CocoaPods
+### CocoaPods [Deprecated]
+
+> **Note**: CocoaPods distribution is deprecated and readonly. Last released SDK version to CocoaPods is `3.4.4` and no new updates will be published in the future. We recommend using [Swift Package Manager](#swift-package-manager) or [XCFramework](#xcframework) instead.
 
 [CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
 
@@ -39,7 +55,7 @@ platform :ios, '9.3'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'QueueITLibrary', '~> 3.5.0'
+    pod 'QueueITLibrary', '~> 3.4.4'
 end
 ```
 
@@ -48,20 +64,6 @@ Then, run the following command:
 ```bash
 pod install
 ```
-
-## Swift Package Manager
-
-1. In Xcode, select File > Add Packages
-2. For the URL, paste in `https://github.com/queueit/ios-webui-sdk.git`
-3. Configure how you'd like to track changes, and add to your project
-4. Finally, click Add Package
-
-### Possible error generated when adding Package Dependency
-* Error generated during build "product 'QueueIt' required by package 'mylibrary' target 'MyLibrary' not found"
-* resolved by updating the dependency product name to "QueueItLibrary" for package "ios-web-sdk" 
-
-#### Example: 
-![Screenshot](dev_screenshot.png)
 
 ## Usage
 
