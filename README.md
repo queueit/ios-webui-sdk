@@ -19,6 +19,8 @@ From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will 
 
 Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
 
+From version 3.5.2 the lowest supported version of iOS has been updated to version 12.0.
+
 ## Swift Package Manager
 
 1. In Xcode, select File > Add Packages
@@ -51,7 +53,7 @@ To integrate the SDK into your Xcode project using CocoaPods, specify it in your
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '9.3'
+platform :ios, '12.0'
 use_frameworks!
 
 target '<Your Target Name>' do

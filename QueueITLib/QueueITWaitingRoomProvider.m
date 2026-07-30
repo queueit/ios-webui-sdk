@@ -2,11 +2,14 @@
 #import "IOSUtils.h"
 #import "QueueITApiClient.h"
 #import "QueueTryPassResult.h"
-#import "QueueITReachability.h"
+#import <Network/Network.h>
 
-// TODO: Include all the method calls here 
+// TODO: Include all the method calls here
 @interface QueueITWaitingRoomProvider()
-@property (nonatomic) QueueITReachability *internetReachability;
+@property (nonatomic) id pathMonitor; // nw_path_monitor_t
+@property (atomic) BOOL networkPathDetermined;
+@property (atomic) BOOL networkPathSatisfied;
+@property (nonatomic) dispatch_queue_t retryQueue;
 @property NSString* customerId;
 @property NSString* eventOrAliasId;
 @property NSString* layoutName;
@@ -40,10 +43,44 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
         self.waitingRoomDomain = waitingRoomDomain;
         self.queuePathPrefix = queuePathPrefix;
         self.deltaSec = INITIAL_WAIT_RETRY_SEC;
-        self.internetReachability = [QueueITReachability reachabilityForInternetConnection];
+        self.retryQueue = dispatch_queue_create("com.queue-it.waitingroom.retry", DISPATCH_QUEUE_SERIAL);
+        [self startNetworkMonitor];
     }
-    
+
     return self;
+}
+
+-(void)startNetworkMonitor {
+    nw_path_monitor_t monitor = nw_path_monitor_create();
+    dispatch_queue_t monitorQueue = dispatch_queue_create("com.queue-it.waitingroom.pathmonitor", DISPATCH_QUEUE_SERIAL);
+    nw_path_monitor_set_queue(monitor, monitorQueue);
+    __weak typeof(self) weakSelf = self;
+    nw_path_monitor_set_update_handler(monitor, ^(nw_path_t _Nonnull path) {
+        typeof(self) strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        strongSelf.networkPathSatisfied = (nw_path_get_status(path) == nw_path_status_satisfied);
+        strongSelf.networkPathDetermined = YES;
+    });
+    nw_path_monitor_start(monitor);
+    self.pathMonitor = monitor;
+}
+
+-(void)dealloc {
+    if (self.pathMonitor != nil) {
+        nw_path_monitor_cancel((nw_path_monitor_t)self.pathMonitor);
+    }
+}
+
+// Non-blocking connectivity check. NWPathMonitor is authoritative once it has
+// reported a path; until then we assume the network is available to avoid
+// false negatives on a cold read.
+-(BOOL)isNetworkAvailable {
+    if (self.networkPathDetermined) {
+        return self.networkPathSatisfied;
+    }
+    return YES;
 }
  
 -(BOOL) TryPass: (NSError**)error {
@@ -68,7 +105,9 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
     }
     
     if(self.requestInProgress) {
-        *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:RequestAlreadyInProgress userInfo:nil];
+        if (error != NULL) {
+            *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:RequestAlreadyInProgress userInfo:nil];
+        }
         return NO;
     }
     
@@ -152,10 +191,13 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 {
     if (self.deltaSec < MAX_RETRY_SEC)
     {
-        [self tryEnqueue:enqueueToken enqueueKey:enqueueKey error:error];
-        
-        [NSThread sleepForTimeInterval:self.deltaSec];
+        int delaySec = self.deltaSec;
         self.deltaSec = self.deltaSec * 2;
+        __weak typeof(self) weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)delaySec * NSEC_PER_SEC),
+                       self.retryQueue, ^{
+            [weakSelf tryEnqueue:enqueueToken enqueueKey:enqueueKey error:nil];
+        });
     }
     else
     {
@@ -167,21 +209,14 @@ static int INITIAL_WAIT_RETRY_SEC = 1;
 
 -(BOOL)checkConnection:(NSError **)error
 {
-    int count = 0;
-    while (count < 5)
+    if ([self isNetworkAvailable])
     {
-        NetworkStatus netStatus = [self.internetReachability currentReachabilityStatus];
-        if (netStatus == NotReachable)
-        {
-            [NSThread sleepForTimeInterval:1.0f];
-            count++;
-        }
-        else
-        {
-            return YES;
-        }
+        return YES;
     }
-    *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:NetworkUnavailable userInfo:nil];
+    if (error != NULL)
+    {
+        *error = [NSError errorWithDomain:@"QueueITRuntimeException" code:NetworkUnavailable userInfo:nil];
+    }
     return NO;
 }
 
