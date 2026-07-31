@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "QueueITLibrary",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v12)
     ],
     products: [
         .library(
