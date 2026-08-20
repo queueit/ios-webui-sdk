@@ -4,20 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "QueueITLibrary",
-    platforms: [
-        .iOS(.v12)
-    ],
-    products: [
-        .library(
-            name: "QueueITLibrary",
-            targets: ["QueueITLibrary"]),
-    ],
-    targets: [
-        .target(
-            name: "QueueITLibrary",
-            path: "QueueItLib/",
-            publicHeadersPath: ""
-        )
-    ]
+  name: "QueueITLibrary",
+  platforms: [
+    .iOS(.v12)
+  ],
+  products: [
+    .library(
+      name: "QueueITLibrary",
+      targets: ["QueueITLibrary"])
+  ],
+  targets: [
+    .target(
+      name: "QueueITLibrary",
+      path: "QueueItLib/",
+      resources: [.copy("PrivacyInfo.xcprivacy")],
+      publicHeadersPath: ""
+    )
+  ]
 )
