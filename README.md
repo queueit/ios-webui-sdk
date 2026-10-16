@@ -17,7 +17,7 @@ Therefore the minimum iOS version for 2.12.X is 8.3, where WKWebViews were intro
 
 From version 2.13.0 the QueueITEngine no longer supports the UIWebView and will only use WKWebView. Furthermore, the lowest supported version of iOS has been updated to version 9.3.
 
-Version 3.0.0 introduces breaking chances as the interface to `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
+Version 3.0.0 introduces breaking changes as the interface to the legacy `QueueITEngine` has been modified so the `run` function is using the NSError pattern to return errors instead of throwing a NSException.
 
 From version 3.5.2 the lowest supported version of iOS has been updated to version 12.0.
 
@@ -67,152 +67,232 @@ Then, run the following command:
 pod install
 ```
 
+
 ## Usage
 
-We have a repository with a demo app [here](https://github.com/queueit/ios-demo-app "iOS demo app"), but you can get the basic idea of how to use the library in the following example.
+The integration has two steps:
 
-In this example we have a `UITableViewController` that we want to protect using Queue-it. The header file of `UIViewController` has following signature:
+1. **Get the status of the waiting room** with `QueueITWaitingRoomProvider`, using one of these methods:
+    * ```TryPass```
+    * ```TryPassWithEnqueueToken```
+    * ```TryPassWithEnqueueKey```
+
+   The result is delivered to the ```notifyProviderSuccess``` callback as a ```QueueTryPassResult```, or to ```notifyProviderFailure``` if the status could not be retrieved.
+2. **Show the waiting room**, if the visitor has to queue, by calling ```show:targetUrl:``` on `QueueITWaitingRoomView` with the ```queueUrl``` and ```targetUrl``` from the ```QueueTryPassResult```. The waiting room is shown in a web view, and ```notifyViewPassedQueue``` is called when it is the visitor's turn.
+
+Because the two steps are separate, you decide in which layer of your app each one happens, and you can change the queue URL before the waiting room is shown ([read more about it here](#modifying-the-queue-url-before-showing-the-waiting-room)).
+
+`QueueITWaitingRoomProvider` and `QueueITWaitingRoomView` are available from version ```3.1.14```.
+
+### Lifecycle diagram
+
+```mermaid
+flowchart TD
+    start([User opens a protected screen]) --> hasPass{Valid Queue-it pass<br/>stored by the app?}
+    hasPass -- Yes --> show[Show the protected screen]
+    hasPass -- No --> tryPass["[provider TryPass:]"]
+    tryPass -- "Request failed<br/>(notifyProviderFailure)" --> failed[Decide: let the user in<br/>or try again later]
+    tryPass -- "notifyProviderSuccess<br/>(QueueTryPassResult)" --> result{redirectType}
+    result -- "Not queue: safetynet, disabled,<br/>idle, after event (queueToken)" --> store[Store the pass<br/>with an expiry]
+    result -- queue --> modify["Optional: modify the queue URL<br/>(e.g. add an invite code)"]
+    modify --> showQueue["[waitingRoomView show:targetUrl:]"]
+    showQueue --> wr[[Waiting room in WebView]]
+    wr -- "notifyViewPassedQueue (queueitToken)" --> store
+    wr -- "Session restart<br/>(notifyViewSessionRestart)" --> tryPass
+    wr -- "Closed or error<br/>(notifyViewUserClosed / notifyViewError)" --> back[Go back]
+    store --> show
+```
+
+### Managing the queue state
+
+As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
+After you have received the ```notifyViewPassedQueue``` callback (or a ```QueueTryPassResult``` whose redirect type is not ```queue```), the app must remember this, possibly with a date / time expiration.
+When the user goes to the next page - you check this state, and only call ```TryPass``` in the case where the user did not previously queue up.
+When the user clicks back, the same check needs to be done.
+
+### Example
+
+The following example shows the basic idea of how to use the library.
+
+In this example we have a `UITableViewController` that we want to protect using Queue-it. The header file of `TopsTableViewController` has the following signature:
 
 ```objc
 #import <UIKit/UIKit.h>
-#import "QueueITEngine.h"
+#import "QueueITWaitingRoomProvider.h"
+#import "QueueITWaitingRoomView.h"
 
-@interface TopsTableViewController : UITableViewController<QueuePassedDelegate, QueueViewWillOpenDelegate, QueueDisabledDelegate, QueueITUnavailableDelegate, QueueViewClosedDelegate, QueueSessionRestartDelegate>
--(void)initAndRunQueueIt;
+@interface TopsTableViewController : UITableViewController<QueueITWaitingRoomProviderDelegate, QueueITWaitingRoomViewDelegate>
+@property (nonatomic, strong) QueueITWaitingRoomProvider* waitingRoomProvider;
+@property (nonatomic, strong) QueueITWaitingRoomView* waitingRoomView;
+-(void)initAndTryPassQueueIt;
 @end
 ```
-
-The QueueITEngine class will open a web view to display the queue found from parameters provided.
 
 The implementation of the example controller looks like follows:
 
 ```objc
--(void)initAndRunQueueIt
+-(void)initAndTryPassQueueIt
 {
     NSString* customerId = @"yourCustomerId"; // Required
     NSString* waitingRoomIdOrAlias = @"yourWaitingRoomIdOrAlias"; // Required
     NSString* layoutName = @"yourLayoutName"; // Optional (pass nil if no layout specified)
     NSString* language = @"en-US"; // Optional (pass nil if no language specified)
-    NSString* waitingRoomDomain = @"<custom waiting room domain>.com" // Optional (pass nil if no waitingRoomDomain specified, required for Bring Your Own CDN)
-    NSString* queuePathPrefix = @"queue" //// Optional (pass nil if no queuePathPrefix specified, required for Bring Your Own CDN)
+    NSString* waitingRoomDomain = nil; // Optional (pass nil if no waitingRoomDomain specified, required for Bring Your Own CDN)
+    NSString* queuePathPrefix = nil; // Optional (pass nil if no queuePathPrefix specified, required for Bring Your Own CDN)
 
-    self.engine = [[QueueITEngine alloc]initWithHost:self customerId:customerId eventOrAliasId:waitingRoomIdOrAlias layoutName:layoutName language:language waitingRoomDomain:waitingRoomDomain queuePathPrefix:queuePathPrefix];
-    [self.engine setViewDelay:5]; // Optional delay parameter you can specify (in case you want to inject some animation before Queue-It UIWebView or WKWebView will appear
-    self.engine.queuePassedDelegate = self; // Invoked once the user is passed the queue
-    self.engine.queueViewWillOpenDelegate = self; // Invoked to notify that Queue-It UIWebView or WKWebview will open
-    self.engine.queueDisabledDelegate = self; // Invoked to notify that queue is disabled
-    self.engine.queueITUnavailableDelegate = self; // Invoked in case QueueIT is unavailable (500 errors)
-    self.engine.queueUserExitedDelegate = self; // Invoked when user chooses to leave the queue
-    self.engine.queueViewClosedDelegate = self; // Invoked after the WebView is closed
-    self.engine.queueSessionRestartDelegate = self; // Invoked after user clicks on a link to restart the session. The link is 'queueit://restartSession'.
-    
+    // Gets the status of the waiting room
+    self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] initWithCustomerId:customerId eventOrAliasId:waitingRoomIdOrAlias layoutName:layoutName language:language waitingRoomDomain:waitingRoomDomain queuePathPrefix:queuePathPrefix];
+    self.waitingRoomProvider.delegate = self;
+
+    // Shows the waiting room in a web view
+    self.waitingRoomView = [[QueueITWaitingRoomView alloc] initWithHost:self customerId:customerId eventId:waitingRoomIdOrAlias];
+    [self.waitingRoomView setViewDelay:5]; // Optional delay parameter you can specify (in case you want to inject some animation before Queue-It WKWebView will appear
+    self.waitingRoomView.delegate = self;
+
     NSError* error = nil;
-    BOOL success = [self.engine run:&error];
+    BOOL success = [self.waitingRoomProvider TryPass:&error];
     /**
     To enqueue with an enqueue-token or key use one of the following:
 
-    [self.engine runWithEnqueueKey:@"keyValue" error:&error];
-    [self.engine runWithEnqueueToken:@"tokenValue" error:&error];
+    [self.waitingRoomProvider TryPassWithEnqueueKey:@"keyValue" error:&error];
+    [self.waitingRoomProvider TryPassWithEnqueueToken:@"tokenValue" error:&error];
     **/
     if (!success) {
         if ([error code] == NetworkUnavailable) {
             // Thrown when Queue-It detects no internet connectivity
             NSLog(@"%ld", (long)[error code]);
-            NSLog(@"Network unavailable was caught in DetailsViewController");
-            NSLog(@"isRequestInProgress - %@", self.engine.isRequestInProgress ? @"YES" : @"NO");
+            NSLog(@"Network unavailable was caught in TopsTableViewController");
+            NSLog(@"IsRequestInProgress - %@", [self.waitingRoomProvider IsRequestInProgress] ? @"YES" : @"NO");
         }
         else if ([error code] == RequestAlreadyInProgress) {
             // Thrown when request to Queue-It has already been made and currently in progress. In general you can ignore this.
         }
         else {
-             NSLog(@"Unknown error was returned by QueueITEngine in DetailsViewController");
+             NSLog(@"Unknown error was returned by QueueITWaitingRoomProvider in TopsTableViewController");
         }
     }
 }
 
+#pragma mark - QueueITWaitingRoomProviderDelegate
+
+// This callback will be called with the status of the waiting room.
+-(void)waitingRoomProvider:(QueueITWaitingRoomProvider*)provider notifyProviderSuccess:(QueueTryPassResult*)queuePassResult {
+    NSString* redirectType = queuePassResult.redirectType;
+    if ([redirectType isEqualToString:@"safetynet"]) {
+        // The user can pass without visiting the waiting room.
+        // Store the session information, the same way as in notifyViewPassedQueue.
+        NSLog(@"QUEUE TOKEN: %@", queuePassResult.queueToken);
+        return;
+    }
+    if ([redirectType isEqualToString:@"disabled"] || [redirectType isEqualToString:@"idle"] || [redirectType isEqualToString:@"afterevent"]) {
+        // The waiting room is disabled, idle or after the event (the result also carries a queueToken).
+        // Most likely the application should still function, but the waiting room's state can be changed at any time,
+        // so session handling is important.
+        NSLog(@"Queue is disabled");
+        return;
+    }
+
+    // Any other redirect type (normally "queue"): the user has to visit the waiting room.
+    // This is where you can modify the queue URL, see "Modifying the queue URL before showing the waiting room".
+    [self.waitingRoomView show:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
+}
+
+// This callback will be called when the status of the waiting room could not be retrieved.
+// Error code 3 means that the mobile application can't reach Queue-it's servers, most likely because the mobile device has no internet connection.
+// Here you decide if the application should function or not now that is has no queue-it protection.
+-(void)waitingRoomProvider:(QueueITWaitingRoomProvider*)provider notifyProviderFailure:(NSString*)errorMessage errorCode:(long)errorCode {
+    NSLog(@"Queue-it error: %@ (%ld)", errorMessage, errorCode);
+}
+
+#pragma mark - QueueITWaitingRoomViewDelegate
+
 // This callback will be called when the user has been through the queue.
 // Here you should store session information, so user will only be sent to queue again if the session has timed out.
--(void) notifyYourTurn:(QueuePassedInfo*) queuePassedInfo {
+-(void)waitingRoomView:(QueueITWaitingRoomView*)view notifyViewPassedQueue:(QueuePassedInfo*)queuePassedInfo {
     NSLog(@"You have been through the queue");
     NSLog(@"QUEUE TOKEN: %@", queuePassedInfo.queueitToken);
 }
 
 // This callback will be called just before the webview (hosting the queue page) will be shown.
 // Here you can change some relevant UI elements.
--(void) notifyQueueViewWillOpen {
+-(void)notifyViewQueueWillOpen:(QueueITWaitingRoomView*)view {
     NSLog(@"Queue will open");
 }
 
-// This callback will be called when the queue used (event alias ID) is in the 'disabled' state.
-// Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
-// so session handling is important.
--(void)notifyQueueDisabled:(QueueDisabledInfo* _Nullable) queueDisabledInfo {
-    NSLog(@"Queue is disabled");
-}
-
-// This callback will be called when the mobile application can't reach Queue-it's servers.
-// Most likely because the mobile device has no internet connection.
-// Here you decide if the application should function or not now that is has no queue-it protection.
--(void) notifyQueueITUnavailable:(NSString*) errorMessage {
-    NSLog(@"QueueIT is currently unavailable");
+// This callback will be called after the webview (hosting the queue page) has been shown.
+-(void)notifyViewQueueDidAppear:(QueueITWaitingRoomView*)view {
+    NSLog(@"Queue did appear");
 }
 
 // This callback will be called after a user clicks a close link in the layout and the WebView closes.
 // The close link is "queueit://close". Whenever the user navigates to this link, the SDK intercepts the navigation
 // and closes the webview.
--(void)notifyViewClosed {
-    NSLog(@"The queue view was closed.")
+-(void)notifyViewUserClosed:(QueueITWaitingRoomView*)view {
+    NSLog(@"The queue view was closed.");
+}
+
+// This callback will be called when the user chooses to leave the queue (the default exit link in the layout).
+// The SDK does not close the WebView in this case: close it yourself if the user should go back.
+-(void)notifyViewUserExited:(QueueITWaitingRoomView*)view {
+    NSLog(@"The user left the queue.");
+    [view close:nil];
 }
 
 // This callback will be called when the user clicks on a link to restart the session.
 // The link is 'queueit://restartSession'. Whenever the user navigates to this link, the SDK intercepts the navigation,
-// closes the WebView, clears the URL cache and calls this callback.
-// In this callback you would normally call run/runWithToken/runWithKey in order to restart the queueing.
--(void) notifySessionRestart {
+// closes the WebView and calls this callback.
+// In this callback you would normally call TryPass/TryPassWithEnqueueToken/TryPassWithEnqueueKey in order to restart the queueing.
+-(void)notifyViewSessionRestart:(QueueITWaitingRoomView*)view {
     NSLog(@"Session was restarted");
-    [self initAndRunQueueIt];
+    [self initAndTryPassQueueIt];
+}
+
+// This callback will be called when the URL of the queue page changes.
+-(void)waitingRoomView:(QueueITWaitingRoomView*)view notifyViewUpdatePageUrl:(NSString*)urlString {
+    NSLog(@"Queue page URL changed: %@", urlString);
+}
+
+// This callback will be called when the SDK can't read the queue page after it has loaded.
+// The WebView is closed before this callback is called.
+-(void)waitingRoomView:(QueueITWaitingRoomView*)view notifyViewError:(NSError*)error {
+    NSLog(@"WebView error: %@", error.localizedDescription);
 }
 ```
 
-As the App developer you must manage the state (whether user was previously queued up or not) inside the apps storage.
-After you have received the "notifyYourTurn callback", the app must remember this, possibly with a date / time expiration.
-When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
-When the user clicks back, the same check needs to be done.
+### Modifying the queue URL before showing the waiting room
 
-### Getting the status of a waiting room
+In ```notifyProviderSuccess```, after ```TryPass``` has delivered a ```QueueTryPassResult``` with the redirect type ```queue```, and before you call ```show:targetUrl:```, you can change the queue URL on the ```QueueTryPassResult```. For example, to send a visitor to an invite-only waiting room, add the invite code as the ```code``` query parameter. This SDK has no separate invite code setting, so this is how you pass it.
 
-If you're using version ```3.1.14``` or newer, it's possible to get the state of the waiting room using the new ```QueueITWaitingRoomProvider``` with one of the following methods:
+The ```queueUrl``` property of ```QueueTryPassResult``` can be changed, and ```show:targetUrl:``` loads the URL exactly as you pass it:
 
-* ```TryPass```
-* ```TryPassWithEnqueueToken``` 
-* ```TryPassWithEnqueueKey```
+```objc
+-(void)waitingRoomProvider:(QueueITWaitingRoomProvider*)provider notifyProviderSuccess:(QueueTryPassResult*)queuePassResult {
+    NSString* redirectType = queuePassResult.redirectType;
+    if ([redirectType isEqualToString:@"safetynet"] || [redirectType isEqualToString:@"disabled"] ||
+        [redirectType isEqualToString:@"idle"] || [redirectType isEqualToString:@"afterevent"]) {
+        // Handle as in the example above
+        return;
+    }
 
-Calling one of the above methods will trigger either the ```notifyProviderSuccess``` callback on success, or ```notifyProviderFailure``` callback on failure.
+    NSURLComponents* components = [NSURLComponents componentsWithString:queuePassResult.queueUrl];
+    NSMutableArray<NSURLQueryItem*>* queryItems = [components.queryItems mutableCopy] ?: [NSMutableArray array];
+    // Replace an existing code parameter instead of adding a second one
+    [queryItems filterUsingPredicate:[NSPredicate predicateWithFormat:@"name !=[c] 'code'"]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"code" value:@"yourInviteCode"]];
+    components.queryItems = queryItems;
+    queuePassResult.queueUrl = components.URL.absoluteString;
 
-When using the ```notifyProviderQueueITUnavailable``` from the ```ProviderSuccessDelegate``` it'll provide with a ```QueueTryPassResult``` depending on the ```isPassedThrough``` result:
-
-* ```true``` means that the ```QueueItToken``` is *not* empty, and more information is available in the ```QueueTryPassResult```
-* ```false``` means that the waiting room is *active*. You can show the visitor the waiting room by calling ```show``` from the ```QueueITWaitingRoomView```, by providing a ```queueUrl``` and ```targetUrl``` *([Read more about it here](#showing-the-queue-page-to-visitors))*
-
-### Showing the queue page to visitors
-
-If you're using version ```3.1.14``` or newer, the ```QueueITWaitingRoomView``` class is available.
-
-When the waiting room is queueing visitors, each visitor has to visit it once. Using the ```show``` method you can do this, you have to provide the ```queueUrl```, and the ```targetUrl``` which is returned by the ```notifyProviderSuccess``` from ```QueueITWaitingRoomProvider``` class, given the waiting room is *active* ([Read more about it here](#getting-the-status-of-a-waiting-room)) 
-
-
-#### Sample code showing the queue page:
-``` objc
--(void)notifyProviderSuccess:(QueueTryPassResult* _Nonnull) queuePassResult {   
-   [self.waitingRoomView show:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
+    [self.waitingRoomView show:queuePassResult.queueUrl targetUrl:queuePassResult.targetUrl];
 }
 ```
+
+> **Note**: Only add or change query parameters. Keep the scheme, host and path of the queue URL: the web view uses the host of the queue URL to decide which navigations belong to the waiting room.
 
 ## Bring Your Own CDN Implementation
 
-Since version **3.5.0**, this library includes support for Bring Your Own CDN integrations through two new optional parameters:
+Since version **3.5.0**, this library includes support for Bring Your Own CDN integrations through two new optional parameters.
 
-When initializing `QueueITEngine` or `QueueITWaitingRoomProvider`, you can now specify:
+When initializing `QueueITWaitingRoomProvider`, you can now specify:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -221,36 +301,19 @@ When initializing `QueueITEngine` or `QueueITWaitingRoomProvider`, you can now s
 
 > **Note**: These parameters are optional but **required** for Bring Your Own CDN integrations.
 
-### Usage Examples
-
-#### QueueITEngine Initialization
+### Usage Example
 
 ```objc
-self.engine = [[QueueITEngine alloc] 
-    initWithHost:self 
-    customerId:@"yourCustomerId" // Required
-    eventOrAliasId:@"yourWaitingRoomIdOrAlias" // Required 
-    layoutName:@"yourLayoutName"; // Optional (pass nil if no layout specified)
-    language:@"en-US"; // Optional (pass nil if no language specified)
-    waitingRoomDomain:@"<custom waiting room domain>.com" // Optional (pass nil if no waitingRoomDomain specified)
-    queuePathPrefix:@"queue"]; // Optional (pass nil if no queuePathPrefix specified)
-```
-#### QueueITWaitingRoomProvider Initialization
-
-```objc
-self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc] 
+self.waitingRoomProvider = [[QueueITWaitingRoomProvider alloc]
     initWithCustomerId:@"yourCustomerId" // Required
-    eventOrAliasId:@"yourWaitingRoomIdOrAlias" // Required 
-    layoutName:@"yourLayoutName"; // Optional (pass nil if no layout specified)
-    language:@"en-US"; // Optional (pass nil if no language specified) 
+    eventOrAliasId:@"yourWaitingRoomIdOrAlias" // Required
+    layoutName:@"yourLayoutName" // Optional (pass nil if no layout specified)
+    language:@"en-US" // Optional (pass nil if no language specified)
     waitingRoomDomain:@"<custom waiting room domain>.com" // Optional (pass nil if no waitingRoomDomain specified)
     queuePathPrefix:@"queue"]; // Optional (pass nil if no queuePathPrefix specified)
 ```
 
-> **Note**: Rest of delegates and calling methods stay the same.
-
-### Lifecycle diagram
-![App Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
+> **Note**: `QueueITWaitingRoomView` takes no extra parameters: it loads the queue URL returned in the `QueueTryPassResult`. The rest of the delegates and calling methods stay the same.
 
 # Using Queue-it server-side connector (KnownUser) to protect APIs, consumed by mobile app
 
@@ -277,25 +340,57 @@ The integration can be described in the following steps:
 3. Scenario 1, user should not be queued (response does not have the `x-queueit-redirect` header)
     1. We store the Queue-it cookies from the response, to include in later API calls
 4. Scenario 2, user should be queued
-    1. If the user should be queued we'll get a `200 Ok` response with a `x-queueit-redirect` header. We need to extract the `c`(Customer ID) and `e` (Waiting Room ID) query string parameters from the `x-queueit-redirect` header and call `QueueITEngine.run` with them, just as you would normally do with the SDK
-    2. We wait for the `onQueuePassed` callback and we store the QueueITToken passed to the callback
+    1. If the user should be queued we'll get a `200 Ok` response with a `x-queueit-redirect` header. We need to extract the `c`(Customer ID) and `e` (Waiting Room ID) query string parameters from the `x-queueit-redirect` header, create a `QueueITWaitingRoomProvider` and a `QueueITWaitingRoomView` with them, call `TryPass` and show the waiting room with `show:targetUrl:`, just as you would normally do with the SDK ([read more about it here](#usage))
+    2. We wait for the `notifyViewPassedQueue` callback and we store the QueueITToken passed to the callback (if the `QueueTryPassResult` is already passed through, the QueueITToken is its `queueToken`)
     3. We can repeat the API request, this time appending the `queueittoken={QueueITToken}` query string parameter, to prevent the server-side connector from intercepting the call again
     4. We store the Queue-it cookies from the final response, so they can be set in other API calls
-    
-    ![API Integration Flow](https://github.com/queueit/ios-webui-sdk/blob/master/documentation/App%20+%20Connector%20integration%20with%20QueueITToken.png "App Integration Flow")
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant API as Your API (Queue-it connector)
+    participant SDK as Queue-it SDK
+    participant WR as Waiting room (WebView)
+
+    App->>API: Request with x-queueit-ajaxpageurl header<br/>(+ Queue-it cookie, if stored)
+    alt No x-queueit-redirect header
+        API-->>App: API response
+        App->>App: Store the Queue-it cookies
+    else x-queueit-redirect header
+        API-->>App: 200 OK with x-queueit-redirect
+        App->>App: Extract c (customer ID) and e (waiting room ID)
+        App->>SDK: Create QueueITWaitingRoomProvider and QueueITWaitingRoomView with c and e
+        App->>SDK: [provider TryPass:]
+        SDK-->>App: notifyProviderSuccess (QueueTryPassResult)
+        alt redirectType is not queue (safetynet, disabled, idle, after event)
+            Note over App,SDK: queueToken is in the result
+        else redirectType is queue
+            opt Modify the queue URL (e.g. add an invite code)
+                App->>App: Update queueUrl on the result
+            end
+            App->>SDK: [waitingRoomView show:targetUrl:]
+            SDK->>WR: Open the waiting room
+            WR-->>SDK: User's turn
+            SDK-->>App: notifyViewPassedQueue (queueitToken)
+        end
+        App->>API: Repeat the request with ?queueittoken=...
+        API-->>App: API response + Queue-it cookies
+        App->>App: Store the Queue-it cookies
+    end
+```
 
 ## Client-side and server-side mobile integration (hybrid) with Queue-it Bring Your Own CDN
 
 > Note: This only applies if you are using the Mobile SDK as a client-side protection *and* are using server-side protection using the Queue-it KnownUser Connector.
 
-> If you are only using client-side protection, using the Mobile SDK, refer to the documentation in the [main documentation](https://github.com/queueit/android-webui-sdk/blob/master/README.md)
+> If you are only using client-side protection, using the Mobile SDK, refer to the [Usage](#usage) section above.
 
-If you are running Queue-it behind your own reverse proxy the Mobile Integration can also be setup to run behind your proxy. For the hybrid setup, your KnownUser connector will also need to run in "Bring Your Own CDN" mode. Please contract Queue-it Support, for any questions the KnownUser Connector Bring Your Own CDN Setup.
+If you are running Queue-it behind your own reverse proxy the Mobile Integration can also be setup to run behind your proxy. For the hybrid setup, your KnownUser connector will also need to run in "Bring Your Own CDN" mode. Please contact Queue-it Support, for any questions the KnownUser Connector Bring Your Own CDN Setup.
 
 ### Setup Mobile SDK with Bring Your Own CDN, with protected API
 
-To do this simply use your Proxy Domain as the `waitingRoomDomain` parameter to `QueueITEngine.run`, after getting the Queue-it intercepted response back from your API.
+To do this simply use your Proxy Domain as the `waitingRoomDomain` parameter when initializing `QueueITWaitingRoomProvider`, after getting the Queue-it intercepted response back from your API.
 
 If you are running Queue-it Waiting Room on the same domain as your normal website, you also need to provide the `queuePathPrefix` parameter, to ensure your proxy can route the request to Queue-it origin.
 
-This means in ahove [Implementation](#implementation) section, point 4.1, you must also provide `waitingRoomDomain` and optionally `queuePathPrefix` to `QueueITEngine.run`, to serve the Waiting Room through your reverse proxy.
+This means in above [Implementation](#implementation) section, point 4.1, you must also provide `waitingRoomDomain` and optionally `queuePathPrefix` to `QueueITWaitingRoomProvider`, to serve the Waiting Room through your reverse proxy.
